@@ -10,6 +10,7 @@ import Settings from './pages/Settings'
 import VehicleSelect from './pages/VehicleSelect'
 import MapEditorPage from './pages/MapEditorPage'
 import DriveIntegration from './pages/DriveIntegration'
+import KnowledgeHub from './pages/KnowledgeHub'
 import AICopilot from './components/AICopilot'
 import { AIProvider } from './contexts/AIContext'
 
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/map-editor" element={<MapEditorPage />} />
           <Route path="/drive" element={<DriveIntegration />} />
+          <Route path="/hub" element={<KnowledgeHub />} />
         </Route>
       </Routes>
       <AICopilot />
