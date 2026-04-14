@@ -119,11 +119,8 @@ export default function AICopilot() {
   const [thinking, setThinking] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Page-aware: inject suggestions whenever route changes.
-  useEffect(() => {
-    const matches = pageSuggestions[location.pathname] ?? []
-    matches.forEach(pushSuggestion)
-  }, [location.pathname, pushSuggestion])
+  // Note: page-aware suggestions are already rendered via contextualSuggestions below.
+  // We do NOT push them to global state to avoid infinite re-render loops.
 
   // Auto scroll chat
   useEffect(() => {

@@ -85,17 +85,23 @@ export default function MapEditor({ map, onChange, onSave, readOnly }: MapEditor
   const resizingCol = useRef<{ index: number; startX: number; startW: number } | null>(null)
   const resizingRow = useRef<{ index: number; startY: number; startH: number } | null>(null)
 
-  // Reset data when map changes
+  // Reset data only when map.name changes (not on every data prop change, to avoid loops)
   useEffect(() => {
     set(map.data)
     setColWidths(Array(map.xAxis.values.length).fill(72))
     setRowHeights(Array(map.yAxis.values.length).fill(30))
     setSelection({ anchor: { r: 0, c: 0 }, focus: { r: 0, c: 0 } })
-  }, [map.name, map.data, map.xAxis.values.length, map.yAxis.values.length, set])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map.name])
 
+  // Notify parent of data changes via ref to avoid dependency loops
+  const onChangeRef = useRef(onChange)
   useEffect(() => {
-    onChange(data)
-  }, [data, onChange])
+    onChangeRef.current = onChange
+  }, [onChange])
+  useEffect(() => {
+    onChangeRef.current(data)
+  }, [data])
 
   // Global stats
   const { minV, maxV } = useMemo(() => {

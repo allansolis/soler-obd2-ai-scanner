@@ -243,23 +243,40 @@ export function AIProvider({ children }: { children: ReactNode }) {
 
   const clearSuggestions = useCallback(() => setSuggestions([]), [])
 
-  const value: AIState = {
-    isActive,
-    currentTask,
-    currentVehicle,
-    recentActions,
-    knowledgeBase,
-    suggestions,
-    setVehicle: setCurrentVehicle,
-    setTask: setCurrentTask,
-    pushSuggestion,
-    clearSuggestions,
-    executeAction,
-    askQuestion,
-    startScan,
-    guidedRepair,
-    guidedTune,
-  }
+  const value: AIState = useMemo(
+    () => ({
+      isActive,
+      currentTask,
+      currentVehicle,
+      recentActions,
+      knowledgeBase,
+      suggestions,
+      setVehicle: setCurrentVehicle,
+      setTask: setCurrentTask,
+      pushSuggestion,
+      clearSuggestions,
+      executeAction,
+      askQuestion,
+      startScan,
+      guidedRepair,
+      guidedTune,
+    }),
+    [
+      isActive,
+      currentTask,
+      currentVehicle,
+      recentActions,
+      knowledgeBase,
+      suggestions,
+      pushSuggestion,
+      clearSuggestions,
+      executeAction,
+      askQuestion,
+      startScan,
+      guidedRepair,
+      guidedTune,
+    ]
+  )
 
   // silence unused warning for isActive setter - it's used internally
   void setIsActive
