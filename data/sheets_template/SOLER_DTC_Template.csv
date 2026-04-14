@@ -1,0 +1,11 @@
+DTC,Marca,Modelo,Anio,Diagnostico AI,Solucion AI,Costo USD AI,Tiempo h AI
+P0420,Mercedes,C280,2008,"=CLAUDE(""Diagnostico tecnico para DTC ""&A2&"" en ""&B2&"" ""&C2&"" ""&D2&"". Max 80 palabras en espanol."")","=CLAUDE(""Solucion real para ""&A2&"" en ""&B2&"" ""&C2&"". Pasos concretos max 60 palabras."")","=CLAUDE(""Solo el costo USD min-max para reparar ""&A2&"" en ""&B2&"" ""&C2&"". Formato: $200-450"")","=CLAUDE(""Solo numero de horas para reparar ""&A2&"". Ej: 2.5"")"
+P0300,Mazda,6,2004,,,,
+P0171,Toyota,Corolla,2020,,,,
+P0128,Honda,Civic,2018,,,,
+P0087,BMW,330i,2019,,,,
+P0011,Nissan,Altima,2017,,,,
+P0420,Ford,F-150,2018,,,,
+P0300,Chevrolet,Silverado,2016,,,,
+P0171,VW,Jetta,2015,,,,
+P0128,Kia,Sorento,2019,,,,
