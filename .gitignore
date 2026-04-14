@@ -31,5 +31,18 @@ Thumbs.db
 data/knowledge_base/*.json
 !data/knowledge_base/initial_kb.json
 
+# Large data files (kept locally, not in repo)
+data/obd-diesel/
+data/datos-tecnicos/
+data/abs-esp/
+data/airbag/
+data/aire-acondicionado/
+data/transmision/
+data/localizacion-componentes/
+data/4lap/
+data/kit-scaner/
+*.rar
+*.pdf
+
 # Vendor git history (keep files, not .git)
 vendor/**/.git/
