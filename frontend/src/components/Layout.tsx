@@ -11,6 +11,7 @@ import {
   WifiOff,
   Car,
   Grid3x3,
+  HardDrive,
 } from 'lucide-react'
 
 interface LayoutProps {
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/tuning', icon: Cpu, label: 'ECU Maps' },
   { to: '/map-editor', icon: Grid3x3, label: 'Editor' },
   { to: '/ai', icon: MessageSquare, label: 'AI Chat' },
+  { to: '/drive', icon: HardDrive, label: 'Drive' },
   { to: '/history', icon: History, label: 'History' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
