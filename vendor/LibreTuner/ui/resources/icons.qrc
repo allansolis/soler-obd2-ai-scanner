@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/rom-file.png</file>
+        <file>icons/add.svg</file>
+        <file>icons/remove.svg</file>
+        <file>icons/LibreTuner.png</file>
+        <file>icons/libretuner_transparent.png</file>
+        <file>icons/maximize.svg</file>
+        <file>icons/close.svg</file>
+        <file>icons/minimize.svg</file>
+        <file>icons/restore.svg</file>
+        <file>icons/drop-down-arrow.svg</file>
+        <file>icons/branch-closed.png</file>
+        <file>icons/branch-end.png</file>
+        <file>icons/branch-more.png</file>
+        <file>icons/branch-open.png</file>
+        <file>icons/vline.png</file>
+        <file>icons/download.svg</file>
+        <file>icons/new_file.svg</file>
+        <file>icons/file_text.svg</file>
+        <file>icons/copy.svg</file>
+        <file>icons/trash.svg</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,5 @@
+
+namespace lt
+{
+
+} // namespace lt

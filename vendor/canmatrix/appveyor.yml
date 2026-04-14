@@ -1,0 +1,39 @@
+# appveyor.yml - https://www.appveyor.com/docs/lang/python
+---
+image:
+  - Visual Studio 2022
+
+skip_branch_with_pr: true
+
+environment:
+  matrix:
+    - TOXENV: py38
+    - TOXENV: py39
+    - TOXENV: py310
+    - TOXENV: py311
+    - TOXENV: dist
+
+matrix:
+  allow_failures:
+    - TOXENV: pypy # until we get pypy in chocolatey
+    - TOXENV: pypy3 # until we get pypy3 in chocolatey
+
+# https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
+init:
+  - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
+
+install:
+  - if "%TOXENV%"=="pypy3" choco install python.pypy3
+  - py -m pip install tox
+  - ps: Update-AppveyorBuild -Version "v$(py get_version.py) b$Env:APPVEYOR_BUILD_NUMBER"
+
+build_script:
+  - py -m tox
+  - py -m tox -e codecov
+
+artifacts:
+  - path: "dist\\*"
+
+# https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
+on_finish:
+  - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
