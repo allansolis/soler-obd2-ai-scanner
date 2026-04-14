@@ -1,0 +1,499 @@
+.dialog-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* Allow flex shrinking for proper scrolling */
+  overflow: hidden; /* Contain scrolling to dialog-container child */
+  background: var(--bg-primary);
+}
+
+.dialog-view .editor-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dialog-view .icon-btn {
+  padding: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-view .icon-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Use .dialog-view parent to override App.css max-width: 600px constraint */
+.dialog-view .dialog-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px; /* Increased from 16px for more spacing between sections */
+  min-height: 0; /* Critical for nested flex scroll */
+  max-height: 100%; /* Explicit height constraint for scroll */
+  max-width: none; /* Override App.css 600px constraint */
+  width: 100%;
+}
+
+/* Multi-column layout support for dialogs with East/West positioned panels */
+.dialog-view .dialog-row-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Single column within row (for West/East positioning) */
+.dialog-view .dialog-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+/* Field layout - use .dialog-view parent for specificity over App.css */
+.dialog-view .settings-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start; /* Left-justify content */
+  gap: 12px;
+  padding: 12px 16px; /* Add padding for taller rows */
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.dialog-view .settings-field label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  padding: 2px;
+  border-radius: 50%;
+  margin-left: 4px;
+}
+
+.help-icon:hover {
+  opacity: 1;
+  background: rgba(var(--accent-rgb, 100, 149, 237), 0.2);
+  transform: scale(1.15);
+}
+
+.help-icon:focus {
+  opacity: 1;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.dialog-view .field-input-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Left-justify inputs */
+  gap: 8px;
+}
+
+.dialog-view .field-input-wrap input {
+  flex: 1;
+  min-width: 120px;
+  max-width: 400px;
+  width: auto; /* Override App.css width: 80px */
+  padding: 12px 16px; /* Increased from 8px 12px for taller inputs */
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 14px;
+  text-align: left;
+}
+
+.dialog-view .field-input-wrap input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.dialog-view .field-input-wrap input[type="text"] {
+  max-width: 500px;
+}
+
+.dialog-view .field-input-wrap select {
+  flex: 1;
+  min-width: 150px;
+  max-width: 400px;
+  padding: 12px 16px; /* Increased from 8px 12px for taller selects */
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-default);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.dialog-view .field-input-wrap select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.dialog-view .settings-field input[type="checkbox"] {
+  margin-right: 8px;
+  width: 20px; /* Increased from 16px */
+  height: 20px; /* Increased from 16px */
+}
+
+.field-unit {
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 40px;
+}
+
+.field-help {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.field-loading {
+  padding: 8px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.dialog-label {
+  font-size: 14px;
+  color: var(--text-primary);
+  padding: 8px 0;
+}
+
+/* Use .dialog-view parent for higher specificity over App.css */
+.dialog-view .nested-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden; /* Contain panel content */
+  display: flex;
+  flex-direction: column;
+  min-height: 270px; /* Minimum height for each section panel (~50% taller) */
+  flex-shrink: 0; /* Prevent flex shrinking below min-height */
+  width: 100%; /* Expand to fill container width */
+  max-width: 100%; /* Prevent horizontal overflow */
+}
+
+/* Allow panels with tables to grow and fill space */
+.dialog-view .nested-panel:has(.table-editor-2d) {
+  flex: 1;
+  min-height: 400px; /* Larger min-height for table panels */
+}
+
+.dialog-view .panel-title {
+  padding: 16px 24px; /* Increased from 10px 16px for taller header */
+  background: var(--bg-subtle);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  text-align: left; /* Left-justify panel titles */
+}
+
+.panel-content {
+  padding: 24px; /* Increased from 16px for taller sections */
+  display: flex;
+  flex-direction: column;
+  gap: 18px; /* Increased from 12px for taller sections */
+  flex: 1;
+  min-height: 0; /* Allow flex shrinking for proper scrolling */
+  overflow-y: auto; /* Allow panel content to scroll if needed */
+}
+
+.panel-loading {
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.embedded-table-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.embedded-table-link:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+}
+
+.embedded-graph-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border-color);
+  border-radius: 6px;
+  color: var(--text-muted);
+}
+
+.indicator-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.indicator-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: background 0.2s;
+}
+
+.indicator-light.on {
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+
+.indicator-light.off {
+  background: var(--border-strong);
+}
+
+.indicator-label {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+/* Curve Editor Styles */
+.embedded-curve {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.curve-title {
+  padding: 10px 16px;
+  background: var(--bg-subtle);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.curve-chart {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.curve-svg {
+  background: var(--bg-primary);
+  border-radius: 4px;
+}
+
+/* Command Button Styles */
+.command-button-field {
+  padding: 8px 0;
+}
+
+.command-button {
+  padding: 10px 20px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.command-button:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.command-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.command-button.executing {
+  background: var(--warning);
+  border-color: var(--warning);
+}
+
+/* Command Warning Dialog */
+.command-warning-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.command-warning-dialog {
+  background: var(--bg-primary);
+  border: 1px solid var(--warning);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 480px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.command-warning-dialog h3 {
+  margin: 0 0 16px 0;
+  color: var(--warning);
+  font-size: 18px;
+}
+
+.command-warning-dialog p {
+  margin: 0 0 12px 0;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.command-warning-dialog ul {
+  margin: 0 0 16px 0;
+  padding-left: 20px;
+  color: var(--text-secondary);
+}
+
+.command-warning-dialog li {
+  margin-bottom: 6px;
+}
+
+.command-warning-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.command-warning-buttons button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+
+.command-warning-buttons button:hover {
+  background: var(--bg-hover);
+}
+
+.command-warning-buttons button.danger {
+  background: var(--error);
+  border-color: var(--error);
+  color: white;
+}
+
+.command-warning-buttons button.danger:hover {
+  background: #ff6666;
+}
+
+/* Description panel at bottom of dialog */
+.dialog-description-panel {
+  padding: 12px 20px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  min-height: 60px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.dialog-description-panel strong {
+  color: var(--accent);
+  font-size: 14px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.dialog-description-panel p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.dialog-description-panel .description-placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Search result highlight flash animation */
+@keyframes search-highlight-flash {
+  0% {
+    background-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+.search-highlight-flash {
+  animation: search-highlight-flash 2s ease-out;
+  border-radius: 4px;
+}
+
+/* Panel load error feedback */
+.panel-load-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin: 8px 0;
+  background: rgba(251, 146, 60, 0.1);
+  border: 1px dashed #fb923c;
+  border-radius: 6px;
+  color: #fb923c;
+  font-size: 13px;
+}
+
+.panel-load-error .panel-error-icon {
+  font-size: 16px;
+}

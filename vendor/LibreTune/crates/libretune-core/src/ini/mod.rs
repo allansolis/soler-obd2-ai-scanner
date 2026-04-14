@@ -1,0 +1,392 @@
+//! INI Definition File Parser
+//!
+//! Parses standard ECU INI definition files that define ECU configurations.
+//! These files describe:
+//! - ECU signature and version info
+//! - Constants (editable parameters)
+//! - Output channels (real-time data)
+//! - Table editor definitions
+//! - Gauge configurations
+//! - Menu structure
+
+mod constants;
+mod error;
+pub mod expression;
+mod gauges;
+pub mod inc_tables;
+mod output_channels;
+mod parser;
+mod tables;
+mod types;
+
+pub use constants::Constant;
+pub use error::IniError;
+pub use gauges::GaugeConfig;
+pub use inc_tables::{IncTable, IncTableCache};
+pub use output_channels::OutputChannel;
+pub use tables::{CurveDefinition, TableDefinition, TableType};
+pub use types::*;
+
+use std::collections::HashMap;
+use std::path::Path;
+
+/// Complete ECU definition parsed from an INI file
+#[derive(Debug, Clone)]
+pub struct EcuDefinition {
+    /// ECU type detected from signature
+    pub ecu_type: EcuType,
+
+    /// ECU signature string (e.g., "speeduino 202310")
+    pub signature: String,
+
+    /// Query command to retrieve signature
+    pub query_command: String,
+
+    /// Display version info
+    pub version_info: String,
+
+    /// INI spec version
+    pub ini_spec_version: String,
+
+    /// #define macros (name -> list of values)
+    /// Used to expand $references in bits field options
+    pub defines: HashMap<String, Vec<String>>,
+
+    /// Endianness of ECU data
+    pub endianness: Endianness,
+
+    /// Page sizes for ECU memory
+    pub page_sizes: Vec<u16>,
+
+    /// Total number of pages
+    pub n_pages: u8,
+
+    /// Protocol settings for ECU communication
+    pub protocol: ProtocolSettings,
+
+    /// Editable constants/parameters
+    pub constants: HashMap<String, Constant>,
+
+    /// Real-time output channels
+    pub output_channels: HashMap<String, OutputChannel>,
+
+    /// Table editor definitions
+    pub tables: HashMap<String, TableDefinition>,
+
+    /// Lookup map from table map_name to table name
+    /// This allows finding tables by either their name or map_name
+    pub table_map_to_name: HashMap<String, String>,
+
+    /// Curve editor definitions (2D curves)
+    pub curves: HashMap<String, CurveDefinition>,
+
+    /// Lookup map from curve map_name to curve name (if curves have map names)
+    /// Similar to table_map_to_name for consistent lookup patterns
+    pub curve_map_to_name: HashMap<String, String>,
+
+    /// Gauge configurations
+    pub gauges: HashMap<String, GaugeConfig>,
+
+    /// Setting groups for UI organization
+    pub setting_groups: HashMap<String, SettingGroup>,
+
+    /// Menu definitions
+    pub menus: Vec<Menu>,
+
+    /// Dialog/layout definitions
+    pub dialogs: HashMap<String, DialogDefinition>,
+
+    /// Help topic definitions
+    pub help_topics: HashMap<String, HelpTopic>,
+
+    /// Datalog output channel selections
+    pub datalog_entries: Vec<DatalogEntry>,
+
+    /// PC Variables (like tsCanId) used for variable substitution in commands
+    /// Maps variable name -> byte value (e.g., "tsCanId" -> 0x00 for CAN ID 0)
+    pub pc_variables: HashMap<String, u8>,
+
+    /// Default values for constants (from [Defaults] section)
+    /// Maps constant name -> default value
+    pub default_values: HashMap<String, f64>,
+
+    /// FrontPage configuration for default dashboard layout
+    pub frontpage: Option<FrontPageConfig>,
+
+    /// Indicator panels (groups of boolean indicators)
+    pub indicator_panels: HashMap<String, IndicatorPanel>,
+
+    /// Controller commands
+    pub controller_commands: HashMap<String, ControllerCommand>,
+
+    /// Logger definitions
+    pub logger_definitions: HashMap<String, LoggerDefinition>,
+
+    /// Port editor configurations
+    pub port_editors: HashMap<String, PortEditorConfig>,
+
+    /// Reference tables
+    pub reference_tables: HashMap<String, ReferenceTable>,
+
+    /// FTP browser configurations
+    pub ftp_browsers: HashMap<String, FTPBrowserConfig>,
+
+    /// Datalog views
+    pub datalog_views: HashMap<String, DatalogView>,
+
+    /// Key actions (keyboard shortcuts)
+    pub key_actions: Vec<KeyAction>,
+
+    /// VE Analysis configuration (from [VeAnalyze] section)
+    pub ve_analyze: Option<VeAnalyzeConfig>,
+
+    /// WUE Analysis configuration (from [WueAnalyze] section)
+    pub wue_analyze: Option<WueAnalyzeConfig>,
+
+    /// Gamma Enrichment configuration (from [GammaE] section)
+    pub gamma_e: Option<GammaEConfig>,
+
+    /// maintainConstantValue entries (from [ConstantsExtensions] section)
+    /// These define expressions that auto-update constants
+    pub maintain_constant_values: Vec<MaintainConstantValue>,
+
+    /// Constants that require ECU power cycle after change
+    pub requires_power_cycle: Vec<String>,
+}
+
+impl EcuDefinition {
+    /// Parse an ECU definition from an INI file
+    ///
+    /// Handles various encodings (UTF-8, Windows-1252, Latin-1) by using
+    /// lossy conversion for non-UTF-8 files.
+    ///
+    /// This method supports the `#include` directive, allowing INI files
+    /// to include other INI files with relative path resolution.
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, IniError> {
+        parser::parse_ini_from_path(path.as_ref())
+    }
+
+    /// Parse an ECU definition from a string
+    ///
+    /// Note: This method does not support `#include` directives since there
+    /// is no file path context for resolving relative includes. Use `from_file`
+    /// if you need `#include` support.
+    #[allow(clippy::should_implement_trait)]
+    pub fn from_str(content: &str) -> Result<Self, IniError> {
+        parser::parse_ini(content)
+    }
+
+    /// Get a constant by name
+    pub fn get_constant(&self, name: &str) -> Option<&Constant> {
+        self.constants.get(name)
+    }
+
+    /// Get an output channel by name
+    pub fn get_output_channel(&self, name: &str) -> Option<&OutputChannel> {
+        self.output_channels.get(name)
+    }
+
+    /// Get a table definition by name
+    pub fn get_table(&self, name: &str) -> Option<&TableDefinition> {
+        self.tables.get(name)
+    }
+
+    /// Get a table definition by name or map_name
+    /// Menus often reference tables by map_name (e.g., "veTable1Map"),
+    /// but tables are indexed by name (e.g., "veTable1Tbl")
+    pub fn get_table_by_name_or_map(&self, name_or_map: &str) -> Option<&TableDefinition> {
+        // First try direct lookup by name
+        if let Some(table) = self.tables.get(name_or_map) {
+            return Some(table);
+        }
+        // Then try lookup by map_name
+        if let Some(table_name) = self.table_map_to_name.get(name_or_map) {
+            return self.tables.get(table_name);
+        }
+        None
+    }
+
+    /// Get a curve definition by name or map_name
+    /// Similar to get_table_by_name_or_map for consistent lookup patterns
+    pub fn get_curve_by_name_or_map(&self, name_or_map: &str) -> Option<&CurveDefinition> {
+        // First try direct lookup by name
+        if let Some(curve) = self.curves.get(name_or_map) {
+            return Some(curve);
+        }
+        // Then try lookup by map_name
+        if let Some(curve_name) = self.curve_map_to_name.get(name_or_map) {
+            return self.curves.get(curve_name);
+        }
+        None
+    }
+
+    /// Get the total ECU memory size across all pages
+    pub fn total_memory_size(&self) -> usize {
+        self.page_sizes.iter().map(|s| *s as usize).sum()
+    }
+
+    /// Compute a structural hash of the INI definition
+    ///
+    /// This hash is based on constant names, types, pages, offsets, and scales.
+    /// It changes when the INI structure changes, but not for cosmetic changes
+    /// like label updates or help text.
+    pub fn compute_structural_hash(&self) -> String {
+        use std::collections::hash_map::DefaultHasher;
+        use std::collections::BTreeMap;
+        use std::hash::{Hash, Hasher};
+
+        let mut hasher = DefaultHasher::new();
+
+        // Hash signature
+        self.signature.hash(&mut hasher);
+
+        // Hash page configuration
+        self.n_pages.hash(&mut hasher);
+        for size in &self.page_sizes {
+            size.hash(&mut hasher);
+        }
+
+        // Sort constants by name for deterministic ordering
+        let sorted_constants: BTreeMap<_, _> = self
+            .constants
+            .iter()
+            .filter(|(_, c)| !c.is_pc_variable)
+            .collect();
+
+        for (name, constant) in sorted_constants {
+            // Hash structural properties only
+            name.hash(&mut hasher);
+            format!("{:?}", constant.data_type).hash(&mut hasher);
+            constant.page.hash(&mut hasher);
+            constant.offset.hash(&mut hasher);
+            // Convert floats to bits for hashing
+            constant.scale.to_bits().hash(&mut hasher);
+            constant.translate.to_bits().hash(&mut hasher);
+        }
+
+        format!("{:016x}", hasher.finish())
+    }
+
+    /// Generate a constant manifest for saving with tune files
+    pub fn generate_constant_manifest(&self) -> Vec<crate::tune::ConstantManifestEntry> {
+        let mut manifest = Vec::new();
+
+        for (name, constant) in &self.constants {
+            // Skip PC variables
+            if constant.is_pc_variable {
+                continue;
+            }
+
+            manifest.push(crate::tune::ConstantManifestEntry {
+                name: name.clone(),
+                data_type: format!("{:?}", constant.data_type),
+                page: constant.page,
+                offset: constant.offset,
+                scale: constant.scale,
+                translate: constant.translate,
+            });
+        }
+
+        // Sort by name for consistent ordering
+        manifest.sort_by(|a, b| a.name.cmp(&b.name));
+
+        manifest
+    }
+
+    /// Generate INI metadata for saving with tune files
+    pub fn generate_ini_metadata(&self, ini_filename: &str) -> crate::tune::IniMetadata {
+        crate::tune::IniMetadata {
+            signature: self.signature.clone(),
+            name: ini_filename.to_string(),
+            hash: self.compute_structural_hash(),
+            spec_version: self.ini_spec_version.clone(),
+            saved_at: chrono::Utc::now().to_rfc3339(),
+        }
+    }
+
+    /// Derive INI-driven feature capabilities for UI gating.
+    pub fn capabilities(&self) -> IniCapabilities {
+        IniCapabilities {
+            has_constants: !self.constants.is_empty(),
+            has_output_channels: !self.output_channels.is_empty(),
+            has_tables: !self.tables.is_empty(),
+            has_curves: !self.curves.is_empty(),
+            has_gauges: !self.gauges.is_empty(),
+            has_frontpage: self.frontpage.is_some(),
+            has_dialogs: !self.dialogs.is_empty(),
+            has_help_topics: !self.help_topics.is_empty(),
+            has_setting_groups: !self.setting_groups.is_empty(),
+            has_pc_variables: !self.pc_variables.is_empty(),
+            has_default_values: !self.default_values.is_empty(),
+            has_datalog_entries: !self.datalog_entries.is_empty(),
+            has_datalog_views: !self.datalog_views.is_empty(),
+            has_logger_definitions: !self.logger_definitions.is_empty(),
+            has_controller_commands: !self.controller_commands.is_empty(),
+            has_port_editors: !self.port_editors.is_empty(),
+            has_reference_tables: !self.reference_tables.is_empty(),
+            has_key_actions: !self.key_actions.is_empty(),
+            has_ve_analyze: self.ve_analyze.is_some(),
+            has_wue_analyze: self.wue_analyze.is_some(),
+            has_gamma_e: self.gamma_e.is_some(),
+            supports_console: self.ecu_type.supports_console()
+                && !self.controller_commands.is_empty(),
+        }
+    }
+}
+
+impl Default for EcuDefinition {
+    fn default() -> Self {
+        Self {
+            ecu_type: EcuType::Unknown,
+            signature: String::new(),
+            query_command: "Q".to_string(),
+            version_info: String::new(),
+            ini_spec_version: "3.64".to_string(),
+            defines: HashMap::new(),
+            endianness: Endianness::default(),
+            page_sizes: Vec::new(),
+            n_pages: 0,
+            protocol: ProtocolSettings::default(),
+            constants: HashMap::new(),
+            output_channels: HashMap::new(),
+            tables: HashMap::new(),
+            table_map_to_name: HashMap::new(),
+            curves: HashMap::new(),
+            curve_map_to_name: HashMap::new(),
+            gauges: HashMap::new(),
+            setting_groups: HashMap::new(),
+            menus: Vec::new(),
+            dialogs: HashMap::new(),
+            datalog_entries: Vec::new(),
+            help_topics: HashMap::new(),
+            pc_variables: HashMap::new(),
+            default_values: HashMap::new(),
+            frontpage: None,
+            indicator_panels: HashMap::new(),
+            controller_commands: HashMap::new(),
+            logger_definitions: HashMap::new(),
+            port_editors: HashMap::new(),
+            reference_tables: HashMap::new(),
+            ftp_browsers: HashMap::new(),
+            datalog_views: HashMap::new(),
+            key_actions: Vec::new(),
+            ve_analyze: None,
+            wue_analyze: None,
+            gamma_e: None,
+            maintain_constant_values: Vec::new(),
+            requires_power_cycle: Vec::new(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_definition() {
+        let def = EcuDefinition::default();
+        assert_eq!(def.query_command, "Q");
+        assert!(def.constants.is_empty());
+    }
+}

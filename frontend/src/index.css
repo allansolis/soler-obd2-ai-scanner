@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --color-obd-bg: #020817;
+  --color-obd-surface: #0f172a;
+  --color-obd-surface-2: #1e293b;
+  --color-obd-border: #1e293b;
+  --color-obd-accent: #0ea5e9;
+  --color-obd-purple: #6366f1;
+  --color-obd-green: #22c55e;
+  --color-obd-yellow: #eab308;
+  --color-obd-red: #ef4444;
+  --color-obd-orange: #f97316;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1e293b #020817;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #020817;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #020817;
+  color: #e2e8f0;
+  font-family: 'Outfit', sans-serif;
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(14, 165, 233, 0.3), 0 0 10px rgba(14, 165, 233, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.5), 0 0 30px rgba(14, 165, 233, 0.2);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes gauge-fill {
+  from {
+    stroke-dashoffset: 283;
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.gauge-arc {
+  animation: gauge-fill 1s ease-out forwards;
+}
