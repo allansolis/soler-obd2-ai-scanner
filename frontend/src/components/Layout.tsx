@@ -9,6 +9,7 @@ import {
   Activity,
   Wifi,
   WifiOff,
+  Car,
 } from 'lucide-react'
 
 interface LayoutProps {
@@ -17,6 +18,7 @@ interface LayoutProps {
 
 const navItems = [
   { to: '/', icon: Gauge, label: 'Dashboard' },
+  { to: '/vehicle', icon: Car, label: 'Vehiculo' },
   { to: '/dtc', icon: AlertTriangle, label: 'Diagnostics' },
   { to: '/tuning', icon: Cpu, label: 'ECU Maps' },
   { to: '/ai', icon: MessageSquare, label: 'AI Chat' },

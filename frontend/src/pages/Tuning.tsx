@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Download, CheckCircle, XCircle, AlertTriangle, Cpu } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Download, CheckCircle, XCircle, AlertTriangle, Cpu, ShieldCheck, Zap } from 'lucide-react'
+import BackupConfirmModal from '../components/BackupConfirmModal'
 import {
   LineChart,
   Line,
@@ -70,22 +71,108 @@ const safetyChecks = [
 
 export default function Tuning() {
   const [selectedProfile, setSelectedProfile] = useState<Profile>('stage1')
+  const [vehicle, setVehicle] = useState<{brand:string; model:string; version:string} | null>(null)
+  const [showBackupModal, setShowBackupModal] = useState(false)
+  const [appliedProfile, setAppliedProfile] = useState<Profile | null>(null)
   const heatmap = generateHeatmap(selectedProfile)
   const maxVal = Math.max(...heatmap.flat())
   const profileConf = profiles.find(p => p.id === selectedProfile)!
 
+  useEffect(() => {
+    const saved = localStorage.getItem('soler-vehicle')
+    if (saved) setVehicle(JSON.parse(saved))
+  }, [])
+
+  const handleApply = () => {
+    if (!vehicle) {
+      alert('Primero selecciona un vehiculo en la seccion "Vehiculo"')
+      return
+    }
+    setShowBackupModal(true)
+  }
+
+  const handleBackupConfirmed = () => {
+    setAppliedProfile(selectedProfile)
+    setShowBackupModal(false)
+  }
+
   return (
     <div className="p-6 space-y-6">
+      {showBackupModal && (
+        <BackupConfirmModal
+          vehicle={vehicle}
+          profileName={profileConf.label}
+          onCancel={() => setShowBackupModal(false)}
+          onConfirm={handleBackupConfirmed}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">ECU Tuning Maps</h1>
-          <p className="text-sm text-slate-500">Fuel and ignition map visualization</p>
+          <p className="text-sm text-slate-500">
+            {vehicle
+              ? `${vehicle.brand} ${vehicle.model} — ${vehicle.version}`
+              : 'Selecciona un vehiculo primero en "Vehiculo"'}
+          </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-obd-purple/10 text-obd-purple border border-obd-purple/30 hover:bg-obd-purple/20 text-sm font-medium transition-all">
-          <Download className="w-4 h-4" />
-          Export Map
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleApply}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-obd-accent text-white hover:bg-obd-accent/90 text-sm font-medium transition-all"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            Aplicar con Backup
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-obd-purple/10 text-obd-purple border border-obd-purple/30 hover:bg-obd-purple/20 text-sm font-medium transition-all">
+            <Download className="w-4 h-4" />
+            Export Map
+          </button>
+        </div>
+      </div>
+
+      {appliedProfile && (
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 flex items-center gap-3">
+          <Zap className="w-5 h-5 text-emerald-400" />
+          <div className="text-sm text-emerald-100">
+            Perfil <strong>{profiles.find(p => p.id === appliedProfile)?.label}</strong> aplicado.
+            Backup original guardado — puedes restaurar en cualquier momento desde Historial.
+          </div>
+        </div>
+      )}
+
+      {/* Capacidades reales */}
+      <div className="bg-obd-surface/50 border border-obd-border rounded-xl p-4">
+        <div className="text-xs font-semibold text-slate-400 uppercase mb-3">
+          Capacidades actuales del sistema
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <span className="text-slate-300">Generar mapas ECU</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <span className="text-slate-300">Verificaciones seguridad</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <span className="text-slate-300">Backup SHA-256</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <span className="text-slate-300">Simulacion HP/Torque</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <span className="text-slate-400">Flash ECU real: requiere hardware J2534/KESS</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <span className="text-slate-400">Lectura binario ECU: via adaptador profesional</span>
+          </div>
+        </div>
       </div>
 
       {/* Profile Selector */}

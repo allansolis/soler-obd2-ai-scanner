@@ -120,7 +120,7 @@ export default function Settings() {
                 : 'border-obd-border text-slate-400 hover:border-slate-600'
             }`}
           >
-            Metric (km/h, \u00B0C)
+            Metric (km/h, °C)
           </button>
           <button
             onClick={() => setUnits('imperial')}
@@ -130,7 +130,7 @@ export default function Settings() {
                 : 'border-obd-border text-slate-400 hover:border-slate-600'
             }`}
           >
-            Imperial (mph, \u00B0F)
+            Imperial (mph, °F)
           </button>
         </div>
       </div>

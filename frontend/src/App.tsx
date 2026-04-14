@@ -7,6 +7,7 @@ import Tuning from './pages/Tuning'
 import AIChat from './pages/AIChat'
 import History from './pages/History'
 import Settings from './pages/Settings'
+import VehicleSelect from './pages/VehicleSelect'
 
 export default function App() {
   const { sensorData, isConnected, connect, disconnect } = useWebSocket()
@@ -25,6 +26,7 @@ export default function App() {
             />
           }
         />
+        <Route path="/vehicle" element={<VehicleSelect />} />
         <Route path="/dtc" element={<Diagnostics />} />
         <Route path="/tuning" element={<Tuning />} />
         <Route path="/ai" element={<AIChat />} />
