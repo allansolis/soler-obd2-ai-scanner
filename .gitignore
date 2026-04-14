@@ -48,3 +48,4 @@ data/kit-scaner/
 vendor/**/.git/
 config/google_credentials.json
 config/google_token.json
+config/google_token*.json
