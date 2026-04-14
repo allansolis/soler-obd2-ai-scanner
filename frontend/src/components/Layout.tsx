@@ -10,6 +10,7 @@ import {
   Wifi,
   WifiOff,
   Car,
+  Grid3x3,
 } from 'lucide-react'
 
 interface LayoutProps {
@@ -21,6 +22,7 @@ const navItems = [
   { to: '/vehicle', icon: Car, label: 'Vehiculo' },
   { to: '/dtc', icon: AlertTriangle, label: 'Diagnostics' },
   { to: '/tuning', icon: Cpu, label: 'ECU Maps' },
+  { to: '/map-editor', icon: Grid3x3, label: 'Editor' },
   { to: '/ai', icon: MessageSquare, label: 'AI Chat' },
   { to: '/history', icon: History, label: 'History' },
   { to: '/settings', icon: Settings, label: 'Settings' },

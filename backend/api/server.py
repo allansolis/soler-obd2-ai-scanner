@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.api.routes import router as api_router, set_emulator
+from backend.api.routes_ai import router as ai_router
 from backend.config import settings, PROJECT_DIR
 from backend.database.db import init_db, close_db
 from backend.emulator.elm327_sim import ELM327Emulator
@@ -82,6 +83,7 @@ def create_app() -> FastAPI:
 
     # -- API routes --
     app.include_router(api_router)
+    app.include_router(ai_router)
 
     # -- Global exception handler --
     @app.exception_handler(Exception)

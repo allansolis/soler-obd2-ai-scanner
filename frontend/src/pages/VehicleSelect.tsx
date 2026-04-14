@@ -31,6 +31,7 @@ const VEHICLE_DATABASE = {
     'Bongo': ['2013-2020 DC3.5 2.5BT'],
   },
   'Mercedes-Benz': {
+    'C280': ['2008 3.0L V6 M272 (ME9.7)'],
     'Sprinter': ['2012-2020 415 DCM3.5'],
     '1620': ['2010-2018'],
     '2644': ['2010-2018'],
@@ -74,6 +75,7 @@ const VEHICLE_DATABASE = {
     'Civic': ['2016-2021 1.5T', '2020-2024 2.0'],
   },
   'Mazda': {
+    'Mazda6': ['2004 2.3L L3 (Denso 275800)'],
     'Mazda3': ['2014-2019 Skyactiv-G'],
     'CX-5': ['2013-2020 Skyactiv-D'],
   },

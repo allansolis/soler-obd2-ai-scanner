@@ -505,6 +505,39 @@ VEHICLE_DATABASE: list[VehicleECUConfig] = [
     ),
 
     # -----------------------------------------------------------------------
+    # 14b. Mercedes C280 2008 (nuevo)
+    # -----------------------------------------------------------------------
+    VehicleECUConfig(
+        make="Mercedes-Benz",
+        model="C280 W204",
+        year_range="2008",
+        engine="3.0L V6 M272 E30 (231 CV)",
+        ecu_type="ME9.7",
+        ecu_manufacturer="Bosch",
+        fuel_type="gasoline",
+        turbo=False,
+        available_maps=_GASOLINE_MAPS_FULL,
+        known_issues=[
+            "M272: desgaste prematuro del engranaje del balanceador (balance shaft gear) tipico en 2005-2008, revisar antes de tunear",
+            "Cadenas de distribucion estiradas con alto kilometraje",
+            "Sensores de masa de aire (MAF) propensos a suciedad",
+            "Bobinas de encendido individuales con fallas recurrentes",
+            "Sellos de inyectores perdiendo compresion y causando misfires",
+            "Tapones del camshaft adjuster solenoid - fuga de aceite comun",
+        ],
+        tuning_notes=(
+            "ECU Bosch ME9.7 con OBD-II CAN (500k). Motor M272 V6 3.0L naturalmente aspirado. "
+            "Stage 1: +15-25 CV via avance de encendido optimizado, tabla de combustible mas precisa, "
+            "y remocion del limitador suave en bajas RPM. Se pueden ganar +20 Nm de torque. "
+            "IMPORTANTE: revisar estado del balance shaft gear antes de tunear - si hay ruido, "
+            "reparar primero. Combustible recomendado 95 RON minimo. No aumentar rev limit sobre "
+            "6800 RPM sin inspeccionar resortes de valvulas. Mejora notable en respuesta de "
+            "mariposa con tabla de respuesta mas lineal."
+        ),
+        supported_operations=["stage1", "read", "write", "backup", "restore", "verify_cs", "checksum_fix"],
+    ),
+
+    # -----------------------------------------------------------------------
     # 15. Mercedes 1620
     # -----------------------------------------------------------------------
     VehicleECUConfig(
@@ -1643,6 +1676,42 @@ VEHICLE_DATABASE: list[VehicleECUConfig] = [
             "uso en carga y reparto."
         ),
         supported_operations=_OPS_DIESEL_FULL,
+    ),
+
+    # -----------------------------------------------------------------------
+    # 56. Mazda 6 2004 2.3L (nuevo)
+    # -----------------------------------------------------------------------
+    VehicleECUConfig(
+        make="Mazda",
+        model="Mazda6 (GG1)",
+        year_range="2003-2005",
+        engine="2.3L L3-VE (166 CV) MZR",
+        ecu_type="Denso 275800",
+        ecu_manufacturer="Denso",
+        fuel_type="gasoline",
+        turbo=False,
+        available_maps=_GASOLINE_MAPS_FULL,
+        known_issues=[
+            "Bobinas de encendido COP con fallas por temperatura - causa P0300-P0304",
+            "VVT solenoid con acumulacion de carbonilla (P0012, P0011)",
+            "Sensor MAF contaminado produce STFT/LTFT fuera de rango",
+            "Corrosion en conectores de sensores O2 posteriores",
+            "Termostato trabado abierto - P0128",
+            "Tapas de valvulas con fuga de aceite - comun despues de 150,000km",
+            "Sensor de posicion de cigueñal (CKP) con fallas intermitentes",
+        ],
+        tuning_notes=(
+            "ECU Denso 275800 con protocolo KWP2000 (ISO 14230) fast init. "
+            "Motor L3-VE MZR 2.3L naturalmente aspirado con VVT en admision. "
+            "Stage 1: +8-12 CV via tabla de encendido optimizada y AFR mas rico "
+            "bajo carga. Aprovechar margen antiknock hasta 37 deg BTDC seguros. "
+            "El swap a la version MPS (turbo) es comun en esta plataforma. "
+            "IMPORTANTE: verificar VVT antes de tunear - si hay codigos P0011/P0012 "
+            "limpiar solenoide y actuador primero. Rev limit original 6500 RPM - "
+            "se puede subir a 6700 RPM con bujias un grado mas frias. "
+            "Respuesta de mariposa electronica (drive-by-wire) mejora notablemente."
+        ),
+        supported_operations=["stage1", "read", "write", "backup", "restore", "checksum_fix"],
     ),
 ]
 
