@@ -49,3 +49,4 @@ vendor/**/.git/
 config/google_credentials.json
 config/google_token.json
 config/google_token*.json
+data/knowledge_extracted/_cache/
