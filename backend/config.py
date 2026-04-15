@@ -90,7 +90,11 @@ class APIConfig:
     host: str = "0.0.0.0"
     port: int = 8000
     reload: bool = os.getenv("ENV", "development") == "development"
-    cors_origins: list[str] = field(default_factory=lambda: ["*"])
+    cors_origins: list[str] = field(default_factory=lambda: [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8000",
+    ])
     ws_heartbeat: float = 15.0  # WebSocket keepalive (seconds)
 
 

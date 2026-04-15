@@ -5,6 +5,8 @@ SOLER OBD2 AI Scanner - Main FastAPI Application
 from __future__ import annotations
 
 import logging
+import os
+import sqlite3
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator
@@ -84,6 +86,32 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # -- API key middleware (only enforces if API_KEY env is set, on /api/launcher) --
+    API_KEY = os.getenv("API_KEY", "")
+
+    @app.middleware("http")
+    async def api_key_middleware(request: Request, call_next):
+        if API_KEY and request.url.path.startswith("/api/launcher"):
+            key = request.headers.get("X-API-Key")
+            if key != API_KEY:
+                return JSONResponse({"detail": "Invalid API key"}, status_code=401)
+        return await call_next(request)
+
+    # -- Health endpoint --
+    @app.get("/health")
+    async def health() -> dict:
+        status: dict = {"status": "ok", "services": {}}
+        try:
+            db_path = PROJECT_DIR / "data" / "knowledge_hub.db"
+            conn = sqlite3.connect(str(db_path))
+            conn.execute("SELECT 1")
+            conn.close()
+            status["services"]["knowledge_hub"] = "ok"
+        except Exception as e:  # noqa: BLE001
+            status["services"]["knowledge_hub"] = f"error: {e}"
+            status["status"] = "degraded"
+        return status
 
     # -- API routes --
     app.include_router(api_router)

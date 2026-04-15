@@ -4,9 +4,12 @@ Permite al frontend lanzar software del Drive directamente.
 """
 import subprocess
 import os
+import logging
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/launcher", tags=["launcher"])
 
@@ -26,9 +29,28 @@ ALLOWED_ROOTS = ["G:", "H:", "D:/Herramientas/SOLER"]
 
 
 def is_allowed(path: str) -> bool:
-    """Verifica que la ruta este en los roots permitidos."""
-    normalized = str(Path(path).resolve()).replace('\\', '/').rstrip('/')
-    return any(normalized.startswith(r.replace('\\', '/').rstrip('/')) for r in ALLOWED_ROOTS)
+    """Verifica que la ruta este en los roots permitidos (sin path traversal)."""
+    try:
+        p = Path(path).resolve()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("is_allowed resolve error: %s", e)
+        return False
+    for root in ALLOWED_ROOTS:
+        try:
+            root_path = Path(root).resolve()
+            if hasattr(p, "is_relative_to"):
+                if p.is_relative_to(root_path):
+                    return True
+            else:
+                try:
+                    p.relative_to(root_path)
+                    return True
+                except ValueError:
+                    continue
+        except Exception as e:  # noqa: BLE001
+            logger.warning("is_allowed root check error: %s", e)
+            continue
+    return False
 
 
 @router.get("/drives")
@@ -70,7 +92,8 @@ def browse(path: str):
         for child in sorted(p.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())):
             try:
                 size = child.stat().st_size if child.is_file() else 0
-            except Exception:
+            except Exception as e:
+                logger.warning("stat failed: %s", e)
                 size = 0
             items.append({
                 "name": child.name,
@@ -169,7 +192,8 @@ def software_catalog():
                 if item.is_file() and item.suffix.lower() in ['.rar', '.zip', '.7z', '.exe', '.msi']:
                     try:
                         size = item.stat().st_size
-                    except Exception:
+                    except Exception as e:
+                        logger.warning("stat failed: %s", e)
                         size = 0
                     catalog.append({
                         "name": item.name,

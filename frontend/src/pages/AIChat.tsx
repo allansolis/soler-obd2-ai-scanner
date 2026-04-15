@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Sparkles, Car, Wrench, Gauge } from 'lucide-react'
+import { AIOrchestrator } from '../services/AIOrchestrator'
 
 interface Message {
   id: string
@@ -14,25 +15,19 @@ const INITIAL_MESSAGES: Message[] = [
     id: '1',
     role: 'assistant',
     content:
-      'Hello! I\'m your SOLER AI diagnostic assistant. I have access to your vehicle\'s real-time sensor data, DTCs, and full repair database. How can I help you today?',
+      'Hola! Soy tu copiloto AI de SOLER. Tengo acceso a los datos en tiempo real de tu vehiculo, DTCs y la base de conocimiento completa. En que puedo ayudarte?',
     timestamp: new Date(),
   },
 ]
 
 const QUICK_SUGGESTIONS = [
-  { icon: Car, text: 'Why is my check engine light on?' },
-  { icon: Wrench, text: 'Explain my DTC codes' },
-  { icon: Gauge, text: 'Is my engine running healthy?' },
-  { icon: Sparkles, text: 'Suggest maintenance schedule' },
+  { icon: Car, text: 'Por que se prendio el check engine?' },
+  { icon: Wrench, text: 'Explica mis codigos DTC' },
+  { icon: Gauge, text: 'Esta sano mi motor?' },
+  { icon: Sparkles, text: 'Sugiere plan de mantenimiento' },
 ]
 
-const MOCK_RESPONSES: Record<string, { content: string; vehicleDataAccess?: string }> = {
-  default: {
-    content:
-      'I\'ve analyzed your vehicle data. Based on the current sensor readings, your engine appears to be running within normal parameters. The coolant temperature is stable, and fuel trims are within the expected range. Would you like me to run a more detailed analysis on any specific system?',
-    vehicleDataAccess: 'Accessed: RPM, Coolant Temp, Fuel Trims, O2 Sensor',
-  },
-}
+const orchestrator = new AIOrchestrator()
 
 export default function AIChat() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
@@ -44,38 +39,47 @@ export default function AIChat() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages])
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return
+    const question = input.trim()
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: input.trim(),
+      content: question,
       timestamp: new Date(),
     }
     setMessages(prev => [...prev, userMsg])
     setInput('')
     setIsTyping(true)
 
-    setTimeout(() => {
-      const resp = MOCK_RESPONSES.default
+    try {
+      const answer = await orchestrator.askQuestion(question, null)
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: resp.content,
+        content: answer,
         timestamp: new Date(),
-        vehicleDataAccess: resp.vehicleDataAccess,
       }
       setMessages(prev => [...prev, aiMsg])
+    } catch (err) {
+      const aiMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'No pude conectar con el copiloto. Revisa el backend e intenta de nuevo.',
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, aiMsg])
+    } finally {
       setIsTyping(false)
-    }, 1500)
+    }
   }
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="p-6 pb-0">
-        <h1 className="text-2xl font-bold text-white">AI Assistant</h1>
-        <p className="text-sm text-slate-500">Powered by vehicle-aware AI diagnostics</p>
+        <h1 className="text-2xl font-bold text-white">Asistente AI</h1>
+        <p className="text-sm text-slate-500">Diagnostico con IA consciente de tu vehiculo</p>
       </div>
 
       {/* Messages */}
@@ -97,7 +101,7 @@ export default function AIChat() {
                   : 'bg-obd-surface border border-obd-border rounded-2xl rounded-tl-md'
               } p-4`}
             >
-              <p className="text-sm text-slate-200 leading-relaxed">{msg.content}</p>
+              <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{msg.content}</p>
               {msg.vehicleDataAccess && (
                 <div className="mt-3 pt-3 border-t border-white/5">
                   <div className="flex items-center gap-1.5 text-[11px] text-obd-purple">
@@ -160,7 +164,7 @@ export default function AIChat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Ask about your vehicle..."
+            placeholder="Pregunta sobre tu vehiculo..."
             className="flex-1 bg-obd-surface border border-obd-border rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-obd-accent/50 focus:ring-1 focus:ring-obd-accent/25 transition-all"
           />
           <button

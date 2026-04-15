@@ -70,6 +70,8 @@ class RepairGuide:
     estimated_time_min: int
     tools_needed: list[str]
     difficulty: str  # easy | medium | hard
+    evidence: list[dict] = field(default_factory=list)
+    tool_recommendations: list[dict] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -89,6 +91,8 @@ class RepairGuide:
             "estimatedTimeMin": self.estimated_time_min,
             "toolsNeeded": self.tools_needed,
             "difficulty": self.difficulty,
+            "evidence": self.evidence,
+            "toolRecommendations": self.tool_recommendations,
         }
 
 
@@ -303,7 +307,7 @@ class CopilotOrchestrator:
             for i, s in enumerate(steps_src)
         ]
 
-        return RepairGuide(
+        guide = RepairGuide(
             dtc_code=dtc_code,
             title=title,
             summary=summary,
@@ -313,6 +317,41 @@ class CopilotOrchestrator:
             tools_needed=list(rule_info.get("tools", ["Escaner OBD2", "Multimetro"])),
             difficulty=str(rule_info.get("difficulty", "medium")),
         )
+
+        # Enriquecer con KnowledgeHub + ExpertAdvisor
+        try:
+            from backend.knowledge_hub import KnowledgeHub
+            from backend.knowledge_hub.expert_advisor import get_advisor
+
+            vehicle = vehicle_info if isinstance(vehicle_info, dict) else (
+                vehicle_info.__dict__ if vehicle_info else {}
+            )
+            hub = KnowledgeHub()
+            advisor = get_advisor()
+            resources = hub.get_resources_for_dtc(
+                dtc_code, vehicle.get("make") if vehicle else None
+            )
+            recs = advisor.recommend_tools_for_dtc_with_evidence(
+                dtc_code,
+                vehicle.get("make") if vehicle else None,
+                vehicle.get("year") if vehicle else None,
+            )
+            guide.evidence = [
+                {"resource": r.get("name"), "path": r.get("source_url")}
+                for r in resources[:5]
+            ]
+            guide.tool_recommendations = [
+                {
+                    "tool": r.get("tool_name"),
+                    "reason": r.get("reason_es"),
+                    "score": r.get("score"),
+                }
+                for r in recs[:3]
+            ]
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Knowledge enrichment failed: %s", e)
+
+        return guide
 
     def _default_repair_steps(self, dtc_code: str) -> list[dict]:
         return [
