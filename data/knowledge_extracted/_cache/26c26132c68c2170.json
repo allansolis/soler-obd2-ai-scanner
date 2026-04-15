@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Honda/Fit 1.4 e  1.5  16v de 2008 em diante.pdf",
+  "file_hash": "26c26132c68c2170",
+  "title": "Fit 1.4 e  1.5  16v de 2008 em diante",
+  "pages": 5,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Honda",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Honda | Sistema: unknown",
+  "error": ""
+}

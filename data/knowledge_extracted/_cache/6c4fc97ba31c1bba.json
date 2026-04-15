@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Toyota Diesel/Hilux 2.5 e 3.0  16v D4D SRV Turbo de 2005 em diante/Ar Condicionado Automático.pdf",
+  "file_hash": "6c4fc97ba31c1bba",
+  "title": "Ar Condicionado Automático",
+  "pages": 1,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

@@ -1,0 +1,23 @@
+{
+  "file": "data/datos-tecnicos/DADOS TÉCNICOS E TORQUES/Motores Leves -/Honda/Civic Si 2.0 16V de 2007 em diante.pdf",
+  "file_hash": "a338a57799a7bb86",
+  "title": "Civic Si 2.0 16V de 2007 em diante",
+  "pages": 1,
+  "category": "technical_specs",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Honda",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Honda | Sistema: engine",
+  "error": ""
+}

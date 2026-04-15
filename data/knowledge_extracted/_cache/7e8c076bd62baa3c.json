@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/BMW/M3.pdf",
+  "file_hash": "7e8c076bd62baa3c",
+  "title": "M3",
+  "pages": 6,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "BMW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: BMW | Sistema: unknown",
+  "error": ""
+}

@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Citroen/C5  2.0 e 3.0 de 2001 à 2008.pdf",
+  "file_hash": "b11ccf60ff84b1ee",
+  "title": "C5  2.0 e 3.0 de 2001 à 2008",
+  "pages": 7,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Citroen",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Citroen | Sistema: unknown",
+  "error": ""
+}

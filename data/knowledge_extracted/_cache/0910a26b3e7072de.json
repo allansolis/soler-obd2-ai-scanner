@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Suzuki/Vitara 1.6  16v de 1991 à 1993.pdf",
+  "file_hash": "0910a26b3e7072de",
+  "title": "Vitara 1.6  16v de 1991 à 1993",
+  "pages": 4,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Suzuki",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Suzuki | Sistema: unknown",
+  "error": ""
+}

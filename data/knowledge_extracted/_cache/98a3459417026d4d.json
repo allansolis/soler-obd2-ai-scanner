@@ -1,0 +1,17 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Tabela de Gás/BMW.pdf",
+  "file_hash": "98a3459417026d4d",
+  "title": "BMW",
+  "pages": 4,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: hvac",
+  "error": ""
+}

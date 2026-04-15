@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Mitsubishi Diesel/Pajero 2.5 HPE de 2002 em diante/Tabela de Códigos de Falhas do Motor.pdf",
+  "file_hash": "1ee9b5553978cb28",
+  "title": "Tabela de Códigos de Falhas do Motor",
+  "pages": 1,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

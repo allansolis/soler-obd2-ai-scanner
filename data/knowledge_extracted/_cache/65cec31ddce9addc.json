@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Subaru/Legacy de 2009 à 2013.pdf",
+  "file_hash": "65cec31ddce9addc",
+  "title": "Legacy de 2009 à 2013",
+  "pages": 3,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Subaru",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Subaru | Sistema: airbag",
+  "error": ""
+}

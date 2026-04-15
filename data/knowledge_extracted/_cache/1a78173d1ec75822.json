@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Audi/TT de 2000 à 2003.pdf",
+  "file_hash": "1a78173d1ec75822",
+  "title": "TT de 2000 à 2003",
+  "pages": 1,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Audi",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Audi | Sistema: airbag",
+  "error": ""
+}

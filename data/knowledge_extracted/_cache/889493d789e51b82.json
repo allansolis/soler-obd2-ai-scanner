@@ -1,0 +1,23 @@
+{
+  "file": "data/datos-tecnicos/DADOS TÉCNICOS E TORQUES/Motores Leves -/Alfa Romeo/145 - 2.0  de 1995 à 2000.pdf",
+  "file_hash": "889493d789e51b82",
+  "title": "145 - 2.0  de 1995 à 2000",
+  "pages": 1,
+  "category": "technical_specs",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Alfa Romeo",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Alfa Romeo | Sistema: engine",
+  "error": ""
+}

@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Ford/Ranger de 1998 à 2000.pdf",
+  "file_hash": "0abeaa5f2fcc2470",
+  "title": "Ranger de 1998 à 2000",
+  "pages": 7,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Ford",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Ford | Sistema: airbag",
+  "error": ""
+}

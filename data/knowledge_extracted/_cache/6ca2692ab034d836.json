@@ -1,0 +1,17 @@
+{
+  "file": "data/abs-esp/ABS ASR ESP/BMW.pdf",
+  "file_hash": "6ca2692ab034d836",
+  "title": "BMW",
+  "pages": 231,
+  "category": "abs_esp",
+  "system": "abs",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: abs",
+  "error": ""
+}

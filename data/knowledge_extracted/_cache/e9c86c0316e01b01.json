@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Mercedes/C-Class 1.8 BlueEfficiency de 2009 à 1014.pdf",
+  "file_hash": "e9c86c0316e01b01",
+  "title": "C-Class 1.8 BlueEfficiency de 2009 à 1014",
+  "pages": 11,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Mercedes",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Mercedes | Sistema: unknown",
+  "error": ""
+}

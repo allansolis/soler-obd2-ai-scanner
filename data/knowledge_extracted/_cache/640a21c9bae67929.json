@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/VW/Golf de 1999 à 2003.pdf",
+  "file_hash": "640a21c9bae67929",
+  "title": "Golf de 1999 à 2003",
+  "pages": 1,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "VW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: VW | Sistema: airbag",
+  "error": ""
+}

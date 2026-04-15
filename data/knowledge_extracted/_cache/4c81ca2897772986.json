@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Nissan/Livina 1.6  16v de 2008 em diante.pdf",
+  "file_hash": "4c81ca2897772986",
+  "title": "Livina 1.6  16v de 2008 em diante",
+  "pages": 5,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Nissan",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Nissan | Sistema: unknown",
+  "error": ""
+}

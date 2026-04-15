@@ -1,0 +1,23 @@
+{
+  "file": "data/transmision/CAMBIO/Hyundai/HB20 X 1.6  16v DOHC CVVT de 2013 em diante.pdf",
+  "file_hash": "952ff46eb6799a01",
+  "title": "HB20 X 1.6  16v DOHC CVVT de 2013 em diante",
+  "pages": 4,
+  "category": "transmission",
+  "system": "transmission",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Hyundai",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Hyundai | Sistema: transmission",
+  "error": ""
+}

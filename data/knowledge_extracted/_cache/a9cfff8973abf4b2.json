@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Citroen/DS3 - DS3 Cabrio 1.6 THP de 2009 à 2014.pdf",
+  "file_hash": "a9cfff8973abf4b2",
+  "title": "DS3 - DS3 Cabrio 1.6 THP de 2009 à 2014",
+  "pages": 10,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Citroen",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Citroen | Sistema: unknown",
+  "error": ""
+}

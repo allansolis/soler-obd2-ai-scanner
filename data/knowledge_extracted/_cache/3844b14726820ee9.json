@@ -1,0 +1,23 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Esquemas Elétricos/Kia/Sorento 3.5 de 2003 à 2004.pdf",
+  "file_hash": "3844b14726820ee9",
+  "title": "Sorento 3.5 de 2003 à 2004",
+  "pages": 10,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Kia",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Kia | Sistema: hvac",
+  "error": ""
+}

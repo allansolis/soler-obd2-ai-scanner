@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Hyundai/IX 35 2.0 de 2010 em diante.pdf",
+  "file_hash": "b8d9617a6b28ee41",
+  "title": "IX 35 2.0 de 2010 em diante",
+  "pages": 4,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Hyundai",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Hyundai | Sistema: airbag",
+  "error": ""
+}

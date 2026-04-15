@@ -1,0 +1,23 @@
+{
+  "file": "data/datos-tecnicos/DADOS TÉCNICOS E TORQUES/Motores Leves -/Citroen/Xantia 2.0 de 1993 à 1998.pdf",
+  "file_hash": "a39fd675050a1152",
+  "title": "Xantia 2.0 de 1993 à 1998",
+  "pages": 1,
+  "category": "technical_specs",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Citroen",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Citroen | Sistema: engine",
+  "error": ""
+}

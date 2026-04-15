@@ -1,0 +1,23 @@
+{
+  "file": "data/transmision/CAMBIO/Fiat/Idea 1.6  16v Flex Dualogic de 2010.pdf",
+  "file_hash": "bb9518a6078ce25d",
+  "title": "Idea 1.6  16v Flex Dualogic de 2010",
+  "pages": 6,
+  "category": "transmission",
+  "system": "transmission",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Fiat",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Fiat | Sistema: transmission",
+  "error": ""
+}

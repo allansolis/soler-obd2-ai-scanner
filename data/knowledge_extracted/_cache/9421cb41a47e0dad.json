@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Mitsubishi/Galant 2.4L de 2002 em diante.pdf",
+  "file_hash": "9421cb41a47e0dad",
+  "title": "Galant 2.4L de 2002 em diante",
+  "pages": 3,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Mitsubishi",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Mitsubishi | Sistema: unknown",
+  "error": ""
+}

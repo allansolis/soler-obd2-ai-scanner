@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Volvo/XC90  2.9 T6 de 2002 à 2006.pdf",
+  "file_hash": "3d3d0656d322663e",
+  "title": "XC90  2.9 T6 de 2002 à 2006",
+  "pages": 13,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Volvo",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Volvo | Sistema: unknown",
+  "error": ""
+}

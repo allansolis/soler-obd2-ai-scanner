@@ -1,0 +1,23 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Esquemas Elétricos/VW/Tiguan 2.0 TSI  4Motion de 2011 em diante - Sistema Manual.pdf",
+  "file_hash": "c85c5803c2d638bc",
+  "title": "Tiguan 2.0 TSI  4Motion de 2011 em diante - Sistema Manual",
+  "pages": 5,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "VW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: VW | Sistema: hvac",
+  "error": ""
+}

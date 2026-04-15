@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Kia Diesel/Bongo 2.7D de 2004 em diante.pdf",
+  "file_hash": "24dc1cfdca31ea7a",
+  "title": "Bongo 2.7D de 2004 em diante",
+  "pages": 3,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

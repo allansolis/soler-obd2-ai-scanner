@@ -1,0 +1,23 @@
+{
+  "file": "data/transmision/CAMBIO/Nissan/Pathfinder 4.0 de 2005 em diante.pdf",
+  "file_hash": "a02d0d60cbe145f7",
+  "title": "Pathfinder 4.0 de 2005 em diante",
+  "pages": 4,
+  "category": "transmission",
+  "system": "transmission",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Nissan",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Nissan | Sistema: transmission",
+  "error": ""
+}

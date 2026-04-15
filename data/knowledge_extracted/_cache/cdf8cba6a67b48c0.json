@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Chrysler/Grand Voyager e Voyager 2.5D.pdf",
+  "file_hash": "cdf8cba6a67b48c0",
+  "title": "Grand Voyager e Voyager 2.5D",
+  "pages": 10,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Chrysler",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Chrysler | Sistema: unknown",
+  "error": ""
+}

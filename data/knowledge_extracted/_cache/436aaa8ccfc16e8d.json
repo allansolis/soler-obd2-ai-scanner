@@ -1,0 +1,23 @@
+{
+  "file": "data/transmision/CAMBIO/VW/Gol 1.6  8v I-Motion de 2009 em diante.pdf",
+  "file_hash": "436aaa8ccfc16e8d",
+  "title": "Gol 1.6  8v I-Motion de 2009 em diante",
+  "pages": 5,
+  "category": "transmission",
+  "system": "transmission",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "VW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: VW | Sistema: transmission",
+  "error": ""
+}

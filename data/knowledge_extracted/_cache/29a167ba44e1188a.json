@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Ford/Ka Zetec RoCam 1.0 e 1.6 8v.pdf",
+  "file_hash": "29a167ba44e1188a",
+  "title": "Ka Zetec RoCam 1.0 e 1.6 8v",
+  "pages": 10,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Ford",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Ford | Sistema: unknown",
+  "error": ""
+}

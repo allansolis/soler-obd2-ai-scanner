@@ -1,0 +1,17 @@
+{
+  "file": "data/abs-esp/ABS ASR ESP/Land Rover.pdf",
+  "file_hash": "36a3dedb3282103c",
+  "title": "Land Rover",
+  "pages": 50,
+  "category": "abs_esp",
+  "system": "abs",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: abs",
+  "error": ""
+}

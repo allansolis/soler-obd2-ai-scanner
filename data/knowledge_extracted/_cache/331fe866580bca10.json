@@ -1,0 +1,17 @@
+{
+  "file": "data/abs-esp/ABS ASR ESP/Toyota.pdf",
+  "file_hash": "331fe866580bca10",
+  "title": "Toyota",
+  "pages": 82,
+  "category": "abs_esp",
+  "system": "abs",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: abs",
+  "error": ""
+}

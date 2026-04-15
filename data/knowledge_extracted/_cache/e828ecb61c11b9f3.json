@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/BMW/535i e 540i - Motronic ME 7.2.pdf",
+  "file_hash": "e828ecb61c11b9f3",
+  "title": "535i e 540i - Motronic ME 7.2",
+  "pages": 7,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "BMW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: BMW | Sistema: unknown",
+  "error": ""
+}

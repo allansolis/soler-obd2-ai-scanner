@@ -1,0 +1,23 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Esquemas Elétricos/VW/Fox 1.0 8v ME 17.5.20 de 2012 em diante.pdf",
+  "file_hash": "dd5222864bad19bd",
+  "title": "Fox 1.0 8v ME 17.5.20 de 2012 em diante",
+  "pages": 1,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "VW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: VW | Sistema: hvac",
+  "error": ""
+}

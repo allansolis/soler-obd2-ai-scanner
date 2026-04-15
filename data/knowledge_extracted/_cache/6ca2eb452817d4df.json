@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Jeep/Grand Cherokee 3.7 - 4.7 - 5.7 - 6.1 de 2006 em diante.pdf",
+  "file_hash": "6ca2eb452817d4df",
+  "title": "Grand Cherokee 3.7 - 4.7 - 5.7 - 6.1 de 2006 em diante",
+  "pages": 7,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Jeep",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Jeep | Sistema: unknown",
+  "error": ""
+}

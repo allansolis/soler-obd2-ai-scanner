@@ -1,0 +1,23 @@
+{
+  "file": "data/transmision/CAMBIO/Toyota/Corolla 1.6 e 1.8 de 1993 à 1997.pdf",
+  "file_hash": "26579cfffab91c7c",
+  "title": "Corolla 1.6 e 1.8 de 1993 à 1997",
+  "pages": 1,
+  "category": "transmission",
+  "system": "transmission",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Toyota",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Toyota | Sistema: transmission",
+  "error": ""
+}

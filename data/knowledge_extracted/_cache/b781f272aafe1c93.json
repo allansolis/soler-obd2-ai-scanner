@@ -1,0 +1,17 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Dicas de Falhas.pdf",
+  "file_hash": "b781f272aafe1c93",
+  "title": "Dicas de Falhas",
+  "pages": 16,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: hvac",
+  "error": ""
+}

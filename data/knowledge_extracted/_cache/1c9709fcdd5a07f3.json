@@ -1,0 +1,23 @@
+{
+  "file": "data/datos-tecnicos/DADOS TÉCNICOS E TORQUES/Motores Leves -/Mercedes/SLK 230 de 1996 à 2004.pdf",
+  "file_hash": "1c9709fcdd5a07f3",
+  "title": "SLK 230 de 1996 à 2004",
+  "pages": 1,
+  "category": "technical_specs",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Mercedes",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Mercedes | Sistema: engine",
+  "error": ""
+}

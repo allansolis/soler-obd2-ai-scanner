@@ -1,0 +1,23 @@
+{
+  "file": "data/datos-tecnicos/DADOS TÉCNICOS E TORQUES/Motores Leves -/Daihatsu/Terios 1.6 16V.pdf",
+  "file_hash": "f4a9a411d790a3b7",
+  "title": "Terios 1.6 16V",
+  "pages": 1,
+  "category": "technical_specs",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Daihatsu",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Daihatsu | Sistema: engine",
+  "error": ""
+}

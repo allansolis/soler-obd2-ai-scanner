@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Ford Diesel/Ranger 3.0D de 2006 em diante - Siemens SID 901C.pdf",
+  "file_hash": "b43fc818cc07e35f",
+  "title": "Ranger 3.0D de 2006 em diante - Siemens SID 901C",
+  "pages": 5,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

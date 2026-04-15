@@ -114,3 +114,53 @@ async def reload_profiles():
     advisor = get_advisor()
     advisor.reload()
     return {"reloaded": True, "total_tools": len(advisor.list_tools())}
+
+
+# ---------------------------------------------------------------------------
+# Evidencia real extraida de PDFs (knowledge_graph)
+# ---------------------------------------------------------------------------
+
+@router.get("/evidence/tool/{tool_id}")
+async def evidence_for_tool(tool_id: str, dtc: Optional[str] = None, limit: int = 8):
+    """PDFs locales que citan el tool (+ opcionalmente el DTC)."""
+    advisor = get_advisor()
+    return advisor.get_evidence(tool_id, dtc=dtc, limit=limit)
+
+
+@router.get("/evidence/dtc/{dtc}")
+async def evidence_for_dtc(dtc: str, limit: int = 10):
+    """PDFs locales que mencionan el DTC."""
+    advisor = get_advisor()
+    g = advisor._get_graph()  # type: ignore[attr-defined]
+    if g is None:
+        return {"available": False, "dtc": dtc.upper(), "pdfs": []}
+    return {
+        "available": True,
+        "dtc": dtc.upper(),
+        "pdfs": [e.to_dict() for e in g.evidence_for_dtc(dtc, limit=limit)],
+        "info": g.dtc_info(dtc),
+    }
+
+
+@router.get("/context")
+async def vehicle_context(
+    make: str,
+    model: Optional[str] = None,
+    year: Optional[int] = None,
+    dtc: Optional[str] = None,
+):
+    """Contexto completo del vehiculo + DTC: PDFs, procedimientos, torques."""
+    advisor = get_advisor()
+    return advisor.context_for_vehicle(make=make, model=model or "", year=year, dtc=dtc)
+
+
+@router.post("/advise_with_evidence")
+async def advise_with_evidence(req: AdviseRequest):
+    """Como /advise pero adjunta evidencia real de manuales por cada rec."""
+    advisor = get_advisor()
+    if req.scenario.lower() != "dtc":
+        raise HTTPException(status_code=400, detail="solo scenario=dtc por ahora")
+    if not req.dtc:
+        raise HTTPException(status_code=400, detail="dtc requerido")
+    recs = advisor.recommend_tools_for_dtc_with_evidence(req.dtc, req.make, req.year)
+    return {"scenario": "dtc", "input": req.model_dump(), "recommendations": recs, "total": len(recs)}

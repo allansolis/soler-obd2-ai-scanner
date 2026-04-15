@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Suzuki/Swift de 1992 à 2004.pdf",
+  "file_hash": "0b8efeb600d0c4c0",
+  "title": "Swift de 1992 à 2004",
+  "pages": 1,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Suzuki",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Suzuki | Sistema: airbag",
+  "error": ""
+}

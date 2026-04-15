@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Mercedes Diesel/Actros 2646 MP2/FFB.pdf",
+  "file_hash": "84f92c397790209b",
+  "title": "FFB",
+  "pages": 1,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

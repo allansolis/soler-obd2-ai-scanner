@@ -1,0 +1,23 @@
+{
+  "file": "data/transmision/CAMBIO/Nissan/Frontier de 2003 em diante.pdf",
+  "file_hash": "33a04342bfd34c2b",
+  "title": "Frontier de 2003 em diante",
+  "pages": 5,
+  "category": "transmission",
+  "system": "transmission",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Nissan",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Nissan | Sistema: transmission",
+  "error": ""
+}

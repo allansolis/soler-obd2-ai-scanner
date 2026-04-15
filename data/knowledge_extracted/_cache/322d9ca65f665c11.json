@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Citroen/C4  2.0 16v Flex de 2007 em diante.pdf",
+  "file_hash": "322d9ca65f665c11",
+  "title": "C4  2.0 16v Flex de 2007 em diante",
+  "pages": 5,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Citroen",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Citroen | Sistema: unknown",
+  "error": ""
+}

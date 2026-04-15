@@ -1,0 +1,23 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Esquemas Elétricos/Alfa Romeo/166 2.0 de 1998 à 2001.pdf",
+  "file_hash": "934fe0552d61fec3",
+  "title": "166 2.0 de 1998 à 2001",
+  "pages": 5,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Alfa Romeo",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Alfa Romeo | Sistema: hvac",
+  "error": ""
+}

@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/VW/Passat Alltrack 2.0 TSI de 2015 em diante.pdf",
+  "file_hash": "b964d3b94471ec8e",
+  "title": "Passat Alltrack 2.0 TSI de 2015 em diante",
+  "pages": 3,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "VW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: VW | Sistema: airbag",
+  "error": ""
+}

@@ -1,0 +1,17 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Tabela de Gás/Marcopolo.pdf",
+  "file_hash": "516a202b7c521bde",
+  "title": "Marcopolo",
+  "pages": 1,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: hvac",
+  "error": ""
+}

@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Land Rover/Discovery4  3.0D e TDV6 de 2009 à 2014.pdf",
+  "file_hash": "54732c6393e28678",
+  "title": "Discovery4  3.0D e TDV6 de 2009 à 2014",
+  "pages": 8,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Land Rover",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Land Rover | Sistema: unknown",
+  "error": ""
+}

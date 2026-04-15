@@ -1,0 +1,23 @@
+{
+  "file": "data/transmision/CAMBIO/Ford/Explorer 4.0 de 1995 em diante - 4R55 E.pdf",
+  "file_hash": "1208b71212185a0e",
+  "title": "Explorer 4.0 de 1995 em diante - 4R55 E",
+  "pages": 5,
+  "category": "transmission",
+  "system": "transmission",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Ford",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Ford | Sistema: transmission",
+  "error": ""
+}

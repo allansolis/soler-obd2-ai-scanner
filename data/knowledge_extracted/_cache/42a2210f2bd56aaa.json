@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Lexus/GS 2.5  250 de 2012 em diante.pdf",
+  "file_hash": "42a2210f2bd56aaa",
+  "title": "GS 2.5  250 de 2012 em diante",
+  "pages": 3,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Lexus",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Lexus | Sistema: airbag",
+  "error": ""
+}

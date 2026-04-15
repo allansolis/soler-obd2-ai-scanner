@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/BMW/X5 3.0 Si de 2006 à 2013.pdf",
+  "file_hash": "d0758033ac86f70f",
+  "title": "X5 3.0 Si de 2006 à 2013",
+  "pages": 12,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "BMW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: BMW | Sistema: unknown",
+  "error": ""
+}

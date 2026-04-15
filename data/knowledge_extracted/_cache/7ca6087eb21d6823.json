@@ -1,0 +1,17 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Compressor.pdf",
+  "file_hash": "7ca6087eb21d6823",
+  "title": "Compressor",
+  "pages": 12,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: hvac",
+  "error": ""
+}

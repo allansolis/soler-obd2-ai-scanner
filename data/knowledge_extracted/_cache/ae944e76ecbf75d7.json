@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Nissan/Frontier de 2001 à 2003.pdf",
+  "file_hash": "ae944e76ecbf75d7",
+  "title": "Frontier de 2001 à 2003",
+  "pages": 1,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Nissan",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Nissan | Sistema: airbag",
+  "error": ""
+}

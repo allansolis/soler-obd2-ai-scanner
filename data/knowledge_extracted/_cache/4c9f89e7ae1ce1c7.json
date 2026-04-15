@@ -1,0 +1,23 @@
+{
+  "file": "data/datos-tecnicos/DADOS TÉCNICOS E TORQUES/Motores Leves -/Land Rover/Range Rover 4.6L V8 de 1999 à 2000.pdf",
+  "file_hash": "4c9f89e7ae1ce1c7",
+  "title": "Range Rover 4.6L V8 de 1999 à 2000",
+  "pages": 7,
+  "category": "technical_specs",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Land Rover",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Land Rover | Sistema: engine",
+  "error": ""
+}

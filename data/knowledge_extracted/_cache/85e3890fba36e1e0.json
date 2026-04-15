@@ -1,0 +1,23 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Esquemas Elétricos/VW/Parati  1.6 8v de 2012 em diante.pdf",
+  "file_hash": "85e3890fba36e1e0",
+  "title": "Parati  1.6 8v de 2012 em diante",
+  "pages": 4,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "VW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: VW | Sistema: hvac",
+  "error": ""
+}

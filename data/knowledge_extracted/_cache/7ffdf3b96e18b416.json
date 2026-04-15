@@ -1,0 +1,23 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Iveco/City Class de 2005 em diante - P0000 - P0500.pdf",
+  "file_hash": "7ffdf3b96e18b416",
+  "title": "City Class de 2005 em diante - P0000 - P0500",
+  "pages": 22,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Iveco",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Iveco | Sistema: engine",
+  "error": ""
+}

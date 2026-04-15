@@ -1,0 +1,23 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Scania/Tabela de Códigos de Falhas da Scania 400 e 420CV.pdf",
+  "file_hash": "ddcf6accccdfe9c0",
+  "title": "Tabela de Códigos de Falhas da Scania 400 e 420CV",
+  "pages": 9,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Scania",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Scania | Sistema: engine",
+  "error": ""
+}

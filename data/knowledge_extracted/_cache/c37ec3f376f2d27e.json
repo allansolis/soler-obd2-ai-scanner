@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Suzuki/Vitara 1.6 G16 de 1991 à 1999 TM e TA.pdf",
+  "file_hash": "c37ec3f376f2d27e",
+  "title": "Vitara 1.6 G16 de 1991 à 1999 TM e TA",
+  "pages": 5,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Suzuki",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Suzuki | Sistema: unknown",
+  "error": ""
+}

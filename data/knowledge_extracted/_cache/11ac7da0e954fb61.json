@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Citroen/C5 III 1.6 VTi de 2011 em diante.pdf",
+  "file_hash": "11ac7da0e954fb61",
+  "title": "C5 III 1.6 VTi de 2011 em diante",
+  "pages": 4,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Citroen",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Citroen | Sistema: airbag",
+  "error": ""
+}

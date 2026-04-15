@@ -1,0 +1,23 @@
+{
+  "file": "data/datos-tecnicos/DADOS TÉCNICOS E TORQUES/Motores Leves -/Land Rover/Range Rover 2.7D TDv6 de 2006 em diante.pdf",
+  "file_hash": "3b385a8d3de6604d",
+  "title": "Range Rover 2.7D TDv6 de 2006 em diante",
+  "pages": 1,
+  "category": "technical_specs",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Land Rover",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Land Rover | Sistema: engine",
+  "error": ""
+}

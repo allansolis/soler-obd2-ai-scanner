@@ -1,0 +1,23 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Scania/G 380 UO  EOBDII.pdf",
+  "file_hash": "d43e1255c0f8f54a",
+  "title": "G 380 UO  EOBDII",
+  "pages": 11,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Scania",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Scania | Sistema: engine",
+  "error": ""
+}

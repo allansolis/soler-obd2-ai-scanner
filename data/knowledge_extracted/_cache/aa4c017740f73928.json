@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Toyota Diesel/Prado 3.4D de 1996 à 2002/Lista de Códigos de Falhas EOBDII B.pdf",
+  "file_hash": "aa4c017740f73928",
+  "title": "Lista de Códigos de Falhas EOBDII B",
+  "pages": 8,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

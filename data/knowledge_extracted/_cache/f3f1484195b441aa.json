@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Kia/Cerato de 1.6 de 2004 à 2007.pdf",
+  "file_hash": "f3f1484195b441aa",
+  "title": "Cerato de 1.6 de 2004 à 2007",
+  "pages": 3,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Kia",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Kia | Sistema: airbag",
+  "error": ""
+}

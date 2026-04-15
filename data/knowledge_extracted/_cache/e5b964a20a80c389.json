@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Toyota/4Runner  2003.pdf",
+  "file_hash": "e5b964a20a80c389",
+  "title": "4Runner  2003",
+  "pages": 1,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Toyota",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Toyota | Sistema: airbag",
+  "error": ""
+}

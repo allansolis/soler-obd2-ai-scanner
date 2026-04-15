@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Chevrolet/Agile 1.4 8V Flex de 2010 em diante.pdf",
+  "file_hash": "edc863ea14a8ee1e",
+  "title": "Agile 1.4 8V Flex de 2010 em diante",
+  "pages": 1,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Chevrolet",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Chevrolet | Sistema: unknown",
+  "error": ""
+}

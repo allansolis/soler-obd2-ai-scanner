@@ -1,0 +1,23 @@
+{
+  "file": "data/transmision/CAMBIO/Toyota/Hilux 2.5  16v SW4 Turbo de 2004 em diante.pdf",
+  "file_hash": "3ad08288ad74f147",
+  "title": "Hilux 2.5  16v SW4 Turbo de 2004 em diante",
+  "pages": 5,
+  "category": "transmission",
+  "system": "transmission",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Toyota",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Toyota | Sistema: transmission",
+  "error": ""
+}

@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Fiat/Fiorino 1.3 de 2010 à 2015.pdf",
+  "file_hash": "6743a5d71a994a35",
+  "title": "Fiorino 1.3 de 2010 à 2015",
+  "pages": 6,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Fiat",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Fiat | Sistema: airbag",
+  "error": ""
+}

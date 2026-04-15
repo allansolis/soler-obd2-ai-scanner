@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Suzuki/Vitara 2.0  16v de 1995 à 2000.pdf",
+  "file_hash": "a648206bc46ead0e",
+  "title": "Vitara 2.0  16v de 1995 à 2000",
+  "pages": 4,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Suzuki",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Suzuki | Sistema: unknown",
+  "error": ""
+}

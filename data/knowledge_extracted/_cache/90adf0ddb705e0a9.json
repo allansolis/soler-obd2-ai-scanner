@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Chrysler/300C 3.5 de 2004 à 2011.pdf",
+  "file_hash": "90adf0ddb705e0a9",
+  "title": "300C 3.5 de 2004 à 2011",
+  "pages": 3,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Chrysler",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Chrysler | Sistema: airbag",
+  "error": ""
+}

@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Volvo Diesel/Gerenciamento do Motor  (MID 128).pdf",
+  "file_hash": "63e90b5565551a12",
+  "title": "Gerenciamento do Motor  (MID 128)",
+  "pages": 1,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

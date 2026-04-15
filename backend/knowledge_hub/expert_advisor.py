@@ -17,6 +17,15 @@ from dataclasses import dataclass, asdict, field
 from pathlib import Path
 from typing import Any, Optional
 
+try:  # opcional: si aun no se genero pdf_analysis.json, degradacion silenciosa
+    from .knowledge_graph import get_graph, KnowledgeGraph  # type: ignore
+except Exception:  # pragma: no cover
+    try:
+        from knowledge_graph import get_graph, KnowledgeGraph  # type: ignore
+    except Exception:
+        get_graph = None  # type: ignore
+        KnowledgeGraph = None  # type: ignore
+
 logger = logging.getLogger(__name__)
 
 
@@ -111,7 +120,22 @@ class ExpertAdvisor:
         self.profiles_path = profiles_path or self.DEFAULT_PROFILES
         self._data: dict[str, Any] = {}
         self._tools: dict[str, dict[str, Any]] = {}
+        self._graph = None  # cargado on-demand si hay pdf_analysis.json
         self.reload()
+
+    # ----- Grafo de conocimiento (lazy) -----
+
+    def _get_graph(self):
+        if self._graph is not None:
+            return self._graph
+        if get_graph is None:
+            return None
+        try:
+            self._graph = get_graph()
+        except Exception as e:
+            logger.warning("no se pudo cargar KnowledgeGraph: %s", e)
+            self._graph = None
+        return self._graph
 
     # ----- IO -----
 
@@ -446,6 +470,63 @@ class ExpertAdvisor:
         }))
 
         return ComparisonMatrix(tool_ids=tool_ids, tool_names=names, rows=rows)
+
+    # ----- Evidencia real desde PDFs (knowledge graph) -----
+
+    def get_evidence(self, tool_id: str, dtc: Optional[str] = None,
+                     limit: int = 8) -> dict[str, Any]:
+        """
+        Retorna pruebas reales de un tool (+ opcional DTC) extraidas de los
+        manuales locales analizados. Si no hay grafo disponible, retorna un
+        payload vacio con `available=False`.
+        """
+        g = self._get_graph()
+        if g is None:
+            return {"available": False, "tool_id": tool_id, "pdfs": [],
+                    "dtc_pdfs": [], "message": "pdf_analysis.json aun no generado"}
+        tool_ev = [e.to_dict() for e in g.evidence_for_tool(tool_id, limit=limit)]
+        dtc_ev = [e.to_dict() for e in g.evidence_for_dtc(dtc, limit=limit)] if dtc else []
+        return {
+            "available": True,
+            "tool_id": tool_id,
+            "dtc": (dtc or "").upper() or None,
+            "pdfs": tool_ev,
+            "dtc_pdfs": dtc_ev,
+        }
+
+    def context_for_vehicle(self, make: str, model: str = "",
+                            year: Optional[int] = None,
+                            dtc: Optional[str] = None) -> dict[str, Any]:
+        """Contexto completo (PDFs + tools + procedimientos) para un vehiculo."""
+        g = self._get_graph()
+        if g is None:
+            return {"available": False, "make": make, "pdfs": [], "tools": []}
+        ctx = g.get_complete_context(make=make, model=model, year=year, dtc=dtc)
+        return {"available": True, **ctx.to_dict()}
+
+    def recommend_tools_for_dtc_with_evidence(
+        self,
+        dtc: str,
+        make: Optional[str] = None,
+        year: Optional[int] = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Igual que recommend_tools_for_dtc pero adjunta para cada recomendacion
+        los PDFs reales que citan el tool y/o el DTC.
+        """
+        base = self.recommend_tools_for_dtc(dtc, make=make, year=year)
+        g = self._get_graph()
+        out: list[dict[str, Any]] = []
+        for r in base:
+            item = r.to_dict()
+            if g is not None:
+                tool_ev = [e.to_dict() for e in g.evidence_for_tool(r.tool_id, limit=4)]
+                dtc_ev = [e.to_dict() for e in g.evidence_for_dtc(dtc, limit=4)]
+                item["evidence"] = {"tool_pdfs": tool_ev, "dtc_pdfs": dtc_ev}
+            else:
+                item["evidence"] = {"tool_pdfs": [], "dtc_pdfs": []}
+            out.append(item)
+        return out
 
     # ----- Helpers internos -----
 

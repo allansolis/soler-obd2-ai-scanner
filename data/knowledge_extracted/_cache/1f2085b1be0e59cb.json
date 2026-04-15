@@ -1,0 +1,23 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Iveco/Daily MS6.3 de 2005 em diante.pdf",
+  "file_hash": "1f2085b1be0e59cb",
+  "title": "Daily MS6.3 de 2005 em diante",
+  "pages": 3,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Iveco",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Iveco | Sistema: engine",
+  "error": ""
+}

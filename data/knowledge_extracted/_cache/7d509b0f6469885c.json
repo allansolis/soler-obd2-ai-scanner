@@ -1,0 +1,23 @@
+{
+  "file": "data/datos-tecnicos/DADOS TÉCNICOS E TORQUES/Motores Pesados/VW/Constellation 17280 OT MAN D0836 a partir de 2012.pdf",
+  "file_hash": "7d509b0f6469885c",
+  "title": "Constellation 17280 OT MAN D0836 a partir de 2012",
+  "pages": 6,
+  "category": "technical_specs",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "VW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: VW | Sistema: engine",
+  "error": ""
+}

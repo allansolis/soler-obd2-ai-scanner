@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Mercedes Diesel/Código de Falhas do Gerenciamento do Motor.pdf",
+  "file_hash": "5f8bb1357bafd7c4",
+  "title": "Código de Falhas do Gerenciamento do Motor",
+  "pages": 7,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

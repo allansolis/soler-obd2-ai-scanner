@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Mazda/Tribute de 2001 à 2003.pdf",
+  "file_hash": "8a260bb2c99803b3",
+  "title": "Tribute de 2001 à 2003",
+  "pages": 1,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Mazda",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Mazda | Sistema: airbag",
+  "error": ""
+}

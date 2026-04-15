@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Nissan/Tiida 1.8 de 2007 à 2011.pdf",
+  "file_hash": "1d39a64c4b49b775",
+  "title": "Tiida 1.8 de 2007 à 2011",
+  "pages": 3,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Nissan",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Nissan | Sistema: airbag",
+  "error": ""
+}

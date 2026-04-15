@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Mitsubishi/Outlander de 2003.pdf",
+  "file_hash": "abe78223e7f59fee",
+  "title": "Outlander de 2003",
+  "pages": 1,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Mitsubishi",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Mitsubishi | Sistema: airbag",
+  "error": ""
+}

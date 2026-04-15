@@ -1,0 +1,17 @@
+{
+  "file": "data/aire-acondicionado/AR CONDICIONADO/Tabela de Gás/Mazda.pdf",
+  "file_hash": "0d3992ba53755a26",
+  "title": "Mazda",
+  "pages": 1,
+  "category": "hvac",
+  "system": "hvac",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: hvac",
+  "error": ""
+}

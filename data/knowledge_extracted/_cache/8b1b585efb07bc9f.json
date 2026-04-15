@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/BMW/116i  1.6 de 2011 em diante - Air Bag.pdf",
+  "file_hash": "8b1b585efb07bc9f",
+  "title": "116i  1.6 de 2011 em diante - Air Bag",
+  "pages": 1,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "BMW",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: BMW | Sistema: unknown",
+  "error": ""
+}

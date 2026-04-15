@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Ford Diesel/Lista de Códigos de Falhas EOBDII B.pdf",
+  "file_hash": "19c7c6507a58fd94",
+  "title": "Lista de Códigos de Falhas EOBDII B",
+  "pages": 9,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

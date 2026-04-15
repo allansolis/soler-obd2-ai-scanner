@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Audi/A4 Allroad 2.0 TFSI de 2009 à 2016.pdf",
+  "file_hash": "9d4e97f3523651db",
+  "title": "A4 Allroad 2.0 TFSI de 2009 à 2016",
+  "pages": 3,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Audi",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Audi | Sistema: airbag",
+  "error": ""
+}

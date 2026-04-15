@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Chrysler/Pt Cruiser 1.6 de 2001 à 2009.pdf",
+  "file_hash": "2efa0f7b20afa809",
+  "title": "Pt Cruiser 1.6 de 2001 à 2009",
+  "pages": 6,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Chrysler",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Chrysler | Sistema: unknown",
+  "error": ""
+}

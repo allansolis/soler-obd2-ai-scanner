@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Toyota Diesel/Hilux 2.5 e 3.0  16v D4D SRV Turbo de 2005 em diante/Lista de Códigos de Falhas EOBDII B.pdf",
+  "file_hash": "090c0bb9d534a2fc",
+  "title": "Lista de Códigos de Falhas EOBDII B",
+  "pages": 8,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

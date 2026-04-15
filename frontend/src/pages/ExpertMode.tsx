@@ -14,6 +14,7 @@ import {
   ShieldAlert,
   ChevronRight,
   BookOpen,
+  FileText,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -57,6 +58,24 @@ type Workflow = {
   safety_notes: string[]
 }
 
+type EvidencePdf = {
+  pdf: string
+  title: string
+  category: string
+  system: string
+  pages: number
+  why?: string
+}
+
+type EvidencePayload = {
+  available: boolean
+  tool_id?: string
+  dtc?: string | null
+  pdfs: EvidencePdf[]
+  dtc_pdfs: EvidencePdf[]
+  message?: string
+}
+
 type ComparisonRow = { feature: string; values: Record<string, string> }
 type ComparisonMatrix = {
   tool_ids: string[]
@@ -93,6 +112,11 @@ export default function ExpertMode() {
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([])
   const [comparison, setComparison] = useState<ComparisonMatrix | null>(null)
   const [activeProfile, setActiveProfile] = useState<any>(null)
+
+  // Evidencia (per-tool)
+  const [evidence, setEvidence] = useState<Record<string, EvidencePayload>>({})
+  const [evidenceOpen, setEvidenceOpen] = useState<string | null>(null)
+  const [evidenceLoading, setEvidenceLoading] = useState<string | null>(null)
 
   // ---- carga inicial ----
   useEffect(() => {
@@ -170,6 +194,29 @@ export default function ExpertMode() {
   const openProfile = async (id: string) => {
     const res = await fetch(`${API}/api/expert/tool/${id}`)
     if (res.ok) setActiveProfile(await res.json())
+  }
+
+  const loadEvidence = async (toolId: string) => {
+    if (evidenceOpen === toolId) {
+      setEvidenceOpen(null)
+      return
+    }
+    setEvidenceOpen(toolId)
+    if (evidence[toolId]) return // ya cacheada
+    setEvidenceLoading(toolId)
+    try {
+      const qs = scenario === 'dtc' && dtc ? `?dtc=${encodeURIComponent(dtc)}` : ''
+      const res = await fetch(`${API}/api/expert/evidence/tool/${toolId}${qs}`)
+      const data: EvidencePayload = await res.json()
+      setEvidence((prev) => ({ ...prev, [toolId]: data }))
+    } catch {
+      setEvidence((prev) => ({
+        ...prev,
+        [toolId]: { available: false, pdfs: [], dtc_pdfs: [], message: 'Error de red' },
+      }))
+    } finally {
+      setEvidenceLoading(null)
+    }
   }
 
   // ---- UI ----
@@ -361,12 +408,26 @@ export default function ExpertMode() {
                   >
                     Perfil completo
                   </button>
+                  <button
+                    onClick={() => loadEvidence(r.tool_id)}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 flex items-center gap-1"
+                  >
+                    <FileText className="w-3 h-3" />
+                    {evidenceOpen === r.tool_id ? 'Ocultar evidencia' : 'Evidencia en manuales'}
+                  </button>
                   {r.alternatives.length > 0 && (
                     <span className="text-xs text-slate-500 ml-auto">
                       Alternativas: {r.alternatives.slice(0, 3).join(', ')}
                     </span>
                   )}
                 </div>
+
+                {evidenceOpen === r.tool_id && (
+                  <EvidenceBlock
+                    loading={evidenceLoading === r.tool_id}
+                    data={evidence[r.tool_id]}
+                  />
+                )}
               </div>
             ))}
 
@@ -631,5 +692,82 @@ function Stat({ label, value }: { label: string; value: string }) {
       <p className="text-[10px] uppercase text-slate-500">{label}</p>
       <p className="text-xs text-slate-200 truncate">{value}</p>
     </div>
+  )
+}
+
+function EvidenceBlock({
+  loading,
+  data,
+}: {
+  loading: boolean
+  data?: EvidencePayload
+}) {
+  if (loading) {
+    return (
+      <div className="bg-black/30 border border-amber-500/20 rounded-xl p-3 flex items-center gap-2 text-sm text-amber-200">
+        <Loader2 className="w-4 h-4 animate-spin" /> Buscando evidencia en manuales locales...
+      </div>
+    )
+  }
+  if (!data) return null
+  if (!data.available) {
+    return (
+      <div className="bg-black/30 border border-obd-border rounded-xl p-3 text-xs text-slate-400">
+        {data.message ||
+          'No hay pdf_analysis.json aun. Ejecuta `python backend/knowledge_hub/pdf_analyzer.py` para indexar los manuales.'}
+      </div>
+    )
+  }
+  const total = data.pdfs.length + data.dtc_pdfs.length
+  if (total === 0) {
+    return (
+      <div className="bg-black/30 border border-obd-border rounded-xl p-3 text-xs text-slate-400">
+        Esta herramienta aun no aparece citada en los PDFs indexados.
+      </div>
+    )
+  }
+  return (
+    <div className="bg-black/30 border border-amber-500/20 rounded-xl p-3 space-y-3">
+      <p className="text-xs uppercase tracking-wide text-amber-300 font-medium flex items-center gap-1">
+        <FileText className="w-3 h-3" /> Evidencia en manuales locales
+      </p>
+      {data.pdfs.length > 0 && (
+        <div>
+          <p className="text-[11px] text-slate-400 mb-1">Manuales que citan la herramienta:</p>
+          <ul className="space-y-1">
+            {data.pdfs.map((p) => (
+              <EvidenceRow key={p.pdf + 'tool'} p={p} />
+            ))}
+          </ul>
+        </div>
+      )}
+      {data.dtc_pdfs.length > 0 && (
+        <div>
+          <p className="text-[11px] text-slate-400 mb-1">
+            Manuales con el DTC {data.dtc}:
+          </p>
+          <ul className="space-y-1">
+            {data.dtc_pdfs.map((p) => (
+              <EvidenceRow key={p.pdf + 'dtc'} p={p} />
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function EvidenceRow({ p }: { p: EvidencePdf }) {
+  return (
+    <li className="text-xs flex items-start gap-2 text-slate-200">
+      <FileText className="w-3 h-3 mt-0.5 text-amber-400 flex-shrink-0" />
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-medium">{p.title}</div>
+        <div className="text-[10px] text-slate-500 truncate">
+          {p.pdf} - {p.pages} pag - {p.system} - {p.category}
+        </div>
+        {p.why && <div className="text-[10px] text-amber-300/80">{p.why}</div>}
+      </div>
+    </li>
   )
 }

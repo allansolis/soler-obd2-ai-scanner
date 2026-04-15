@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Citroen Diesel/Jumper todos os modelos de 2000 em diante/Códigos de Falhas do Gerenciamento do AirBag.pdf",
+  "file_hash": "75b1625f98e34059",
+  "title": "Códigos de Falhas do Gerenciamento do AirBag",
+  "pages": 3,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

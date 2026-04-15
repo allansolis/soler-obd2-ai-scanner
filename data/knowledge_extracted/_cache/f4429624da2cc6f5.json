@@ -1,0 +1,23 @@
+{
+  "file": "data/airbag/AIR BAG/Porsche/911 Carrera de 1994 à 2000 - Todos os Modelos.pdf",
+  "file_hash": "f4429624da2cc6f5",
+  "title": "911 Carrera de 1994 à 2000 - Todos os Modelos",
+  "pages": 3,
+  "category": "airbag_srs",
+  "system": "airbag",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Porsche",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Porsche | Sistema: airbag",
+  "error": ""
+}

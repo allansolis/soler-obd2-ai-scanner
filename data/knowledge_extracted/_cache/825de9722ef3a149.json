@@ -1,0 +1,23 @@
+{
+  "file": "data/transmision/CAMBIO/Honda/CVT 7 velocidades.pdf",
+  "file_hash": "825de9722ef3a149",
+  "title": "CVT 7 velocidades",
+  "pages": 3,
+  "category": "transmission",
+  "system": "transmission",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Honda",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Honda | Sistema: transmission",
+  "error": ""
+}

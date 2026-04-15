@@ -1,0 +1,23 @@
+{
+  "file": "data/localizacion-componentes/LOCALIZAÇÃO DE COMPONENTES/Nissan/X-Terra 3.3L de 2002 em diante - VIN E.pdf",
+  "file_hash": "a7da86f259ca57e4",
+  "title": "X-Terra 3.3L de 2002 em diante - VIN E",
+  "pages": 3,
+  "category": "component_location",
+  "system": "unknown",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [
+    {
+      "make": "Nissan",
+      "model": "",
+      "year_range": ""
+    }
+  ],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Vehiculos: Nissan | Sistema: unknown",
+  "error": ""
+}

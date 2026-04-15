@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/Ford Diesel/Ranger 2.5D de 1999 à 2002.pdf",
+  "file_hash": "94a32de7784ae0c5",
+  "title": "Ranger 2.5D de 1999 à 2002",
+  "pages": 23,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}

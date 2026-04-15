@@ -1,0 +1,17 @@
+{
+  "file": "data/obd-diesel/OBD DIESEL/GM Diesel/Códigos de Falhas ABS 2.pdf",
+  "file_hash": "c21cc7c654078b14",
+  "title": "Códigos de Falhas ABS 2",
+  "pages": 1,
+  "category": "obd_diesel",
+  "system": "engine",
+  "dtcs_mentioned": [],
+  "vehicles_mentioned": [],
+  "ecus_mentioned": [],
+  "tools_required": [],
+  "pin_numbers_seen": [],
+  "procedures": [],
+  "torque_specs": [],
+  "summary_es": "Sistema: engine",
+  "error": ""
+}
