@@ -17,19 +17,19 @@ creds = Credentials.from_authorized_user_file('config/google_token.json', SCOPES
 
 AUTOTECH_FOLDERS = [
     ("1LpAQ9825nNGLgrDV_eOXO0WJxTxiievV", "ALLDATA_2014"),
-    ("1M_uTjPGCWKtXDHza1xmFPrw55LBBIBeK", "Diagramas_Electricos"),
-    ("1FUQ-21tU4u_XRH2f3f4D8JHaYwt1G61a", "Manuales_Motor"),
-    ("15cb6F0ZfidRrYvXJiJjxj5v3D6LAfsqM", "Manuales_Transmision"),
-    ("1OK5XwQv0eYOmeSsxnOxUBBbBIV8E-bH7", "Manuales_Taller"),
-    ("1NU1KVW50KOo9pQ4B9HZGI6vbqGjhxyPK", "Manuales_Usuario"),
-    ("16c9uk3SaqwdSciCmf8SFP3OVXf_M36B9", "Marcas_America"),
-    ("1u2BYkbFPWYQbOWer0rkNrGOC-i4P7NcJ", "Marcas_Asia"),
-    ("1Wv1nAeGJg4EOu1otlEJzfsIRFfkUfHGb", "Marcas_Europa"),
-    ("1Z5eRjHPbjyfw481CTN7aITz5ATZRealG", "Pinout_ECUs"),
-    ("1CDSqNu4bf7QBWabt5fYIC8_CVNSos_Gy", "Pinout_Tableros"),
-    ("1XefxSXZjmxK5cR5mR6tCPDHUBOBSkbGx", "Torque_Motores_Pesados"),
-    ("1zeLhQJ-stLjHuOiLFmdG21ZUFDdFBxh-", "Manuales_Diagramas_Motos"),
-    ("1CzH8XOQyOJMiUlJ5STg6T4NyOGtTQuNT", "Archivos_Variados"),
+    ("1M_uTjPGCWKtXDHza1xmFPrw55LBBIBeK", "ARCHIVOS_VARIADOS"),
+    ("1FUQ-21tU4u_XRH2f3f4D8JHaYwt1G61a", "DIAGRAMAS_ELECTRICOS"),
+    ("15cb6F0ZfidRrYvXJiJjxj5v3D6LAfsqM", "MANUALES_DE_MOTOR"),
+    ("1OK5XwQv0eYOmeSsxnOxUBBbBIV8E-bH7", "MANUALES_DE_USUARIO"),
+    ("1NU1KVW50KOo9pQ4B9HZGI6vbqGjhxyPK", "MANUALES_DE_TRANSMISIONES"),
+    ("16c9uk3SaqwdSciCmf8SFP3OVXf_M36B9", "MANUALES_DE_TALLER"),
+    ("1u2BYkbFPWYQbOWer0rkNrGOC-i4P7NcJ", "MARCAS_AMERICA"),
+    ("1Wv1nAeGJg4EOu1otlEJzfsIRFfkUfHGb", "MARCAS_ASIA"),
+    ("1Z5eRjHPbjyfw481CTN7aITz5ATZRealG", "MARCAS_EUROPA"),
+    ("1CDSqNu4bf7QBWabt5fYIC8_CVNSos_Gy", "PINOUT_ECUS"),
+    ("1XefxSXZjmxK5cR5mR6tCPDHUBOBSkbGx", "PINOUT_TABLEROS"),
+    ("1zeLhQJ-stLjHuOiLFmdG21ZUFDdFBxh-", "TORQUES_MOTORES_PESADOS"),
+    ("1CzH8XOQyOJMiUlJ5STg6T4NyOGtTQuNT", "MANUALES_Y_DIAGRAMAS_MOTOS"),
 ]
 
 CHECKPOINT = Path("data/autotech_copy_checkpoint.json")
