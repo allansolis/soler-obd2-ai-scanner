@@ -163,9 +163,15 @@ async def chat(req: ChatRequest) -> dict:
     if not message:
         return {"answer": "Hola, dime en que puedo ayudarte."}
 
-    # Try real Claude first
+    # Try real Claude first - con prompts especializados y conocimiento estructurado
     try:
         from backend.ai_agent.claude_client import get_claude_client
+        from backend.ai_agent.system_prompts import (
+            build_system_prompt,
+            detect_mode,
+            extract_dtc,
+        )
+
         claude = get_claude_client()
         if claude.enabled:
             from backend.knowledge_hub import KnowledgeHub
@@ -175,14 +181,25 @@ async def chat(req: ChatRequest) -> dict:
             except TypeError:
                 context = hub.ai_context_for_query(message)  # type: ignore
             context_str = str(context)[:3000]
-            system = (
-                "Eres un asistente experto en diagnostico automotriz OBD2 de SOLER.\n"
-                f"Contexto relevante del KnowledgeHub:\n{context_str}\n\n"
-                "Responde en español, conciso, profesional. Si no sabes, dilo."
+
+            mode = detect_mode(message)
+            dtc_code = extract_dtc(message)
+            vehicle_dict = req.vehicle.model_dump() if req.vehicle else None
+            system = build_system_prompt(
+                mode=mode,
+                dtc_code=dtc_code,
+                hub_context=context_str,
+                vehicle=vehicle_dict,
             )
             response = await claude.complete(system, message)
             if response:
-                return {"answer": response, "response": response, "source": "claude"}
+                return {
+                    "answer": response,
+                    "response": response,
+                    "source": "claude",
+                    "mode": mode,
+                    "dtc_detected": dtc_code,
+                }
     except Exception as e:  # noqa: BLE001
         logger.warning("Claude path failed, fallback: %s", e)
 

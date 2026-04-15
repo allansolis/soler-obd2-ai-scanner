@@ -318,6 +318,44 @@ class CopilotOrchestrator:
             difficulty=str(rule_info.get("difficulty", "medium")),
         )
 
+        # Enriquecer con expert_knowledge.json (estructurado)
+        try:
+            import json as _json
+            from pathlib import Path as _Path
+            ek_path = _Path(__file__).resolve().parent.parent / "knowledge_hub" / "expert_knowledge.json"
+            if ek_path.exists():
+                with open(ek_path, "r", encoding="utf-8") as _fh:
+                    _ek = _json.load(_fh)
+                _info = (_ek.get("dtc_knowledge") or {}).get(dtc_code.upper())
+                if _info:
+                    if _info.get("description_es"):
+                        guide.summary = _info["description_es"]
+                    _tree = _info.get("diagnostic_tree") or []
+                    if _tree and not guide.steps:
+                        guide.steps = [
+                            RepairStep(
+                                order=int(s.get("step", i + 1)),
+                                title=str(s.get("check", f"Paso {i + 1}")),
+                                description="; ".join(
+                                    f"{k}={v}" for k, v in s.items() if k not in ("step", "check")
+                                ),
+                            )
+                            for i, s in enumerate(_tree)
+                        ]
+                    if _info.get("recommended_tools"):
+                        guide.tools_needed = list(dict.fromkeys(
+                            guide.tools_needed + _info["recommended_tools"]
+                        ))
+                    _cost = _info.get("cost_range_usd") or []
+                    if len(_cost) >= 2:
+                        guide.estimated_cost_usd = (float(_cost[0]) + float(_cost[1])) / 2
+                    if _info.get("time_hours"):
+                        guide.estimated_time_min = int(float(_info["time_hours"]) * 60)
+                    for src in _info.get("sources", []):
+                        guide.evidence.append({"resource": src, "path": src})
+        except Exception as _e:  # noqa: BLE001
+            logger.warning("expert_knowledge enrichment failed: %s", _e)
+
         # Enriquecer con KnowledgeHub + ExpertAdvisor
         try:
             from backend.knowledge_hub import KnowledgeHub

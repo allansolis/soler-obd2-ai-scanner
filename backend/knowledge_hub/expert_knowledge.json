@@ -1,0 +1,942 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "generated": "2026-04-14",
+    "description": "Conocimiento tecnico estructurado para el AI Copilot de SOLER. Hechos tecnicos extraidos de manuales indexados (1464 PDFs analizados en pdf_analysis.json), bases SAE J2012 y experiencia de taller.",
+    "primary_sources": [
+      "data/downloaded_pdfs/Guia Completo de Reparo de ECUs (2025).pdf",
+      "data/downloaded_pdfs/ACCESO+A+LAS+150+FALLAS+MAS+COMUNDES+Y+SU+DIAGNOSTICO+RAPIDO+.pdf",
+      "data/downloaded_pdfs/plataforma_autotech.pdf",
+      "data/obd-diesel/ (cientos de PDFs por marca)",
+      "data/datos-tecnicos/",
+      "data/abs-esp/",
+      "data/airbag-srs/",
+      "SAE J2012 Diagnostic Trouble Codes"
+    ]
+  },
+
+  "dtc_knowledge": {
+    "P0011": {
+      "description_es": "Posicion/rendimiento del sistema 'A' del arbol de levas - banco 1 (avance excesivo o sistema sobre-avanzado)",
+      "severity": "medium",
+      "symptoms": ["ralenti inestable", "perdida de potencia", "consumo elevado", "emisiones altas", "testigo MIL encendido"],
+      "probable_causes": [
+        "aceite contaminado o nivel bajo",
+        "solenoide VVT/VCT obstruido",
+        "circuito electrico del solenoide VVT abierto o en corto",
+        "sensor CMP defectuoso",
+        "cadena de distribucion estirada o saltada un diente"
+      ],
+      "diagnostic_tree": [
+        {"step": 1, "check": "nivel y condicion del aceite", "expected": "nivel full, sin contaminacion", "if_fail": "cambio de aceite y filtro con viscosidad OEM"},
+        {"step": 2, "check": "resistencia del solenoide VVT", "expected": "6-12 ohm (verificar ficha OEM)", "if_out_of_range": "reemplazar solenoide"},
+        {"step": 3, "check": "senal PWM al solenoide con scanner en vivo", "expected": "0-100% duty variable con RPM", "if_zero": "revisar cableado y ECM driver"},
+        {"step": 4, "check": "correlacion CMP vs CKP", "expected": "en fase segun tabla OEM", "if_desfase": "inspeccionar cadena/tensor de distribucion"}
+      ],
+      "related_components": ["solenoide VVT/VCT", "sensor CMP", "cadena distribucion", "tensor hidraulico", "ECM"],
+      "affected_makes": ["toyota", "ford", "gm", "hyundai", "kia", "honda", "mazda", "vw"],
+      "recommended_tools": ["Mitchell1 ProDemand", "AUTODATA", "Scanner bidireccional (Launch, Autel, KTS)", "multimetro", "manometro de aceite"],
+      "sources": [
+        "data/downloaded_pdfs/Guia Completo de Reparo de ECUs (2025).pdf",
+        "data/obd-diesel/ (manuales marca)"
+      ],
+      "cost_range_usd": [80, 450],
+      "time_hours": 2.0
+    },
+
+    "P0087": {
+      "description_es": "Presion del riel/sistema de combustible demasiado baja",
+      "severity": "high",
+      "symptoms": ["perdida de potencia", "arranque dificil", "motor se ahoga en aceleracion", "tiron al conducir", "humo negro intermitente (diesel)"],
+      "probable_causes": [
+        "filtro de combustible obstruido",
+        "bomba de alta presion desgastada",
+        "sensor FRP (Fuel Rail Pressure) defectuoso",
+        "regulador de presion (DRV/MPROP) con fuga",
+        "inyector con fuga al retorno",
+        "aire en el sistema (diesel)"
+      ],
+      "diagnostic_tree": [
+        {"step": 1, "check": "presion de riel en vivo con scanner", "expected_diesel": "250-1800 bar segun RPM (common rail)", "expected_gasolina": "35-60 psi o 3.5-4.5 bar", "if_low": "continuar paso 2"},
+        {"step": 2, "check": "presion baja transferencia (diesel) o bomba primaria", "expected": "3-5 bar", "if_low": "reemplazar bomba de baja / limpiar filtro"},
+        {"step": 3, "check": "retorno de inyectores con probetas", "expected": "caudal igualado entre cilindros (max diferencia 30%)", "if_uneven": "reemplazar inyector con fuga"},
+        {"step": 4, "check": "valvula reguladora MPROP/DRV con osciloscopio", "expected": "PWM 30-70%", "if_fail": "reemplazar valvula"},
+        {"step": 5, "check": "bomba alta presion - test de caudal", "expected": "por especificacion OEM", "if_low": "reemplazar bomba (CP1/CP3/CP4)"}
+      ],
+      "related_components": ["bomba alta presion (CP1/CP3/CP4)", "sensor FRP", "regulador MPROP/DRV", "inyectores common rail", "filtro combustible"],
+      "affected_makes": ["ford", "mazda", "vw", "mercedes", "bmw", "nissan", "peugeot", "citroen", "chevrolet", "fiat"],
+      "recommended_tools": ["ECM Titanium", "AUTODATA", "Mitchell1", "manometro common rail", "probetas de retorno", "osciloscopio"],
+      "sources": [
+        "data/obd-diesel/OBD DIESEL/ (varios fabricantes)",
+        "data/downloaded_pdfs/Guia Completo de Reparo de ECUs (2025).pdf"
+      ],
+      "cost_range_usd": [150, 1800],
+      "time_hours": 3.0
+    },
+
+    "P0101": {
+      "description_es": "Rango/rendimiento del sensor MAF (Flujo masico de aire)",
+      "severity": "medium",
+      "symptoms": ["ralenti inestable", "tirones en aceleracion", "consumo elevado", "MIL encendida", "humo negro en diesel"],
+      "probable_causes": [
+        "sensor MAF sucio o contaminado",
+        "filtro de aire obstruido o mal instalado",
+        "fugas de aire post-MAF (manguera rota)",
+        "conector MAF corroido",
+        "EGR pegada abierta"
+      ],
+      "diagnostic_tree": [
+        {"step": 1, "check": "limpieza del sensor MAF", "action": "limpiar con limpiador especifico MAF (no WD-40)"},
+        {"step": 2, "check": "flujo de aire en vivo", "expected_idle_gasolina": "2-7 g/s en ralenti 4cil 2.0L", "expected_wot": "150-250 g/s WOT"},
+        {"step": 3, "check": "fugas de vacio post-MAF", "test": "humo o escuchar silbido", "if_leak": "reemplazar manguera/abrazadera"},
+        {"step": 4, "check": "valores de correccion combustible LTFT/STFT", "expected": "-10% a +10%", "if_alto": "MAF leyendo bajo"}
+      ],
+      "related_components": ["sensor MAF", "filtro aire", "tuberias admision", "valvula EGR"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["AUTODATA", "Mitchell1", "limpiador MAF CRC", "scanner con datos en vivo"],
+      "sources": [
+        "data/obd-diesel/",
+        "data/downloaded_pdfs/ACCESO+A+LAS+150+FALLAS+MAS+COMUNDES+Y+SU+DIAGNOSTICO+RAPIDO+.pdf"
+      ],
+      "cost_range_usd": [30, 400],
+      "time_hours": 1.0
+    },
+
+    "P0121": {
+      "description_es": "Rango/rendimiento del sensor TPS (Posicion acelerador/pedal)",
+      "severity": "medium",
+      "symptoms": ["aceleracion errática", "limp mode (modo seguridad)", "ralenti alto o inestable", "MIL encendida"],
+      "probable_causes": [
+        "sensor TPS desgastado",
+        "pedal electronico APP defectuoso",
+        "cuerpo de aceleracion sucio",
+        "cableado abierto/corto",
+        "tension de referencia 5V perdida"
+      ],
+      "diagnostic_tree": [
+        {"step": 1, "check": "tension TPS1 y TPS2 con scanner", "expected_idle": "TPS1 ~0.5-0.9V, TPS2 ~4.1-4.5V (inverso)", "if_abnormal": "reemplazar sensor/pedal"},
+        {"step": 2, "check": "referencia 5V en conector", "expected": "4.8-5.2V", "if_missing": "revisar ECM y cableado"},
+        {"step": 3, "check": "barrido con multimetro de tension al acelerar", "expected": "curva lineal sin saltos"},
+        {"step": 4, "check": "limpieza del cuerpo aceleracion y reaprender posicion de ralenti con scanner"}
+      ],
+      "related_components": ["pedal APP electronico", "cuerpo aceleracion DBW", "ECM"],
+      "affected_makes": ["todos modernos con DBW"],
+      "recommended_tools": ["Scanner bidireccional", "multimetro", "AUTODATA pinouts"],
+      "sources": ["data/downloaded_pdfs/Guia Completo de Reparo de ECUs (2025).pdf"],
+      "cost_range_usd": [80, 350],
+      "time_hours": 1.0
+    },
+
+    "P0128": {
+      "description_es": "Temperatura refrigerante por debajo de la temperatura de regulacion del termostato",
+      "severity": "low",
+      "symptoms": ["calefaccion tarda en calentar", "consumo elevado en frio", "testigo MIL"],
+      "probable_causes": ["termostato pegado abierto", "sensor ECT defectuoso", "bajo nivel refrigerante"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "temperatura de operacion con scanner", "expected": "85-105 C tras 10 min", "if_low": "reemplazar termostato"},
+        {"step": 2, "check": "resistencia sensor ECT", "expected_20C": "2.2-2.7 kohm", "expected_80C": "0.3-0.4 kohm"}
+      ],
+      "related_components": ["termostato", "sensor ECT"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["Scanner", "multimetro"],
+      "sources": ["data/obd-diesel/"],
+      "cost_range_usd": [40, 180],
+      "time_hours": 1.0
+    },
+
+    "P0135": {
+      "description_es": "Circuito del calentador del sensor O2 banco 1 sensor 1 - falla",
+      "severity": "medium",
+      "symptoms": ["consumo elevado", "MIL encendida", "emisiones altas"],
+      "probable_causes": ["calentador O2 abierto", "fusible calentador fundido", "cableado roto", "relay O2 defectuoso"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "resistencia calentador O2", "expected": "3-15 ohm (ver OEM)", "if_infinito": "reemplazar sensor"},
+        {"step": 2, "check": "12V en conector con switch ON", "expected": "bateria", "if_missing": "revisar fusible/relay"},
+        {"step": 3, "check": "tierra del calentador"}
+      ],
+      "related_components": ["sensor O2 upstream", "fusible", "relay"],
+      "affected_makes": ["todos gasolina"],
+      "recommended_tools": ["multimetro", "scanner"],
+      "sources": ["data/downloaded_pdfs/ACCESO+A+LAS+150+FALLAS+MAS+COMUNDES+Y+SU+DIAGNOSTICO+RAPIDO+.pdf"],
+      "cost_range_usd": [60, 250],
+      "time_hours": 1.0
+    },
+
+    "P0141": {
+      "description_es": "Circuito del calentador del sensor O2 banco 1 sensor 2 - falla",
+      "severity": "medium",
+      "symptoms": ["MIL encendida", "posible afectacion readiness catalizador"],
+      "probable_causes": ["calentador abierto", "fusible fundido", "cableado"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "resistencia calentador", "expected": "3-15 ohm"},
+        {"step": 2, "check": "alimentacion 12V"}
+      ],
+      "related_components": ["sensor O2 downstream"],
+      "affected_makes": ["todos gasolina"],
+      "recommended_tools": ["multimetro"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [60, 250],
+      "time_hours": 1.0
+    },
+
+    "P0171": {
+      "description_es": "Sistema de combustible demasiado pobre - banco 1",
+      "severity": "medium",
+      "symptoms": ["ralenti inestable", "perdida potencia", "consumo elevado", "tiron", "MIL"],
+      "probable_causes": [
+        "fuga de vacio (manguera, PCV, empaque admision)",
+        "MAF sucio (lee bajo)",
+        "inyector obstruido",
+        "presion combustible baja",
+        "sensor O2 envejecido",
+        "EVAP purgando en ralenti"
+      ],
+      "diagnostic_tree": [
+        {"step": 1, "check": "STFT y LTFT con scanner", "expected": "LTFT dentro de +/-10%", "if_positive": "sistema compensando pobre"},
+        {"step": 2, "check": "fugas vacio con humo o limpiador de frenos (escuchar RPM)", "if_leak": "reemplazar manguera/empaque"},
+        {"step": 3, "check": "limpieza MAF"},
+        {"step": 4, "check": "presion combustible", "expected": "3.5-4.5 bar (gasolina)", "if_low": "revisar bomba/filtro/regulador"},
+        {"step": 5, "check": "rango sensor O2 upstream", "expected": "0.1-0.9V oscilando"}
+      ],
+      "related_components": ["sensor MAF", "PCV", "admision", "inyectores", "bomba combustible", "sensor O2"],
+      "affected_makes": ["ford", "gm", "toyota", "honda", "nissan", "vw"],
+      "recommended_tools": ["maquina de humo", "scanner", "manometro combustible", "AUTODATA"],
+      "sources": ["data/downloaded_pdfs/ACCESO+A+LAS+150+FALLAS+MAS+COMUNDES+Y+SU+DIAGNOSTICO+RAPIDO+.pdf"],
+      "cost_range_usd": [40, 500],
+      "time_hours": 2.0
+    },
+
+    "P0172": {
+      "description_es": "Sistema de combustible demasiado rico - banco 1",
+      "severity": "medium",
+      "symptoms": ["humo negro", "olor gasolina", "consumo alto", "bujias fouled"],
+      "probable_causes": [
+        "MAF leyendo alto",
+        "inyector con fuga",
+        "presion combustible alta (regulador fallado)",
+        "sensor O2 envejecido",
+        "filtro aire saturado",
+        "sensor ECT leyendo frio falso"
+      ],
+      "diagnostic_tree": [
+        {"step": 1, "check": "STFT/LTFT", "expected": "+/-10%", "if_negative": "sistema compensando rico"},
+        {"step": 2, "check": "presion combustible", "if_high": "regulador fallado"},
+        {"step": 3, "check": "retorno inyectores - fuga"},
+        {"step": 4, "check": "sensor ECT", "expected_80C": "0.3-0.4 kohm"},
+        {"step": 5, "check": "sensor O2"}
+      ],
+      "related_components": ["inyector", "regulador presion", "sensor ECT", "MAF"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["scanner", "manometro", "multimetro"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [80, 600],
+      "time_hours": 2.0
+    },
+
+    "P0217": {
+      "description_es": "Condicion de sobrecalentamiento del motor",
+      "severity": "high",
+      "symptoms": ["aguja temperatura alta", "perdida potencia en modo limp", "vapor radiador"],
+      "probable_causes": ["termostato pegado cerrado", "ventilador defectuoso", "bomba de agua fallada", "radiador obstruido", "bajo nivel refrigerante", "cabeza de cilindros con fuga"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "nivel refrigerante en frio"},
+        {"step": 2, "check": "operacion ventiladores electricos"},
+        {"step": 3, "check": "apertura termostato"},
+        {"step": 4, "check": "presion sistema (test fuga gases al refrigerante)"}
+      ],
+      "related_components": ["termostato", "ventiladores", "bomba agua", "radiador", "empaque cabeza"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["tester presion cooling", "scanner", "termometro IR"],
+      "sources": ["data/obd-diesel/"],
+      "cost_range_usd": [100, 2000],
+      "time_hours": 3.0
+    },
+
+    "P0299": {
+      "description_es": "Condicion de sub-presion del turbocompresor (boost bajo)",
+      "severity": "high",
+      "symptoms": ["perdida potencia severa", "limp mode", "humo negro (diesel)"],
+      "probable_causes": [
+        "actuador VGT pegado (diesel)",
+        "fuga intercooler o manguera",
+        "sensor MAP/boost defectuoso",
+        "solenoide VNT fallado",
+        "turbo desgastado",
+        "valvula EGR pegada abierta"
+      ],
+      "diagnostic_tree": [
+        {"step": 1, "check": "fugas de boost con prueba de presion", "expected": "sin fugas"},
+        {"step": 2, "check": "boost vs boost comandado con scanner", "expected": "diferencia < 100 mbar"},
+        {"step": 3, "check": "actuador VGT movimiento libre", "test": "vacuum pump o scanner bidireccional"},
+        {"step": 4, "check": "sensor MAP 0.5-4.5V, lectura atm 1013 mbar apagado"}
+      ],
+      "related_components": ["turbo VGT", "intercooler", "sensor MAP", "actuador vacio", "EGR"],
+      "affected_makes": ["ford", "vw", "bmw", "mercedes", "mazda", "nissan", "hyundai"],
+      "recommended_tools": ["boost leak tester", "scanner bidireccional", "vacuum pump", "ECM Titanium"],
+      "sources": ["data/obd-diesel/"],
+      "cost_range_usd": [150, 2500],
+      "time_hours": 3.5
+    },
+
+    "P0300": {
+      "description_es": "Fallo de encendido aleatorio/multiple detectado",
+      "severity": "high",
+      "symptoms": ["motor tembloroso", "MIL parpadeando", "perdida potencia", "catalizador se sobrecalienta"],
+      "probable_causes": [
+        "bujias desgastadas",
+        "bobinas de encendido fallando",
+        "cables de bujia",
+        "inyectores obstruidos",
+        "baja compresion",
+        "fuga vacio grande",
+        "combustible contaminado"
+      ],
+      "diagnostic_tree": [
+        {"step": 1, "check": "conteo de misfires por cilindro con scanner", "action": "identificar si es aleatorio o especifico"},
+        {"step": 2, "check": "bujias y bobinas (swap test entre cilindros)"},
+        {"step": 3, "check": "compresion", "expected_gasolina": "170-200 psi, max diff 10%"},
+        {"step": 4, "check": "fugas de vacio"},
+        {"step": 5, "check": "inyectores - balance test"}
+      ],
+      "related_components": ["bujias", "bobinas", "inyectores", "pistones/valvulas"],
+      "affected_makes": ["todos gasolina"],
+      "recommended_tools": ["Mitchell1", "AUTODATA", "osciloscopio secundario", "tester compresion"],
+      "sources": ["data/downloaded_pdfs/ACCESO+A+LAS+150+FALLAS+MAS+COMUNDES+Y+SU+DIAGNOSTICO+RAPIDO+.pdf"],
+      "cost_range_usd": [50, 1500],
+      "time_hours": 2.0
+    },
+
+    "P0335": {
+      "description_es": "Circuito del sensor CKP (Posicion ciguenal) - malfuncion",
+      "severity": "high",
+      "symptoms": ["motor no arranca", "paro repentino al andar", "sin RPM en tablero"],
+      "probable_causes": ["sensor CKP defectuoso", "rueda tonal danada", "cableado roto", "interferencia EMI", "entrehierro incorrecto"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "RPM en scanner al arranque", "expected": "250-300 RPM cranking", "if_zero": "sensor no lee"},
+        {"step": 2, "check": "resistencia sensor inductivo", "expected": "200-1500 ohm segun OEM", "if_infinito": "reemplazar sensor"},
+        {"step": 3, "check": "senal AC con osciloscopio durante cranking", "expected": "senoidal creciente con RPM"},
+        {"step": 4, "check": "entrehierro entre sensor y rueda tonal", "expected": "0.5-1.5 mm"},
+        {"step": 5, "check": "dientes faltantes o danados en rueda tonal"}
+      ],
+      "related_components": ["sensor CKP", "rueda dentada/tonal", "volante motor"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["osciloscopio", "multimetro", "scanner", "AUTODATA pinouts"],
+      "sources": ["data/downloaded_pdfs/Guia Completo de Reparo de ECUs (2025).pdf"],
+      "cost_range_usd": [60, 350],
+      "time_hours": 1.5
+    },
+
+    "P0341": {
+      "description_es": "Circuito sensor CMP (Posicion arbol levas) - rango/rendimiento",
+      "severity": "medium",
+      "symptoms": ["arranque dificil", "perdida potencia", "tiron acelerando"],
+      "probable_causes": ["sensor CMP defectuoso", "cadena distribucion saltada", "rueda tonal CMP danada", "cableado"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "correlacion CMP-CKP en scanner", "if_out_of_phase": "verificar distribucion"},
+        {"step": 2, "check": "senal CMP con osciloscopio", "expected": "pulsos Hall 0-5V o AC"},
+        {"step": 3, "check": "alimentacion sensor", "expected": "5V o 12V segun tipo"}
+      ],
+      "related_components": ["sensor CMP", "cadena/correa distribucion", "engranajes"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["osciloscopio", "scanner"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [60, 600],
+      "time_hours": 1.5
+    },
+
+    "P0420": {
+      "description_es": "Eficiencia del catalizador por debajo del umbral - banco 1",
+      "severity": "medium",
+      "symptoms": ["MIL encendida", "posible olor H2S", "emisiones altas"],
+      "probable_causes": [
+        "catalizador agotado/contaminado",
+        "sensor O2 downstream envejecido",
+        "fuga en el escape antes del cat",
+        "motor funcionando rico cronicamente",
+        "misfires cronicos quemaron el cat"
+      ],
+      "diagnostic_tree": [
+        {"step": 1, "check": "comparar O2 upstream vs downstream con scanner", "expected_downstream": "estable ~0.6-0.8V", "if_oscila": "cat ineficiente"},
+        {"step": 2, "check": "fugas escape antes del cat"},
+        {"step": 3, "check": "LTFT - si rico cronico, resolver causa antes"},
+        {"step": 4, "check": "monitor readiness catalizador", "action": "drive cycle completo"}
+      ],
+      "related_components": ["catalizador", "sensor O2 pre/post", "colector escape"],
+      "affected_makes": ["todos gasolina"],
+      "recommended_tools": ["scanner con graph", "manometro backpressure"],
+      "sources": ["data/downloaded_pdfs/ACCESO+A+LAS+150+FALLAS+MAS+COMUNDES+Y+SU+DIAGNOSTICO+RAPIDO+.pdf"],
+      "cost_range_usd": [150, 1500],
+      "time_hours": 2.0
+    },
+
+    "P0442": {
+      "description_es": "Deteccion de fuga pequena en sistema EVAP",
+      "severity": "low",
+      "symptoms": ["MIL", "posible olor gasolina"],
+      "probable_causes": ["tapa combustible mal sellada", "manguera EVAP rota", "valvula purge/vent defectuosa"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "apretar tapa combustible, borrar DTC, drive cycle"},
+        {"step": 2, "check": "maquina de humo al sistema EVAP para localizar fuga"},
+        {"step": 3, "check": "valvulas purge y vent con multimetro/scanner bidireccional"}
+      ],
+      "related_components": ["tanque", "valvula purge", "valvula vent", "canister carbon", "mangueras"],
+      "affected_makes": ["todos gasolina"],
+      "recommended_tools": ["maquina de humo EVAP", "scanner"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [10, 300],
+      "time_hours": 1.0
+    },
+
+    "P0455": {
+      "description_es": "Deteccion de fuga grande en sistema EVAP",
+      "severity": "low",
+      "symptoms": ["MIL", "olor gasolina fuerte"],
+      "probable_causes": ["tapa combustible faltante", "manguera EVAP desconectada", "valvulas pegadas"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "tapa combustible"},
+        {"step": 2, "check": "inspeccion visual mangueras EVAP"},
+        {"step": 3, "check": "maquina de humo"}
+      ],
+      "related_components": ["tapa combustible", "mangueras", "canister"],
+      "affected_makes": ["todos gasolina"],
+      "recommended_tools": ["maquina humo"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [10, 250],
+      "time_hours": 1.0
+    },
+
+    "P0500": {
+      "description_es": "Senal del sensor de velocidad VSS - malfuncion",
+      "severity": "medium",
+      "symptoms": ["velocimetro errático", "cambios erraticos (AT)", "ABS inhibido"],
+      "probable_causes": ["sensor VSS defectuoso", "cableado", "engrane del tacometro danado", "anillo tonal"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "velocidad en scanner vs GPS"},
+        {"step": 2, "check": "senal sensor con oscilo"},
+        {"step": 3, "check": "cableado"}
+      ],
+      "related_components": ["sensor VSS", "cable speedo", "modulo ABS"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["osciloscopio", "scanner"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [60, 250],
+      "time_hours": 1.0
+    },
+
+    "P0700": {
+      "description_es": "Solicitud TCM (control de transmision) - falla general",
+      "severity": "high",
+      "symptoms": ["cambios duros", "limp mode transmision", "no engrana marchas"],
+      "probable_causes": ["codigo activo en TCM (leer submodulo)", "bajo nivel aceite ATF", "solenoide pegado", "cableado CAN"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "leer todos los modulos - codigos P07xx/P08xx activos en TCM"},
+        {"step": 2, "check": "nivel y estado ATF"},
+        {"step": 3, "check": "comunicacion CAN TCM-ECM"},
+        {"step": 4, "check": "solenoides de control con scanner bidireccional"}
+      ],
+      "related_components": ["TCM", "solenoides ATF", "bus CAN"],
+      "affected_makes": ["todos con AT electronica"],
+      "recommended_tools": ["Mitchell1 transmision", "scanner multi-modulo", "AUTODATA wiring"],
+      "sources": ["data/downloaded_pdfs/Guia Completo de Reparo de ECUs (2025).pdf"],
+      "cost_range_usd": [100, 3000],
+      "time_hours": 3.0
+    },
+
+    "U0100": {
+      "description_es": "Perdida de comunicacion con ECM/PCM 'A'",
+      "severity": "high",
+      "symptoms": ["tablero encendido con luces", "motor no arranca", "otros modulos reportan U01xx"],
+      "probable_causes": ["bus CAN abierto o corto", "ECM sin alimentacion/tierra", "ECM danado", "resistencias de terminacion CAN"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "resistencia CAN entre pins 6 y 14 del DLC (motor off)", "expected": "60 ohm", "if_120ohm": "una terminacion abierta", "if_0": "corto"},
+        {"step": 2, "check": "alimentacion y tierras del ECM"},
+        {"step": 3, "check": "voltaje CAN-H y CAN-L en reposo", "expected_H": "~2.5V", "expected_L": "~2.5V"},
+        {"step": 4, "check": "osciloscopio dual CAN con motor ON"}
+      ],
+      "related_components": ["ECM", "red CAN", "gateway", "fusibles ECM"],
+      "affected_makes": ["todos con CAN"],
+      "recommended_tools": ["osciloscopio", "multimetro", "AUTODATA wiring", "WinOLS/ECM Titanium"],
+      "sources": ["data/downloaded_pdfs/Guia Completo de Reparo de ECUs (2025).pdf"],
+      "cost_range_usd": [50, 2500],
+      "time_hours": 2.5
+    },
+
+    "U0121": {
+      "description_es": "Perdida de comunicacion con modulo ABS/EBCM",
+      "severity": "high",
+      "symptoms": ["testigo ABS", "testigo ESP", "sin cambios AT si vinculado"],
+      "probable_causes": ["ABS sin alimentacion", "bus CAN chassis corto", "ABS danado"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "scanner a modulo ABS"},
+        {"step": 2, "check": "fusibles ABS"},
+        {"step": 3, "check": "CAN chassis"}
+      ],
+      "related_components": ["EBCM/ABS", "red CAN"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["scanner multi-modulo"],
+      "sources": ["data/abs-esp/"],
+      "cost_range_usd": [80, 1500],
+      "time_hours": 2.0
+    },
+
+    "C0040": {
+      "description_es": "Sensor de velocidad de rueda delantera derecha - entrada senal",
+      "severity": "medium",
+      "symptoms": ["testigo ABS", "ESP inhibido", "velocimetro errático"],
+      "probable_causes": ["sensor ABS defectuoso", "anillo tonal/fonico danado", "cableado", "entrehierro sucio"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "resistencia sensor", "expected": "1-2.5 kohm (pasivo) o verificar Hall"},
+        {"step": 2, "check": "senal AC con rueda girando", "expected": ">100 mV AC"},
+        {"step": 3, "check": "anillo tonal limpio y sin dientes faltantes"}
+      ],
+      "related_components": ["sensor ABS", "rueda fonica", "modulo EBCM"],
+      "affected_makes": ["todos con ABS"],
+      "recommended_tools": ["multimetro", "osciloscopio", "scanner ABS"],
+      "sources": ["data/abs-esp/"],
+      "cost_range_usd": [50, 250],
+      "time_hours": 1.0
+    },
+
+    "B0100": {
+      "description_es": "Sensor de impacto frontal - circuito malfuncion",
+      "severity": "high",
+      "symptoms": ["testigo airbag encendido", "posible despliegue no funcional"],
+      "probable_causes": ["sensor impacto defectuoso", "cableado", "conector amarillo corroido"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "WARNING: NO trabajar en SRS con bateria conectada - desconectar y esperar 10 min"},
+        {"step": 2, "check": "scanner a modulo SRS"},
+        {"step": 3, "check": "resistencia sensor segun OEM"},
+        {"step": 4, "check": "continuidad cableado"}
+      ],
+      "related_components": ["sensor impacto", "SRS ACM", "arnes amarillo"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["scanner SRS especifico (Mitchell/AUTODATA)"],
+      "sources": ["data/airbag-srs/"],
+      "cost_range_usd": [100, 800],
+      "time_hours": 2.0,
+      "safety_warning": "El sistema SRS contiene explosivos. Siga protocolo: desconectar bateria, esperar 10 minutos, usar scanner especifico."
+    },
+
+    "P0401": {
+      "description_es": "Flujo EGR insuficiente detectado",
+      "severity": "medium",
+      "symptoms": ["perdida potencia", "emisiones NOx altas", "picado"],
+      "probable_causes": ["EGR obstruida por carbon", "solenoide vacio EGR", "sensor DPFE/posicion EGR", "cooler EGR tapado"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "actuar EGR con scanner bidireccional"},
+        {"step": 2, "check": "limpieza valvula EGR"},
+        {"step": 3, "check": "sensor DPFE o position feedback"}
+      ],
+      "related_components": ["valvula EGR", "cooler EGR", "sensor DPFE"],
+      "affected_makes": ["ford", "gm", "toyota", "honda", "diesel en general"],
+      "recommended_tools": ["scanner bidireccional", "limpiador carbon"],
+      "sources": ["data/obd-diesel/"],
+      "cost_range_usd": [60, 900],
+      "time_hours": 2.0
+    },
+
+    "P0455_extended": {
+      "_note": "duplicado alias - ver P0455"
+    },
+
+    "P0606": {
+      "description_es": "Procesador ECM/PCM - falla interna",
+      "severity": "high",
+      "symptoms": ["MIL", "limp mode", "posible no arranque"],
+      "probable_causes": ["ECM danado", "tierras corroidas", "flash corrupto"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "tierras y alimentaciones ECM"},
+        {"step": 2, "check": "reflash OEM con J2534 (KTS, KESS, CMDFlash, ECM Titanium)"},
+        {"step": 3, "check": "si persiste, reemplazar ECM con codificacion"}
+      ],
+      "related_components": ["ECM"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["J2534 Pass-Thru", "ECM Titanium", "KESS"],
+      "sources": ["data/downloaded_pdfs/Guia Completo de Reparo de ECUs (2025).pdf"],
+      "cost_range_usd": [200, 2500],
+      "time_hours": 3.0
+    },
+
+    "P2002": {
+      "description_es": "Eficiencia del DPF (filtro particulas diesel) por debajo del umbral",
+      "severity": "high",
+      "symptoms": ["limp mode", "boost bajo", "regeneraciones frecuentes", "humo negro"],
+      "probable_causes": ["DPF saturado", "sensor diferencial de presion DPF", "sensor temperatura EGT", "regeneracion pasiva imposible (ciudad)"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "porcentaje hollin en scanner", "action_regen": "forzar regen estacionaria si <80% saturacion"},
+        {"step": 2, "check": "delta presion DPF en vivo", "expected_idle": "<20 mbar"},
+        {"step": 3, "check": "EGT1/EGT2/EGT3 durante regen", "expected": ">600 C en regen"},
+        {"step": 4, "if_irreversible": "reemplazar o limpieza ultrasonica DPF"}
+      ],
+      "related_components": ["DPF", "sensor presion diferencial", "sensores EGT", "inyector 5 (hydrocarbon)"],
+      "affected_makes": ["ford", "vw", "mercedes", "bmw", "peugeot", "citroen", "hyundai"],
+      "recommended_tools": ["scanner bidireccional con funcion regen", "AUTODATA", "Mitchell1"],
+      "sources": ["data/obd-diesel/"],
+      "cost_range_usd": [300, 3500],
+      "time_hours": 3.0
+    },
+
+    "P0016": {
+      "description_es": "Correlacion CKP-CMP banco 1 sensor A - desfase",
+      "severity": "high",
+      "symptoms": ["arranque dificil", "perdida potencia", "ralenti"],
+      "probable_causes": ["cadena distribucion saltada/estirada", "solenoide VVT", "sensor CMP danado"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "marcas de distribucion visualmente (descubrir tapa)"},
+        {"step": 2, "check": "grado desfase con scanner"},
+        {"step": 3, "check": "cadena y tensor - aceite limpio"}
+      ],
+      "related_components": ["cadena distribucion", "tensor", "VVT", "sensor CMP"],
+      "affected_makes": ["toyota", "ford", "nissan", "vw", "mini"],
+      "recommended_tools": ["kit bloqueo distribucion OEM", "scanner"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [400, 2500],
+      "time_hours": 6.0
+    },
+
+    "P0113": {
+      "description_es": "Sensor IAT (temp aire admision) - senal alta",
+      "severity": "low",
+      "symptoms": ["consumo elevado", "ralenti elevado en frio", "MIL"],
+      "probable_causes": ["sensor IAT abierto", "cableado abierto", "conector danado"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "resistencia IAT", "expected_20C": "2-3 kohm", "if_infinito": "sensor abierto"},
+        {"step": 2, "check": "5V referencia", "expected": "4.8-5.2V"},
+        {"step": 3, "check": "continuidad tierra"}
+      ],
+      "related_components": ["sensor IAT", "MAF (suele integrado)"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["multimetro"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [30, 150],
+      "time_hours": 0.5
+    },
+
+    "P0562": {
+      "description_es": "Voltaje de sistema bajo",
+      "severity": "medium",
+      "symptoms": ["MIL", "bateria descargando", "luces debiles"],
+      "probable_causes": ["alternador fallando", "bateria sulfatada", "cables corroidos", "consumo parasito"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "voltaje bateria en reposo", "expected": ">12.4V"},
+        {"step": 2, "check": "voltaje con motor 2000 RPM", "expected": "13.8-14.8V"},
+        {"step": 3, "check": "consumo parasito <50 mA"},
+        {"step": 4, "check": "test de carga alternador"}
+      ],
+      "related_components": ["bateria", "alternador", "regulador"],
+      "affected_makes": ["todos"],
+      "recommended_tools": ["carga bateria", "multimetro"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [80, 500],
+      "time_hours": 1.0
+    },
+
+    "P0191": {
+      "description_es": "Sensor FRP (presion riel combustible) - rango/rendimiento",
+      "severity": "high",
+      "symptoms": ["perdida potencia", "arranque dificil", "tirones"],
+      "probable_causes": ["sensor FRP defectuoso", "cableado", "regulador presion", "filtro combustible"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "presion comandada vs real con scanner"},
+        {"step": 2, "check": "senal FRP con oscilo, expected 0.5-4.5V"},
+        {"step": 3, "check": "5V referencia"}
+      ],
+      "related_components": ["sensor FRP", "regulador", "ECM"],
+      "affected_makes": ["todos GDI/diesel"],
+      "recommended_tools": ["scanner", "osciloscopio"],
+      "sources": ["data/obd-diesel/"],
+      "cost_range_usd": [100, 400],
+      "time_hours": 1.5
+    },
+
+    "P0401_alt": {"_note": "ver P0401"},
+
+    "P0301": {
+      "description_es": "Fallo de encendido cilindro 1 detectado",
+      "severity": "high",
+      "symptoms": ["motor tembloroso", "MIL parpadeante", "perdida potencia"],
+      "probable_causes": ["bujia cil 1", "bobina cil 1", "inyector cil 1", "compresion cil 1", "cableado"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "swap bujia/bobina con otro cilindro - seguir el codigo"},
+        {"step": 2, "check": "compresion cilindro 1"},
+        {"step": 3, "check": "inyector - resistencia y balance"}
+      ],
+      "related_components": ["bujia", "bobina", "inyector"],
+      "affected_makes": ["todos gasolina"],
+      "recommended_tools": ["scanner", "tester compresion", "osciloscopio secundario"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [20, 500],
+      "time_hours": 1.0
+    },
+
+    "P0131": {
+      "description_es": "Sensor O2 Banco 1 Sensor 1 - voltaje bajo",
+      "severity": "medium",
+      "symptoms": ["MIL", "mezcla pobre", "ralenti pobre"],
+      "probable_causes": ["sensor envejecido", "fuga escape antes", "mezcla cronica pobre", "cableado"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "voltaje O2 en vivo, expected 0.1-0.9V oscilando"},
+        {"step": 2, "check": "LTFT alto positivo"},
+        {"step": 3, "check": "fugas escape"}
+      ],
+      "related_components": ["sensor O2", "escape"],
+      "affected_makes": ["todos gasolina"],
+      "recommended_tools": ["scanner graph", "multimetro"],
+      "sources": ["data/downloaded_pdfs/"],
+      "cost_range_usd": [80, 300],
+      "time_hours": 1.0
+    },
+
+    "P0190": {
+      "description_es": "Circuito sensor FRP - malfuncion",
+      "severity": "high",
+      "symptoms": ["arranque dificil", "perdida potencia"],
+      "probable_causes": ["sensor abierto", "cableado"],
+      "diagnostic_tree": [
+        {"step": 1, "check": "5V al sensor"},
+        {"step": 2, "check": "senal de retorno"}
+      ],
+      "related_components": ["sensor FRP"],
+      "affected_makes": ["todos GDI/diesel"],
+      "recommended_tools": ["multimetro"],
+      "sources": ["data/obd-diesel/"],
+      "cost_range_usd": [80, 300],
+      "time_hours": 1.0
+    }
+  },
+
+  "torque_specs": {
+    "cabeza_cilindros": {
+      "Toyota 2AZ-FE (Camry 2.4L)": {"sequence": "star, desde centro", "spec_es": "49 Nm + 90 deg + 90 deg", "unit": "Nm"},
+      "Toyota 1NZ-FE (Corolla 1.5L)": {"spec_es": "49 Nm + 90 deg", "unit": "Nm"},
+      "Ford Duratec 2.0L": {"spec_es": "55 Nm + 90 deg + 90 deg + 45 deg", "unit": "Nm"},
+      "GM Ecotec 2.4L LE5": {"spec_es": "30 Nm + 155 deg", "unit": "Nm"},
+      "Chevrolet LS 5.3L": {"spec_es": "pernos nuevos - 30 Nm + 90 deg (internos) + 50 deg (externos)", "unit": "Nm"},
+      "VW 1.9 TDI BXE/BKC": {"spec_es": "40 Nm + 90 deg + 90 deg", "unit": "Nm"},
+      "VW 2.0 TDI CR (Common Rail)": {"spec_es": "60 Nm + 90 deg + 90 deg", "unit": "Nm"},
+      "Mercedes OM651 2.1 CDI": {"spec_es": "30 Nm + 90 deg + 90 deg + 90 deg", "unit": "Nm"},
+      "BMW N47": {"spec_es": "50 Nm + 90 deg + 90 deg", "unit": "Nm"},
+      "Nissan HR16DE": {"spec_es": "49 Nm + 90 deg + 90 deg", "unit": "Nm"},
+      "Honda R18A (Civic 1.8)": {"spec_es": "38 Nm + 90 deg + 90 deg", "unit": "Nm"}
+    },
+    "bielas": {
+      "Toyota 2AZ-FE": {"spec_es": "20 Nm + 90 deg", "unit": "Nm"},
+      "Ford Duratec 2.0": {"spec_es": "30 Nm + 90 deg", "unit": "Nm"},
+      "GM LS 5.3": {"spec_es": "20 Nm + 75 deg", "unit": "Nm"},
+      "VW 2.0 TDI": {"spec_es": "30 Nm + 90 deg", "unit": "Nm"},
+      "Honda K24": {"spec_es": "20 Nm + 90 deg", "unit": "Nm"}
+    },
+    "munones_ciguenal": {
+      "Toyota 2AZ-FE": {"spec_es": "22 Nm + 90 deg", "unit": "Nm"},
+      "GM LS 5.3": {"spec_es": "20 Nm + 80 deg (internos), 15 Nm + 53 deg (externos)", "unit": "Nm"},
+      "VW 2.0 TDI": {"spec_es": "65 Nm + 90 deg", "unit": "Nm"},
+      "Ford Duratec 2.0": {"spec_es": "35 Nm + 90 deg", "unit": "Nm"}
+    },
+    "bujias": {
+      "estandar_M14x1.25": {"spec_es": "25-30 Nm", "unit": "Nm"},
+      "iridium_M12": {"spec_es": "20-25 Nm", "unit": "Nm"},
+      "con_empaque": {"spec_es": "aprietar manual + 1/2 vuelta (seguir OEM)", "unit": "deg"}
+    },
+    "colector_admision": {
+      "generico_aluminio": {"spec_es": "20-25 Nm en secuencia desde centro", "unit": "Nm"}
+    },
+    "colector_escape": {
+      "generico_acero": {"spec_es": "25-35 Nm en secuencia", "unit": "Nm"}
+    },
+    "carter_aceite": {
+      "pan_acero": {"spec_es": "10-12 Nm secuencia cruzada", "unit": "Nm"}
+    },
+    "rueda_tuercas": {
+      "hub_generico": {"spec_es": "100-140 Nm segun vehiculo", "unit": "Nm"},
+      "camion_ligero": {"spec_es": "140-180 Nm", "unit": "Nm"}
+    },
+    "tapa_valvulas": {
+      "generico_plastico": {"spec_es": "8-10 Nm secuencia espiral", "unit": "Nm"},
+      "generico_aluminio": {"spec_es": "10-12 Nm", "unit": "Nm"}
+    }
+  },
+
+  "component_locations": {
+    "sensor_CKP": {
+      "typical_location_es": "lateral del bloque motor cerca del volante/flywheel; algunos en frontal bajo la polea ciguenal",
+      "signal_type": "AC inductivo senoidal o Hall digital",
+      "voltage_range": "inductivo: >100 mV AC en cranking, crece con RPM; Hall: pulsos 0-5V",
+      "resistance_inductivo": "200-1500 ohm tipico",
+      "common_failure": "grietas por calor, entrehierro incorrecto"
+    },
+    "sensor_CMP": {
+      "typical_location_es": "culata cerca del arbol de levas o tapa de distribucion",
+      "signal_type": "Hall digital 0-5V",
+      "voltage_range": "pulsos 0/5V con motor girando",
+      "common_failure": "conector corroido, rueda tonal"
+    },
+    "sensor_MAF": {
+      "typical_location_es": "entre filtro aire y cuerpo aceleracion",
+      "signal_type": "analogico 0-5V o digital frecuencia (Ford)",
+      "typical_idle_gs": "2-7 g/s en motores 4cil 2.0L",
+      "common_failure": "contaminacion con aceite del filtro o PCV"
+    },
+    "sensor_MAP": {
+      "typical_location_es": "en el multiple de admision o riel de admision",
+      "signal_type": "analogico 0.5-4.5V",
+      "key_off_kpa": "~101 kPa (presion atmosferica)",
+      "idle_kpa": "30-40 kPa (vacio)",
+      "common_failure": "agrieta diafragma, lectura errónea con humedad"
+    },
+    "sensor_O2": {
+      "typical_location_es": "upstream en colector escape pre-catalizador; downstream post-catalizador",
+      "signal_type": "Zirconia 0-1V o Wideband A/F",
+      "switching_freq": "debe oscilar >0.5 Hz upstream en loop cerrado"
+    },
+    "sensor_FRP": {
+      "typical_location_es": "en el riel common rail (diesel o GDI)",
+      "signal_type": "analogico 0.5-4.5V proporcional a bar",
+      "diesel_idle_bar": "250-400 bar",
+      "diesel_wot_bar": "1600-2000 bar"
+    },
+    "sensor_ECT": {
+      "typical_location_es": "en el housing de termostato o cabeza de cilindros",
+      "signal_type": "NTC thermistor (resistencia baja con calor)",
+      "resistance_20C": "2-3 kohm",
+      "resistance_90C": "0.2-0.3 kohm"
+    },
+    "valvula_EGR": {
+      "typical_location_es": "entre colector de escape y admision",
+      "types": ["neumatica con solenoide vacio", "electronica DC motor", "stepper"],
+      "common_failure": "carbon, valvula pegada abierta/cerrada"
+    },
+    "turbo_VGT": {
+      "typical_location_es": "en colector escape",
+      "control": "neumatico con solenoide modulador o actuador electrico (REA)",
+      "common_failure": "vanes pegadas por hollin"
+    },
+    "dpf": {
+      "typical_location_es": "escape post-turbo, antes del resonador",
+      "sensors_asociados": ["diferencial de presion", "EGT pre-DPF", "EGT post-DPF"],
+      "regeneration": "pasiva (>350C sostenido) o activa (post-inyeccion genera 600C)"
+    },
+    "sensor_velocidad_ABS": {
+      "typical_location_es": "en cada manguera/buje de rueda",
+      "signal_type": "pasivo inductivo o activo Hall",
+      "resistance_pasivo": "1-2.5 kohm"
+    }
+  },
+
+  "ecu_pinouts_common": {
+    "OBD2_DLC_J1962": [
+      {"pin": 2, "function": "SAE J1850 Bus+ / PWM o VPW"},
+      {"pin": 4, "function": "Chassis Ground"},
+      {"pin": 5, "function": "Signal Ground"},
+      {"pin": 6, "function": "CAN-H (ISO 15765-4)"},
+      {"pin": 7, "function": "K-Line (ISO 9141-2 / ISO 14230 KWP2000)"},
+      {"pin": 10, "function": "SAE J1850 Bus- (PWM only)"},
+      {"pin": 14, "function": "CAN-L"},
+      {"pin": 15, "function": "L-Line (opcional)"},
+      {"pin": 16, "function": "+12V Bateria"}
+    ],
+    "Bosch_EDC16_generic_94pin": {
+      "notes_es": "Pinout varia por aplicacion. Usar AUTODATA/Mitchell1 para pinout exacto del modelo.",
+      "common_signals": ["GND power", "GND signal", "+12V main relay", "CAN-H/L", "CKP+/-", "CMP", "MAF", "MAP", "FRP", "MPROP solenoide", "inyectores 1-4", "bujias calentamiento"]
+    },
+    "Siemens_MS43_BMW_88pin": {
+      "notes_es": "Usar WDS BMW o AUTODATA para pinout modelo especifico"
+    },
+    "Mercedes_ME97_132pin": {
+      "notes_es": "Pinout en Star Diagnosis / WIS. AUTODATA tambien provee."
+    }
+  },
+
+  "decision_trees": {
+    "no_arranca_motor_gira": [
+      {"step": 1, "check": "MIL enciende con switch ON", "if_no": "problema alimentacion ECM"},
+      {"step": 2, "check": "RPM en scanner al crankear", "expected": ">200 RPM", "if_zero": "ir a CKP"},
+      {"step": 3, "check": "sensor CKP - senal oscilo", "if_no_signal": "sensor o cableado"},
+      {"step": 4, "check": "chispa en cada bujia (dispone inline spark tester)", "if_no_chispa": "bobinas, modulo encendido, CKP"},
+      {"step": 5, "check": "presion combustible", "expected_gasolina": "3-4 bar en cranking", "if_low": "bomba, filtro, regulador"},
+      {"step": 6, "check": "inyeccion - noid light o osciloscopio", "if_no_pulso": "ECM sin comandar"},
+      {"step": 7, "check": "compresion dinamica cranking", "expected": ">100 psi", "if_low": "distribucion saltada, valvulas"},
+      {"step": 8, "check": "inmovilizador", "action": "scanner a modulo de llave/PATS/IMMO"}
+    ],
+    "no_arranca_motor_no_gira": [
+      {"step": 1, "check": "voltaje bateria", "expected": ">11V con carga"},
+      {"step": 2, "check": "click solenoide arranque"},
+      {"step": 3, "check": "voltaje en S (pequeno cable arranque) al dar marcha", "expected": "12V"},
+      {"step": 4, "check": "tierra motor - cable masa chassis"},
+      {"step": 5, "check": "rotor arranque libre - sin hidraulico"},
+      {"step": 6, "check": "switch neutral safety (AT) o clutch (MT)"}
+    ],
+    "humo_negro_diesel": [
+      {"step": 1, "check": "filtro aire limpio"},
+      {"step": 2, "check": "sensor MAF limpio - leer g/s con scanner"},
+      {"step": 3, "check": "EGR - actuar con scanner bidireccional, debe abrir/cerrar"},
+      {"step": 4, "check": "boost vs comandado"},
+      {"step": 5, "check": "inyectores - test retorno balanceado"},
+      {"step": 6, "check": "DPF saturacion"},
+      {"step": 7, "check": "timing inyeccion segun OEM"}
+    ],
+    "humo_blanco_azul": [
+      {"step": 1, "check": "humo blanco dulce = refrigerante (empaque cabeza, intercooler diesel)"},
+      {"step": 2, "check": "humo azul aceitoso = aceite (guias valvulas, anillos, turbo)"},
+      {"step": 3, "check": "test de compresion y fuga"},
+      {"step": 4, "check": "PCV funcionando"},
+      {"step": 5, "check": "aceite en intercooler (diesel) = sello turbo"}
+    ],
+    "sobrecalentamiento": [
+      {"step": 1, "check": "nivel refrigerante con motor frio"},
+      {"step": 2, "check": "ventiladores electricos activan"},
+      {"step": 3, "check": "termostato abre - test con scanner de temperaturas entrada/salida radiador"},
+      {"step": 4, "check": "bomba agua - flujo visible en deposito"},
+      {"step": 5, "check": "radiador limpio, sin obstrucciones"},
+      {"step": 6, "check": "presion sistema - test de gases al refrigerante (bubbles)"},
+      {"step": 7, "check": "sello head gasket - leakdown test"}
+    ],
+    "consumo_combustible_excesivo": [
+      {"step": 1, "check": "DTCs pending/stored"},
+      {"step": 2, "check": "LTFT/STFT", "if_positive": "pobre cronico (ir a P0171 tree)"},
+      {"step": 3, "check": "presion neumaticos"},
+      {"step": 4, "check": "sensor ECT reporta caliente >85 C tras 10min"},
+      {"step": 5, "check": "freno trasero pegado (tambor caliente)"},
+      {"step": 6, "check": "filtro aire"},
+      {"step": 7, "check": "catalizador obstruido (backpressure test)"}
+    ],
+    "perdida_potencia_intermitente": [
+      {"step": 1, "check": "DTCs pending"},
+      {"step": 2, "check": "STFT/LTFT extremos durante episodio (log con scanner)"},
+      {"step": 3, "check": "boost vs comandado durante episodio"},
+      {"step": 4, "check": "MAF lectura no cae"},
+      {"step": 5, "check": "presion combustible sostenida"},
+      {"step": 6, "check": "CKP/CMP jitter con oscilo"}
+    ],
+    "tablero_se_apaga_al_conducir": [
+      {"step": 1, "check": "voltaje sistema en vivo"},
+      {"step": 2, "check": "alternador salida con carga (>13.8V)"},
+      {"step": 3, "check": "terminales bateria apretadas limpias"},
+      {"step": 4, "check": "masas chassis motor"},
+      {"step": 5, "check": "fusibles BCM/tablero"}
+    ],
+    "testigo_abs_esp_encendido": [
+      {"step": 1, "check": "scanner a modulo ABS - codigos Cxxxx"},
+      {"step": 2, "check": "sensores de rueda - resistencia y senal con rueda girando"},
+      {"step": 3, "check": "sensor yaw/lateral (ESP)"},
+      {"step": 4, "check": "sensor angulo volante - calibrar con scanner"},
+      {"step": 5, "check": "alimentacion modulo ABS y tierras"}
+    ],
+    "testigo_airbag_srs": [
+      {"step": 1, "safety_warning": "Desconectar bateria y esperar 10 min antes de trabajar"},
+      {"step": 2, "check": "scanner modulo SRS - codigos Bxxxx"},
+      {"step": 3, "check": "conector amarillo bajo asiento/volante - limpiar"},
+      {"step": 4, "check": "resistencia squib/airbag con herramienta segura (simulador)"},
+      {"step": 5, "check": "sensores impacto frontal/lateral"}
+    ]
+  },
+
+  "tool_selection_matrix": {
+    "lectura_DTCs_basica": ["ELM327 + Torque/Carscanner", "Launch X431", "Autel MK808"],
+    "diagnostico_profundo": ["Mitchell1 ProDemand", "AUTODATA", "Bosch KTS", "Launch X431 Pro"],
+    "pinouts_y_wiring": ["AUTODATA", "Mitchell1", "ALLDATA"],
+    "reprogramacion_ECU": ["KESS V2/V3", "CMDFlash", "MPPS", "ECM Titanium (edicion)", "WinOLS (edicion)", "KTS J2534"],
+    "edicion_mapas_tuning": ["WinOLS", "ECM Titanium", "HP Tuners (GM/Ford/Dodge)"],
+    "diagnostico_ABS_SRS": ["Launch X431", "Autel MaxiSys", "AUTODATA para wiring"],
+    "lectura_datos_vivo_osciloscopio": ["Pico Scope", "Hantek 1008C", "Autel MaxiScope"]
+  }
+}
