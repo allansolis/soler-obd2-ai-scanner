@@ -13,6 +13,7 @@ import {
   Grid3x3,
   HardDrive,
   Database,
+  Brain,
 } from 'lucide-react'
 
 interface LayoutProps {
@@ -28,6 +29,7 @@ const navItems = [
   { to: '/ai', icon: MessageSquare, label: 'AI Chat' },
   { to: '/drive', icon: HardDrive, label: 'Drive' },
   { to: '/hub', icon: Database, label: 'Hub' },
+  { to: '/expert', icon: Brain, label: 'Experto' },
   { to: '/history', icon: History, label: 'History' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]

@@ -1,0 +1,624 @@
+{
+  "schema_version": "1.0.0",
+  "generated_for": "SOLER OBD2 AI Scanner",
+  "language": "es-ES",
+  "tools": {
+    "hp_tuners": {
+      "id": "hp_tuners",
+      "name": "HP Tuners (VCM Suite)",
+      "category": "tuning_software",
+      "publisher": "HP Tuners LLC (USA)",
+      "description_es": "Suite de tuning de ECU lider para vehiculos GM, Ford, Chrysler/Dodge/Jeep/RAM y algunos modelos asiaticos. Incluye VCM Editor (edicion de calibracion) y VCM Scanner (datalogging y DTCs). Trabaja sobre interfaces propietarias MPVI2 y MPVI3 que se conectan al puerto OBD-II.",
+      "supports": {
+        "brands": ["GM", "Chevrolet", "Cadillac", "GMC", "Ford", "Lincoln", "Chrysler", "Dodge", "Jeep", "RAM", "Holden", "Nissan GT-R (limitado)", "Toyota Tundra/Tacoma (limitado)"],
+        "protocols": ["OBD-II ISO 15765-4 (CAN)", "GMLAN", "J1850 VPW", "J1850 PWM", "ISO 9141-2", "KWP2000"],
+        "functions": ["lectura calibracion", "escritura calibracion", "datalogging en vivo", "lectura/borrado DTCs", "edicion de tablas (VE, MAF, spark, AFR, transmision)", "comparacion historial calibraciones"]
+      },
+      "hardware_required": ["MPVI2", "MPVI3", "Pro Feature Set (opcional)"],
+      "use_cases": ["Tuning Stage 1/2/3", "Datalogging para diagnostico avanzado", "Calibracion de transmisiones automaticas (4L60E, 6L80, 8L90, 10L80)", "Conversion de motores swap", "Eliminar limitadores de velocidad/RPM"],
+      "typical_workflow": "1. Conectar MPVI2/3 al puerto OBD-II con encendido en ON\n2. Abrir VCM Editor y leer la calibracion completa de la ECU (tarda 2-10 min)\n3. Guardar copia stock como respaldo (.hpt)\n4. Modificar tablas (VE, spark, AFR, idle, transmision)\n5. Escribir calibracion modificada\n6. Datalogear con VCM Scanner para validar AFR, knock, IAT, MAP\n7. Iterar hasta lograr objetivo",
+      "strengths": ["El soporte mas profundo para GM (LS, LT, Ecotec, Duramax LB7-L5P)", "Ecosistema cloud (HP Tuners Cloud) sincroniza tunes y logs", "Comunidad muy activa en foros tipo LS1Tech, LMR", "VCM Scanner gratuito para diagnostico OBD-II generico", "Soporte oficial extenso, documentacion en knowledge base"],
+      "limitations": ["Requiere creditos VCM por vehiculo (8 creditos GM 1997-2013, 4-8 segun modelo)", "Soporte europeo limitado (no VAG, no BMW, no Mercedes)", "Curva de aprendizaje empinada", "Algunos modelos requieren bench/bootmode (no soportado nativo, requiere proteccion adicional)"],
+      "license": "comercial (suscripcion de creditos)",
+      "learning_curve": "avanzado",
+      "price_range_usd": "MPVI3 hardware: $399 / Creditos: $50 cada 2 / Pro Suite: $99",
+      "alternatives": ["EFILive (mejor para Duramax)", "SCT/Bully Dog (Ford/Cummins)", "DiabloSport Trinity (consumer-grade)", "MotorCraft Service (Ford OEM)"],
+      "common_dtc_workflow": "Para diagnostico: usar VCM Scanner (gratis) - lee codigos genericos OBD-II y especificos GM/Ford. Permite freeze frame, mode 6 y O2 monitor. No es scanner OEM completo.",
+      "tuning_capabilities": {
+        "stage1_typical_gains_hp": "15-30 (NA), 50-80 (turbo)",
+        "stage1_typical_gains_torque": "20-40 (NA), 70-120 (turbo)",
+        "notes": "Stage 1 mantiene hardware stock. Stage 2/3 requiere hardware (escape, intake, inyectores, turbo). Tunes E85 ganan 30-50 hp adicionales con hardware adecuado."
+      },
+      "known_issues": ["Algunas ECU GM 2014+ requieren unlock por servicio HP Tuners", "Conflictos con AntiTheft/PATS al cambiar VIN", "Errores B1000 al escribir BCM mal calibrado"],
+      "official_url": "https://www.hptuners.com",
+      "manual_resources": ["VCM Editor Help (F1 dentro app)", "HP Tuners Wiki", "Foro: forum.hptuners.com"]
+    },
+
+    "ecm_pinout_8": {
+      "id": "ecm_pinout_8",
+      "name": "ECM PINOUT 8.0",
+      "category": "ecu_database",
+      "publisher": "Multiple (recopilacion comunitaria, base UCANDAS/ALLDATA)",
+      "description_es": "Base de datos exhaustiva con pinouts (asignacion de pines) de modulos ECM/PCM/TCM/BCM para miles de vehiculos. Indispensable para diagnostico de cableado, instalacion de inmovilizadores, swaps de motor y reparacion electronica.",
+      "supports": {
+        "brands": ["Universal: GM, Ford, Chrysler, Toyota, Honda, Nissan, Hyundai, Kia, VW, BMW, Mercedes, Peugeot, Renault, Fiat, Mitsubishi y mas"],
+        "protocols": ["N/A (referencia documental)"],
+        "functions": ["consulta de pinout ECU", "ubicacion de conectores", "diagramas electricos basicos", "identificacion de senales (CAN-H/L, K-Line, sensores, actuadores)"]
+      },
+      "hardware_required": ["Ninguno (solo PC con visor PDF/imagenes)"],
+      "use_cases": ["Diagnostico con osciloscopio o multimetro pin-a-pin", "Swaps de ECU (clonado y bench)", "Instalacion de inmovilizadores aftermarket", "Reparacion de cableados quemados", "Identificacion de pines para boot/bench mode"],
+      "typical_workflow": "1. Identificar marca/modelo/anio\n2. Buscar parte numero de la ECU (en sticker o motor)\n3. Abrir pinout correspondiente\n4. Cruzar referencia con conector vehicular\n5. Medir tension/resistencia segun el pin sospechoso",
+      "strengths": ["Cobertura masiva multi-marca en una sola herramienta", "Funciona offline 100%", "Util para tecnicos sin acceso a Mitchell/Alldata"],
+      "limitations": ["Calidad variable (algunos pinouts son fotocopias)", "No incluye procedimientos de prueba, solo diagrama", "Algunas marcas (BMW, Mercedes recientes) muy limitadas"],
+      "license": "uso interno/educativo (no oficial)",
+      "learning_curve": "intermedio (requiere conocer electricidad automotriz)",
+      "alternatives": ["Mitchell ProDemand (oficial pago)", "ALLDATA (oficial pago)", "Autodata Online", "Documentacion OEM"],
+      "common_dtc_workflow": "Util para DTCs de circuito (P0xxx con 'Circuit Open/Short to Ground/Power'). Identificar pin del sensor sospechoso y medir.",
+      "official_url": "no oficial",
+      "manual_resources": ["Indice integrado en el ZIP/instalador"]
+    },
+
+    "hyundai_kia_gds": {
+      "id": "hyundai_kia_gds",
+      "name": "Hyundai/Kia GDS (Global Diagnostic System)",
+      "category": "oem_diagnostic",
+      "publisher": "Hyundai Motor Group / Kia Motors",
+      "description_es": "Sistema de diagnostico oficial OEM para vehiculos Hyundai y Kia mundial. Equivalente al GDS Mobile (G-Scan) usado en concesionarios. Permite diagnostico completo, codificacion, programacion de modulos, actualizacion de software ECU y procedimientos especificos del fabricante.",
+      "supports": {
+        "brands": ["Hyundai (todos los modelos 2000+)", "Kia (todos los modelos 2000+)", "Genesis"],
+        "protocols": ["KWP2000", "ISO 9141-2", "CAN ISO 15765-4", "UDS ISO 14229", "MED17 / EDC17 (Bosch)"],
+        "functions": ["lectura DTC (todos los modulos, no solo motor)", "borrado DTC", "datos en vivo", "actuador test (active test)", "codificacion variantes", "reset de servicio (TPMS, freno electrico, SAS, EPB)", "programacion llaves/inmo", "actualizacion firmware ECU"]
+      },
+      "hardware_required": ["VCI II (Vehicle Communication Interface) Hyundai/Kia o clones GVCI", "Algunos clones J2534 funcionan parcialmente"],
+      "use_cases": ["Diagnostico completo de vehiculos Hyundai/Kia", "Programacion de llaves smart key", "Reset de modulos despues de cambio de bateria/ECU", "Calibracion sensores ADAS", "Reset de regeneracion de DPF (diesel)"],
+      "typical_workflow": "1. Conectar VCI II al OBD\n2. Iniciar GDS, seleccionar modelo/anio/motor\n3. Hacer 'Auto Search' (escaneo de todos los modulos)\n4. Revisar DTCs y datos en vivo\n5. Ejecutar funciones especificas (active test, codificacion, reset)\n6. Generar reporte",
+      "strengths": ["Acceso completo a TODOS los sistemas (motor, ABS, SRS, BCM, IPM, AVN, etc.)", "Procedimientos guiados paso a paso", "Wiring diagrams integrados", "Hojas de servicio TSB"],
+      "limitations": ["Requiere VCI II oficial o clon de calidad", "Software pesado (~10 GB)", "GDS clasico solo Windows 7/10 32-bit estable", "Updates oficiales requieren cuenta dealer"],
+      "license": "OEM (uso restringido a concesionarios oficialmente)",
+      "learning_curve": "intermedio-avanzado",
+      "alternatives": ["G-Scan (Hyundai/Kia compatible)", "Launch X431 con licencia HKMC", "Autel MaxiSys con licencia"],
+      "common_dtc_workflow": "Para DTCs Hyundai/Kia, GDS es la herramienta definitiva: lee codigos especificos no genericos (P1xxx, B1xxx, C1xxx, U1xxx) y permite ejecutar 'Active Tests' para validar el componente.",
+      "known_issues": ["VCI II no original puede dar errores de comunicacion en CAN-FD (modelos 2020+)", "Algunas funciones requieren conexion online a servidor HKMC"],
+      "official_url": "https://gds.hyundai-motor.com",
+      "manual_resources": ["GDS Help interno", "HKMC Service Information", "Foros: hyundai-forums.com, kia-forum.com"]
+    },
+
+    "toyota_gsic": {
+      "id": "toyota_gsic",
+      "name": "Toyota GSIC / TIS (Technical Information System)",
+      "category": "oem_service_info",
+      "publisher": "Toyota Motor Corporation",
+      "description_es": "Portal oficial de informacion tecnica de servicio Toyota/Lexus/Scion. Contiene manuales de reparacion (RM), wiring diagrams (EWD), boletines de servicio (TSB), procedimientos de calibracion ADAS y manuales de operador. Es la fuente autoritativa para reparar cualquier Toyota.",
+      "supports": {
+        "brands": ["Toyota", "Lexus", "Scion (hasta 2016)", "Daihatsu (parcial)"],
+        "protocols": ["N/A (sistema documental)"],
+        "functions": ["consulta de Repair Manual", "Electrical Wiring Diagrams", "TSB (Technical Service Bulletins)", "manuales de operador", "informacion de partes (con TIS Plus)"]
+      },
+      "hardware_required": ["Ninguno (web-based)"],
+      "use_cases": ["Procedimiento de reparacion paso a paso", "Identificacion de DTC con descripcion oficial", "Diagrama electrico para diagnostico", "Especificaciones de torque, holguras, capacidades de fluidos"],
+      "typical_workflow": "1. Login en techinfo.toyota.com (suscripcion)\n2. Seleccionar modelo, anio y mercado\n3. Navegar por sistema (engine, brake, body, etc.)\n4. Buscar DTC o procedimiento por keyword\n5. Imprimir/exportar a PDF",
+      "strengths": ["Informacion 100% oficial", "Cobertura completa de modelo Toyota mundial", "TSBs actualizados constantemente", "Diagramas EWD de alta calidad con codigos de color"],
+      "limitations": ["Requiere suscripcion de pago ($15/dia, $50/mes, $1500/anio US)", "Por mercado (US, EU, JP, LATAM), no siempre cruzan datos"],
+      "license": "comercial (suscripcion)",
+      "learning_curve": "intermedio",
+      "alternatives": ["Mitchell ProDemand", "Autodata", "Foros: toyotanation.com"],
+      "common_dtc_workflow": "Buscar el DTC en 'Diagnostic Trouble Codes' del modelo. Toyota da: descripcion, condiciones de set, monitor, lista de inspeccion paso a paso, criterios de reparacion.",
+      "official_url": "https://techinfo.toyota.com (US), https://www.toyota-tech.eu (EU)",
+      "manual_resources": ["GSIC offline copies (descargables por suscripcion)"]
+    },
+
+    "etka_elsawin": {
+      "id": "etka_elsawin",
+      "name": "ETKA + ElsaWin (VAG)",
+      "category": "oem_parts_service",
+      "publisher": "Volkswagen AG / Audi AG",
+      "description_es": "Combo oficial del Grupo VAG: ETKA (Elektronischer Teile Katalog) es el catalogo electronico de partes; ElsaWin (Elektronisches Service Auskunft Werkstatt-Informationssystem) es el sistema de informacion de taller con manuales de reparacion, wiring diagrams y boletines tecnicos. Indispensable para concesionarios y talleres VW/Audi/Skoda/Seat/Bentley/Lamborghini.",
+      "supports": {
+        "brands": ["Volkswagen", "Audi", "Skoda", "SEAT", "Bentley", "Lamborghini", "VW Comerciales (Crafter, Amarok, T-series)"],
+        "protocols": ["N/A (documental)"],
+        "functions": ["Catalogo de partes con explosionados", "Numeros de parte y precios", "Manuales de reparacion completos", "Wiring diagrams", "TSBs y campanias", "Procedimientos de codificacion"]
+      },
+      "hardware_required": ["Ninguno (PC Windows)"],
+      "use_cases": ["Identificar parte por VIN", "Reparacion guiada VW/Audi", "Diagnostico electrico con EWD oficial", "Verificar campanias de fabrica"],
+      "typical_workflow": "1. Instalar ETKA y ElsaWin en Windows\n2. Ingresar VIN del vehiculo\n3. ETKA muestra todas las partes; ElsaWin muestra los procedimientos\n4. Cruzar referencia para reparacion completa",
+      "strengths": ["Datos oficiales VAG", "VIN-specific", "Diagramas detallados con todos los conectores numerados"],
+      "limitations": ["Requiere instalacion compleja en Windows", "Versiones piratas pueden estar incompletas o desactualizadas", "Updates oficiales solo para dealers"],
+      "license": "OEM",
+      "learning_curve": "intermedio",
+      "alternatives": ["VAG-COM/VCDS (diagnostico complementario)", "ODIS (OEM scanner)", "Erwin online (oficial publico de pago)"],
+      "common_dtc_workflow": "ElsaWin contiene el procedimiento de diagnostico oficial para cada DTC VAG. Cruzar con VCDS para lectura.",
+      "official_url": "https://erwin.volkswagen.de (oficial publico)",
+      "manual_resources": ["Manual ETKA y ElsaWin instalado"]
+    },
+
+    "autodata_3_45": {
+      "id": "autodata_3_45",
+      "name": "Autodata 3.40 / 3.45",
+      "category": "multi_brand_service",
+      "publisher": "Autodata Limited (Solera Holdings)",
+      "description_es": "Base de datos tecnica multimarca para mecanicos. Cubre +130 marcas y +34000 modelos. Incluye especificaciones tecnicas, tiempos de servicio, tablas de torque, diagramas de cableado, procedimientos de timing belt/chain, codigos de DTC con causa probable y procedimiento de prueba.",
+      "supports": {
+        "brands": ["+130 marcas: VW, BMW, Mercedes, Toyota, Honda, Nissan, Ford, GM, Hyundai, Kia, Renault, Peugeot, Fiat, Alfa Romeo, Mitsubishi, Mazda, Subaru, Volvo, Saab, Citroen, Seat, Skoda, Opel, Vauxhall, Mini, Smart, etc."],
+        "protocols": ["N/A (documental)"],
+        "functions": ["Datos de servicio (intervalos, capacidades)", "Especificaciones tecnicas (torque, holguras)", "Wiring diagrams a color", "Diagnostic Trouble Codes con causa", "Timing belt/chain procedures", "Tiempos de mano de obra"]
+      },
+      "hardware_required": ["PC Windows"],
+      "use_cases": ["Taller multimarca (presupuesto, diagnostico, reparacion)", "Service intervals", "Cambio de timing belt con diagrama", "Identificar causa probable de DTC en marcas exoticas"],
+      "typical_workflow": "1. Seleccionar marca/modelo/motor/anio\n2. Navegar al modulo (Service, Technical Data, DTCs, Wiring)\n3. Imprimir/exportar el procedimiento",
+      "strengths": ["La cobertura mas amplia multimarca", "Diagramas legibles", "Util para presupuestos (tiempos)", "DTC con causa y prueba"],
+      "limitations": ["3.40/3.45 desactualizado (modelos hasta 2014-2015 aprox)", "Para vehiculos nuevos requiere Autodata Online", "Algunos motores diesel modernos limitados"],
+      "license": "comercial",
+      "learning_curve": "facil-intermedio",
+      "price_range_usd": "$1500-3000/anio (Online)",
+      "alternatives": ["Mitchell ProDemand", "Haynes Pro", "ALLDATA"],
+      "common_dtc_workflow": "Autodata da: descripcion del DTC, sintoma, causa probable (lista priorizada), pasos de inspeccion. Excelente como segunda opinion.",
+      "official_url": "https://www.autodata-group.com",
+      "manual_resources": ["Help integrado F1"]
+    },
+
+    "bmw_ista": {
+      "id": "bmw_ista",
+      "name": "BMW ISTA / Rheingold",
+      "category": "oem_diagnostic",
+      "publisher": "BMW AG",
+      "description_es": "Sistema de diagnostico oficial BMW (Integrated Service Technical Application). Reemplaza al antiguo DIS/GT1. Incluye ISTA-D (diagnostico) e ISTA-P (programacion). Permite codificar, programar, actualizar y reparar todos los modulos BMW/Mini/Rolls-Royce desde 2001 hasta actualidad.",
+      "supports": {
+        "brands": ["BMW (1995+)", "Mini (2001+)", "Rolls-Royce (2003+)"],
+        "protocols": ["DS2 (modelos antiguos pre-2003)", "K-Line", "CAN", "MOST", "FlexRay", "BMW Ethernet (ENET, modelos F/G)"],
+        "functions": ["Diagnostico guiado (test plans)", "Lectura/borrado DTC todos modulos", "Codificacion (FA, VO)", "Programacion firmware (flash)", "Reset de adaptaciones", "Service functions (oil, brake, registro bateria)"]
+      },
+      "hardware_required": ["ICOM A2/A3+B+C (oficial BMW)", "ENET cable (modelos F/G/I via Ethernet)", "K+DCAN cable (modelos E)"],
+      "use_cases": ["Diagnostico profesional BMW", "Codificacion de retrofits (Apple CarPlay, asientos calefaccion, etc.)", "Programacion despues de cambio de modulo", "Adaptacion de inyectores", "Registro de bateria nueva (IBS)"],
+      "typical_workflow": "1. Conectar ICOM/ENET\n2. ISTA detecta VIN, FA, lista de modulos\n3. 'Quick Test' lista todos los DTCs\n4. Seleccionar 'Test Plan' guiado\n5. Ejecutar acciones (codificar, flashear) o servicios",
+      "strengths": ["Acceso completo a TODA la flota BMW", "Procedimientos guiados expertos", "Wiring diagrams integrados (TIS)", "Codificacion oficial sin riesgo"],
+      "limitations": ["Software pesado (50+ GB)", "Requiere VM o instalacion dedicada", "Programacion (ISTA-P) puede ladrillar modulos si se interrumpe", "ICOM original costoso"],
+      "license": "OEM (BMW dealer)",
+      "learning_curve": "avanzado",
+      "alternatives": ["E-Sys (codificacion F/G/I)", "INPA (E-series antiguos)", "Tool32", "Carly (consumer-grade)", "BimmerCode app"],
+      "common_dtc_workflow": "ISTA usa 'fault codes' BMW propios (5 digitos hex). Convierte a P-codes solo en motor. ISTA-D genera 'Test Plan' priorizado: probar componente A, luego B, etc. Muy eficiente.",
+      "known_issues": ["Programacion DME N20/N55 puede fallar con bateria <12.5V", "F-series requiere ISTA-P online para coding ciertos retrofits"],
+      "official_url": "https://aos.bmwgroup.com (AOS oficial)",
+      "manual_resources": ["TIS integrado", "Newtis.info (extracto comunidad)"]
+    },
+
+    "delphi_ds150e": {
+      "id": "delphi_ds150e",
+      "name": "Delphi DS150E (DS Cars / Trucks 2016 R3)",
+      "category": "multi_brand_diagnostic",
+      "publisher": "Delphi Technologies (ahora BorgWarner)",
+      "description_es": "Scanner multimarca europeo profesional. Combina hardware DS150E (interfaz Bluetooth/USB) con software Delphi DS Cars (autos) y DS Trucks (camiones). Cubre +60 marcas con funciones tipo OEM en muchos modelos.",
+      "supports": {
+        "brands": ["Audi", "BMW", "Citroen", "Fiat", "Ford", "Mercedes", "Opel", "Peugeot", "Renault", "Seat", "Skoda", "Volvo", "VW, Toyota, Honda, Nissan, Hyundai, Kia, etc."],
+        "protocols": ["OBD-II (CAN, KWP, ISO9141)", "K-Line", "L-Line", "J1850", "SAE J1939 (camiones)"],
+        "functions": ["Lectura/borrado DTC todos modulos", "Datos en vivo", "Active tests", "Service reset (oil, EPB, SAS, DPF, throttle)", "Codificacion basica", "Programacion llaves limitada"]
+      },
+      "hardware_required": ["Interfaz Delphi DS150E (clones funcionan con software 2016 R3)"],
+      "use_cases": ["Taller multimarca europeo", "Diagnostico rapido todos los modulos", "Reset de servicios comunes", "Lectura inmovilizador"],
+      "typical_workflow": "1. Conectar DS150E via Bluetooth/USB\n2. Seleccionar marca/modelo/anio\n3. Auto-scan o sistema individual\n4. Diagnostico, datos vivos o servicios",
+      "strengths": ["Excelente cobertura europea", "Hardware barato (clones $30-100)", "Software 2016 R3 estable y crackeado en circulacion", "Modulo camiones incluido"],
+      "limitations": ["Sin updates (2016 R3 es ultima version 'libre')", "Cobertura limitada en vehiculos 2018+", "Coding muy basico vs OEM", "Soporte oficial inexistente para clones"],
+      "license": "comercial original / pirata para clones",
+      "learning_curve": "facil",
+      "alternatives": ["Autocom CDP+ (mismo SW base)", "WOW! Wurth", "Launch X431"],
+      "common_dtc_workflow": "Lee DTC genericos y especificos. Para causa raiz, complementar con Autodata o Mitchell.",
+      "known_issues": ["Activacion offline requiere keygen", "Bluetooth pairing inestable en algunos clones"],
+      "official_url": "https://www.delphiautoparts.com",
+      "manual_resources": ["Help integrado, manuales PDF en instalacion"]
+    },
+
+    "mitchell_prodemand": {
+      "id": "mitchell_prodemand",
+      "name": "Mitchell 1 ProDemand",
+      "category": "multi_brand_service",
+      "publisher": "Mitchell 1 (Snap-on)",
+      "description_es": "Plataforma de informacion de reparacion #1 en USA para talleres independientes. Combina datos OEM, diagramas wiring interactivos, tiempos estimados (Real Fix), TSBs, datos de inspeccion y procedimientos paso a paso. Cubre vehiculos vendidos en Norteamerica desde 1983.",
+      "supports": {
+        "brands": ["Toda la flota US: GM, Ford, Chrysler, Toyota, Honda, Nissan, Hyundai, Kia, Subaru, Mazda, Mitsubishi, VW, BMW, Mercedes, Audi, Volvo, Jaguar, Land Rover, etc."],
+        "protocols": ["N/A (documental)"],
+        "functions": ["Repair procedures OEM", "Wiring diagrams interactivos (zoom, color)", "DTC con causas reales (Real Fix - basado en casos reales)", "Estimator labor times", "TSB", "Maintenance schedules"]
+      },
+      "hardware_required": ["PC Windows / acceso web"],
+      "use_cases": ["Taller independiente USA", "Diagnostico guiado", "Presupuesto con tiempos reales", "Wiring trace en componentes problematicos"],
+      "typical_workflow": "1. Login en prodemand.com\n2. VIN o seleccion modelo\n3. Buscar por sintoma, DTC o componente\n4. Mitchell muestra procedimiento + diagrama + Real Fix",
+      "strengths": ["Real Fix (mejores fixes votados por tecnicos)", "Diagramas interactivos (highlight de circuito completo)", "Cobertura completa USA", "Updates mensuales"],
+      "limitations": ["Caro (~$200/mes)", "Cobertura europea/asiatica limitada vs Autodata", "Requiere internet"],
+      "license": "comercial (suscripcion)",
+      "learning_curve": "facil-intermedio",
+      "price_range_usd": "$169-249/mes",
+      "alternatives": ["ALLDATA", "Identifix Direct-Hit", "Autodata"],
+      "common_dtc_workflow": "Real Fix muestra los fixes mas exitosos para ese DTC en ese vehiculo segun reportes reales de talleres. Acelera diagnostico 5-10x.",
+      "official_url": "https://prodemand.com",
+      "manual_resources": ["Help integrado, Mitchell training videos"]
+    },
+
+    "wow_wurth": {
+      "id": "wow_wurth",
+      "name": "WOW! Wurth Online World 5.00.12",
+      "category": "multi_brand_diagnostic",
+      "publisher": "Wurth (Adolf Wurth GmbH, Alemania)",
+      "description_es": "Software de diagnostico multimarca aleman con interfaz Wurth WoW. Originalmente desarrollado por Wurth para uso en sus distribuidores. Diagnostico de autos, camiones y motos con cobertura europea fuerte.",
+      "supports": {
+        "brands": ["Audi", "BMW", "Mercedes", "VW", "Skoda", "Seat", "Fiat", "Alfa", "Lancia", "Renault", "Peugeot", "Citroen", "Opel", "Volvo", "Saab", "Ford EU, Toyota, Honda, Nissan, Mitsubishi"],
+        "protocols": ["OBD-II", "CAN", "KWP", "ISO9141", "SAE J1939 (camiones)"],
+        "functions": ["DTC read/clear", "Datos en vivo", "Active tests", "Service reset", "Coding basico", "Wiring diagrams (en algunos modulos)"]
+      },
+      "hardware_required": ["Interfaz Snooper+ Wurth o clon Delphi/Autocom (mismo protocolo VCI)"],
+      "use_cases": ["Taller europeo multimarca", "Reset servicio rapido", "Lectura DTC todos modulos"],
+      "typical_workflow": "Similar a Delphi/Autocom. Conectar VCI, seleccionar modelo, escanear.",
+      "strengths": ["Interfaz limpia y bien organizada", "Buen soporte europeo", "Reset functions abundantes"],
+      "limitations": ["Updates limitados (5.00.12 es la version pirata mas estable)", "Mismas limitaciones que Delphi/Autocom"],
+      "license": "comercial",
+      "learning_curve": "facil",
+      "alternatives": ["Delphi DS150E", "Autocom CDP+", "Texa IDC5"],
+      "common_dtc_workflow": "Estandar OBD-II + extensiones de fabricante.",
+      "official_url": "https://www.wow-portal.com",
+      "manual_resources": ["Help integrado"]
+    },
+
+    "ecm_titanium": {
+      "id": "ecm_titanium",
+      "name": "ECM Titanium",
+      "category": "tuning_software",
+      "publisher": "Alientech srl (Italia)",
+      "description_es": "Editor de mapas profesional para tuning de ECU. Se usa en combinacion con flashers KESS V2/V3 (OBD) o KTAG (BDM/Boot). Tiene driver files (definiciones de mapas) para +18000 ECUs. Permite editar inyeccion, turbo, rail pressure, EGR, DPF, lambda, torque limiters, etc.",
+      "supports": {
+        "brands": ["Universal: VAG, BMW, Mercedes, Ford, Fiat, Renault, Peugeot, Citroen, Opel, Hyundai/Kia, Toyota, Nissan, Mitsubishi, etc."],
+        "protocols": ["N/A (editor de archivos binarios .bin / .hex)"],
+        "functions": ["Edicion de mapas con driver pre-hechos", "Checksum auto (MD5, CRC32, propios)", "Identificacion automatica de mapas", "Comparacion stock vs mod"]
+      },
+      "hardware_required": ["KESS V2/V3 o KTAG (Alientech) para read/write", "PC Windows", "Dongle de licencia ECM Titanium"],
+      "use_cases": ["Tuning Stage 1 diesel/gasolina", "DPF off, EGR off (legalidad varia por pais)", "Reduccion AdBlue/SCR", "Aumento torque/HP", "Pop & bang, launch control"],
+      "typical_workflow": "1. Leer ECU con KESS/KTAG y guardar BIN stock\n2. Abrir BIN en ECM Titanium con driver correcto\n3. Modificar mapas (inyeccion, boost, rail, etc.)\n4. Recalcular checksum\n5. Escribir BIN modificado",
+      "strengths": ["+18000 drivers ECU", "Mapas claramente identificados", "Comunidad activa y amplia documentacion", "Soporte oficial profesional"],
+      "limitations": ["Drivers premium se compran por familia ECU", "Requiere licencia + dongle hardware", "No hace lectura/escritura solo (necesita KESS/KTAG)"],
+      "license": "comercial (driver-based)",
+      "learning_curve": "avanzado",
+      "price_range_usd": "Master: $2500 / Slave: $1500 / Drivers: $200-800 cada uno",
+      "alternatives": ["WinOLS (mas profundo, requiere mas conocimiento)", "Swiftec", "Dimsport Race Evo"],
+      "common_dtc_workflow": "Tuning, no diagnostico. Para borrar DTC post-tuning usar el scanner respectivo.",
+      "tuning_capabilities": {
+        "stage1_diesel_gains_hp": "20-40%",
+        "stage1_diesel_gains_torque": "25-45%",
+        "stage1_gasoline_gains_hp": "10-25% (NA), 30-50% (turbo)",
+        "notes": "Diesel gana mas % por gestion turbo y rail. Stage 1 mantiene hardware OEM."
+      },
+      "known_issues": ["Driver incorrecto puede corromper checksum", "Algunas ECU MED17 requieren bench/boot"],
+      "official_url": "https://www.alientech-tools.com",
+      "manual_resources": ["Manual ECM Titanium PDF", "Alientech Academy (cursos pagos)"]
+    },
+
+    "winols": {
+      "id": "winols",
+      "name": "WinOLS",
+      "category": "tuning_software",
+      "publisher": "EVC Electronic GmbH (Alemania)",
+      "description_es": "Estandar de la industria para edicion profesional de mapas ECU. Usado por la mayoria de tuners profesionales del mundo. Detecta mapas automaticamente con AI/Map Pack, soporta checksum complejos, comparacion de archivos y biblioteca de Damos/A2L para identificacion exacta.",
+      "supports": {
+        "brands": ["Universal (cualquier ECU si tienes el BIN)"],
+        "protocols": ["N/A (editor binario)"],
+        "functions": ["Map finder automatico", "Damos/A2L import (definicion oficial Bosch)", "Checksum modules (CRC, RSA, propios)", "2D/3D map editor", "Diff de archivos", "Map Pack Online (compartido por comunidad)"]
+      },
+      "hardware_required": ["Flasher externo (KESS, KTAG, MPPS, Autotuner, Magic Motorsport, CMD, Trasdata, Dimsport)", "PC Windows", "Dongle USB EVC (Tuga key)"],
+      "use_cases": ["Tuning profesional de ECU complejas", "Desarrollo de calibraciones nuevas", "Reverse engineering de mapas", "Crear archivos para clientes (workshops profesionales)"],
+      "typical_workflow": "1. Obtener BIN stock con flasher\n2. Abrir en WinOLS, asignar Project\n3. Aplicar Damos/A2L o usar map finder\n4. Editar mapas en 2D/3D\n5. Aplicar checksum module correcto\n6. Exportar BIN final",
+      "strengths": ["El editor mas potente del mercado", "Damos hace que mapas sean nombrados exactamente como en Bosch original", "Map Pack online: descargar miles de proyectos identificados", "Checksum modules para casi cualquier ECU"],
+      "limitations": ["Curva de aprendizaje muy empinada", "Costoso (licencia + Damos/A2L files)", "Damos files originales son material confidencial Bosch"],
+      "license": "comercial",
+      "learning_curve": "experto",
+      "price_range_usd": "WinOLS Pro: ~3000 EUR + Damos $50-500 cada uno + Map Pack $300/anio",
+      "alternatives": ["ECM Titanium (mas amigable)", "Swiftec", "TunerPro (free, basico)"],
+      "common_dtc_workflow": "No es para diagnostico. Despues de tunear, lee/borra DTCs con scanner.",
+      "tuning_capabilities": {
+        "stage1_diesel_gains_hp": "25-45%",
+        "stage1_gasoline_gains_hp": "15-30% (NA), 40-80% (turbo)",
+        "notes": "Resultado depende del tuner, no del software. WinOLS solo es la herramienta."
+      },
+      "official_url": "https://www.evc.de",
+      "manual_resources": ["Manual WinOLS PDF", "EVC training", "Foros: ecuconnections.com"]
+    },
+
+    "kess_v2_v3": {
+      "id": "kess_v2_v3",
+      "name": "KESS V2 / KESS V3 (Alientech)",
+      "category": "ecu_flasher",
+      "publisher": "Alientech srl (Italia)",
+      "description_es": "Programador de ECU via OBD-II (slave tool). KESS V2 fue el estandar de la industria por anios; KESS V3 es la nueva generacion (2022+) con soporte CAN-FD, DoIP y mas protocolos modernos. Permite leer y escribir la ECU sin desmontarla en miles de modelos.",
+      "supports": {
+        "brands": ["+18000 ECU files: VAG, BMW, Mercedes, Ford, Fiat, Renault, PSA, Opel, Hyundai/Kia, Toyota, Nissan, Mitsubishi, Mazda, Subaru, Volvo, etc.", "Camiones: Iveco, Scania, MAN, Volvo Trucks, Mercedes Actros, DAF, Renault Trucks"],
+        "protocols": ["OBD-II (CAN, K-Line)", "UDS ISO 14229", "CAN-FD (V3)", "DoIP (V3)", "BDM (limitado)"],
+        "functions": ["Lectura ECU stock (backup)", "Escritura ECU modificada", "ID de ECU automatico", "Recovery basico"]
+      },
+      "hardware_required": ["KESS V2 o V3 dongle", "Cable OBD", "Bateria estable >12.5V o cargador"],
+      "use_cases": ["Stage 1 tuning OBD", "Backup de ECU stock", "Reflash de ECU defectuosa con archivo working"],
+      "typical_workflow": "1. Conectar KESS al OBD\n2. Software K-Suite identifica ECU\n3. Read stock BIN\n4. Editar BIN externamente (ECM Titanium / WinOLS)\n5. Write modified BIN\n6. Validar (no DTC, motor arranca)",
+      "strengths": ["Conexion OBD (no desmontar ECU)", "K-Suite muy estable", "Cobertura masiva", "Suporte oficial Alientech"],
+      "limitations": ["Slave tool: requiere creditos/protocolos por familia ECU", "ECU modernas (MED17.5+) requieren KTAG (boot)", "Algunas ECU requieren bench (no soportado)"],
+      "license": "comercial (creditos por protocolo)",
+      "learning_curve": "intermedio",
+      "price_range_usd": "KESS V3 Master: ~5000 EUR / Slave: ~3500 EUR / Protocolos: $300-1500 cada uno",
+      "alternatives": ["MPPS V21 (barato pero limitado)", "Autotuner (Magic Motorsport)", "CMD Flash", "Dimsport New Genius"],
+      "known_issues": ["Interrupcion de escritura puede ladrillar ECU (recovery requiere KTAG)", "Clones KESS V2 funcionan pero son riesgosos para clientes profesionales"],
+      "official_url": "https://www.alientech-tools.com/kess-v3/",
+      "manual_resources": ["K-Suite manual", "Alientech Academy"]
+    },
+
+    "ktag": {
+      "id": "ktag",
+      "name": "KTAG (Alientech)",
+      "category": "ecu_flasher_boot",
+      "publisher": "Alientech srl",
+      "description_es": "Programador de ECU en modo BENCH/BOOT/BDM. Se usa cuando KESS (OBD) no puede leer/escribir la ECU - tipicamente ECUs Bosch MED17/EDC17 modernas con proteccion TPROT. Requiere extraer la ECU del vehiculo y soldar/conectar pines especificos.",
+      "supports": {
+        "brands": ["Bosch MED9, MED17, EDC15, EDC16, EDC17, MD1, MG1", "Continental SIM/SIMOS", "Marelli IAW", "Delphi DCM", "Siemens MS, Sirius"],
+        "protocols": ["JTAG", "BDM Motorola", "Boot mode (TC1797, TC1782, TC275, TC298)", "BSL Renesas"],
+        "functions": ["Lectura full flash + EEPROM", "Escritura full flash", "Lectura/escritura EEPROM independiente", "Recovery ECU bricked"]
+      },
+      "hardware_required": ["KTAG dongle", "Adaptadores (Bosch tricore cable, BDM probe, etc.)", "Soldador para algunos casos", "Bench power supply estable 12V"],
+      "use_cases": ["Tuning de ECU modernas que OBD no soporta", "Recovery de ECU bricked por flash fallido OBD", "Lectura inicial para tuners profesionales", "Eliminacion de proteccion TPROT"],
+      "typical_workflow": "1. Desmontar ECU del vehiculo\n2. Abrir tapa de ECU (algunas requieren separar PCB)\n3. Conectar KTAG segun adaptador correcto\n4. Power on con bench supply\n5. Read stock\n6. Editar y write\n7. Reinstalar ECU",
+      "strengths": ["Acceso a ECU que OBD no puede tocar", "Recovery de ECU bricked", "Lectura full memoria"],
+      "limitations": ["Requiere desmontaje ECU (riesgo de dano fisico)", "Costoso (master ~6000 EUR)", "Conocimiento de electronica/soldadura necesario"],
+      "license": "comercial (creditos por protocolo)",
+      "learning_curve": "experto",
+      "alternatives": ["Trasdata (Dimsport)", "CMD BSL/BDM", "Autotuner Bench", "Magic Motorsport Flex"],
+      "official_url": "https://www.alientech-tools.com",
+      "manual_resources": ["KTAG positioning frame manual", "Adaptadores PDF"]
+    },
+
+    "autocom_cdp": {
+      "id": "autocom_cdp",
+      "name": "Autocom CDP+ / Delphi DS150 (clon)",
+      "category": "multi_brand_diagnostic",
+      "publisher": "Autocom Diagnostic Partner AB (Suecia, ahora Snap-on)",
+      "description_es": "Hardware/software multimarca europeo. La interfaz CDP+ (Compact Diagnostic Partner) es practicamente identica al Delphi DS150E (mismo OEM). El software Autocom Cars/Trucks/Generic ofrece diagnostico multimarca.",
+      "supports": {
+        "brands": ["+50 marcas europeas y asiaticas, gama camiones SAE J1939"],
+        "protocols": ["OBD-II", "CAN", "KWP", "K/L-Line", "J1850", "J1939"],
+        "functions": ["DTC, datos vivos, active tests, service reset"]
+      },
+      "hardware_required": ["Interfaz CDP+ (clon o original)"],
+      "use_cases": ["Identico a Delphi DS150E"],
+      "strengths": ["Mismo software base que Delphi (compatibilidad amplia)"],
+      "limitations": ["Sin soporte oficial post-2018 (Snap-on lo absorbio)"],
+      "license": "comercial / pirata para clones",
+      "learning_curve": "facil",
+      "alternatives": ["Delphi DS150E (mismo)", "WOW Wurth"],
+      "common_dtc_workflow": "Estandar OBD-II + extensiones marca"
+    },
+
+    "launch_x431": {
+      "id": "launch_x431",
+      "name": "Launch X431 (Pro/Pros/V/Pad)",
+      "category": "multi_brand_diagnostic",
+      "publisher": "Launch Tech (China)",
+      "description_es": "Linea de scanners profesionales chinos con cobertura mundial real. Modelos van desde X431 V (basico) hasta X431 PRO5/Pad VII (top de linea). Tablet Android dedicado con interfaz amigable. Compite directamente con Autel MaxiSys.",
+      "supports": {
+        "brands": ["+150 marcas mundiales", "Cobertura especialmente fuerte en marcas chinas (BYD, Geely, Chery, MG, Great Wall) y asiaticas"],
+        "protocols": ["OBD-II completo", "CAN-FD", "DoIP", "K/L-Line", "J1850", "SAE J2534 pass-thru"],
+        "functions": ["Diagnostico completo todos modulos", "Coding y programacion (modelos Pro)", "Funciones especiales (BMS, EPB, SAS, throttle, DPF, oil reset, key match)", "ADAS calibration (con kit)", "Topology mapping"]
+      },
+      "hardware_required": ["Tablet X431 + VCI bluetooth/wifi"],
+      "use_cases": ["Taller multimarca con presupuesto medio", "Diagnostico todos modulos sin tener el OEM", "Reset de servicios diversos"],
+      "typical_workflow": "1. Encender tablet, conectar VCI\n2. Auto-VIN o seleccion manual\n3. Auto-scan todos los sistemas\n4. Diagnostico, datos vivos, funciones especiales",
+      "strengths": ["Cobertura amplisima incluyendo china/asia", "Tablet Android dedicado (no PC)", "Updates regulares", "Interfaz amigable", "Topology view en modelos top"],
+      "limitations": ["Coding/programacion no tan profundo como OEM en modelos europeos premium", "Suscripcion anual de updates (~$700)", "Modelos basicos limitados a OBD-II"],
+      "license": "comercial",
+      "learning_curve": "facil",
+      "price_range_usd": "$700 (V Plus) - $3500 (PAD VII)",
+      "alternatives": ["Autel MaxiSys", "Snap-on Solus/Zeus", "Thinkcar"],
+      "common_dtc_workflow": "Auto-scan, click en DTC, ver descripcion + datos congelados. Excelente para diagnostico rapido."
+    },
+
+    "snapon_zeus": {
+      "id": "snapon_zeus",
+      "name": "Snap-on ZEUS (+ SureTrack)",
+      "category": "multi_brand_diagnostic",
+      "publisher": "Snap-on Inc. (USA)",
+      "description_es": "Top de linea Snap-on. Tablet rugged con scanner integrado + osciloscopio 4 canales + datalogger + base de datos SureTrack (similar a Real Fix de Mitchell). Estandar para tecnicos premium en USA.",
+      "supports": {
+        "brands": ["Cobertura US/EU/Asia profunda", "Especialidad: domestic US (GM, Ford, FCA)"],
+        "protocols": ["OBD-II completo", "CAN-FD", "DoIP", "Todos los protocolos legacy"],
+        "functions": ["Diagnostico todos modulos", "Coding/programacion via J2534", "Osciloscopio 4 canales", "Datalogger", "SureTrack (top fixes comunidad)", "Guided Component Tests"]
+      },
+      "hardware_required": ["Tablet ZEUS + cables incluidos"],
+      "use_cases": ["Taller premium", "Diagnostico avanzado con scope", "Tecnicos con poco tiempo (SureTrack acelera)"],
+      "strengths": ["SureTrack fixes verificados", "Scope integrado", "Soporte premium Snap-on", "Hardware premium"],
+      "limitations": ["Caro ($10000+)", "Suscripcion anual obligatoria"],
+      "license": "comercial premium",
+      "learning_curve": "intermedio",
+      "price_range_usd": "$10000-15000 + $1500/anio updates",
+      "alternatives": ["Autel MaxiSys Ultra", "Bosch ADS 625"],
+      "common_dtc_workflow": "Click DTC -> SureTrack muestra top fixes confirmados por comunidad Snap-on -> guided test -> reparacion."
+    },
+
+    "foxwell_nt": {
+      "id": "foxwell_nt",
+      "name": "Foxwell NT-series (NT510/520/630/650/680/710)",
+      "category": "multi_brand_diagnostic",
+      "publisher": "Foxwell (China)",
+      "description_es": "Linea de scanners semi-profesionales handheld con licencias por marca. NT510/520 economicos para 1-2 marcas; NT710 multimarca completo con bidireccional. Excelente relacion precio/funcion para tecnicos independientes y entusiastas.",
+      "supports": {
+        "brands": ["Software por marca: BMW, VW, Mercedes, Ford, GM, Toyota, Honda, etc. (NT510/520) o multimarca (NT710)"],
+        "protocols": ["OBD-II completo", "CAN", "K-Line"],
+        "functions": ["DTC todos modulos", "Datos vivos", "Active tests", "Service reset (oil, EPB, SAS, BMS, throttle, DPF)", "Coding limitado (NT710)"]
+      },
+      "hardware_required": ["Scanner handheld con pantalla integrada"],
+      "use_cases": ["DIY avanzado", "Pequeno taller", "Diagnostico marca-especifica barato"],
+      "strengths": ["Precio accesible ($150-500)", "Updates baratos", "Funcion bidireccional en NT710", "Sin suscripcion (compra unica)"],
+      "limitations": ["Pantalla pequena", "Coding muy basico vs OEM", "Cobertura no llega a vehiculos premium recientes en profundidad"],
+      "license": "comercial (compra unica + addons por marca)",
+      "learning_curve": "facil",
+      "price_range_usd": "NT510: $150 / NT710: $400-600",
+      "alternatives": ["Ancel, Konnwei, Topdon, Vident"],
+      "common_dtc_workflow": "Estandar."
+    },
+
+    "j2534_passthru": {
+      "id": "j2534_passthru",
+      "name": "J2534 Pass-Thru Devices (Mongoose, OpenPort, Tactrix, etc.)",
+      "category": "passthru_interface",
+      "publisher": "Varios (Drew Technologies, Tactrix, etc.)",
+      "description_es": "Estandar SAE J2534 para reflash y diagnostico OEM via PC. Dispositivos compatibles permiten usar el software OEM oficial (Ford IDS, GM SPS, Honda HDS, Toyota Techstream, Nissan Consult, etc.) en cualquier vehiculo de esa marca para programar/codificar.",
+      "supports": {
+        "brands": ["Cualquier marca con software J2534 oficial"],
+        "protocols": ["J2534-1 / J2534-2 (full Pass-Thru)"],
+        "functions": ["Reflash de modulos OEM", "Codificacion oficial", "Diagnostico OEM completo via SW oficial"]
+      },
+      "hardware_required": ["Interfaz J2534 (Mongoose Pro, OpenPort 2.0, MVCI, VXDIAG VCX NANO, Cardaq, etc.)", "Suscripcion software OEM (Ford IDS subscription, GM TIS2Web, etc.)"],
+      "use_cases": ["Programar modulo nuevo OEM", "Update firmware ECU/TCM/BCM oficialmente", "Sustituir scanner OEM sin comprar el caro"],
+      "typical_workflow": "1. Comprar suscripcion al software OEM ($30-50/dia o $1000+/anio)\n2. Instalar SW OEM en PC\n3. Conectar J2534 device al OBD\n4. Software detecta y opera como si fuera OEM original",
+      "strengths": ["Programacion oficial sin comprar scanner OEM", "Compatibilidad amplia (un device, multiples OEMs)"],
+      "limitations": ["Suscripcion OEM cara", "Algunas marcas (BMW, Mercedes) tienen restricciones via SCN/online coding", "Fallo de programacion = brick"],
+      "license": "depende de software OEM (comercial)",
+      "learning_curve": "avanzado",
+      "alternatives": ["Compra del scanner OEM directo (mas caro)"],
+      "official_url": "https://www.drewtech.com / https://www.tactrix.com",
+      "common_dtc_workflow": "Diagnostico OEM via software oficial"
+    },
+
+    "elm327": {
+      "id": "elm327",
+      "name": "ELM327 (chip y clones bluetooth/usb/wifi)",
+      "category": "obd_basic_interface",
+      "publisher": "ELM Electronics (chip original) / muchos clones",
+      "description_es": "Chip interprete de OBD-II que traduce comandos AT a protocolos OBD reales (CAN, KWP, ISO9141, J1850). Base de prácticamente todos los scanners 'baratos' del mercado. Funciona con apps como Torque (Android), Forscan, OBD Auto Doctor, OpenAuto.",
+      "supports": {
+        "brands": ["Universal (cualquier vehiculo OBD-II 1996+ USA, 2001+ EU gasolina, 2004+ EU diesel)"],
+        "protocols": ["ISO 15765-4 CAN", "ISO 14230 KWP2000", "ISO 9141-2", "SAE J1850 PWM/VPW"],
+        "functions": ["Lectura DTC genericos", "Borrado DTC", "Datos en vivo Modos 01-09 OBD-II", "Freeze frame", "Mode 06"]
+      },
+      "hardware_required": ["Adaptador ELM327 USB/BT/WiFi ($5-30)"],
+      "use_cases": ["Apagar check engine basico", "Logging datos en track (con Torque)", "Software como Forscan (Ford avanzado), OBDLink (genericos)"],
+      "typical_workflow": "1. Plug en OBD\n2. Pair via Bluetooth/WiFi con app\n3. Conectar y leer DTC/datos",
+      "strengths": ["Barato y universal", "Ecosistema software masivo (Torque, Forscan, OBDLink, BimmerCode, Carista, etc.)", "Util para logging amateur"],
+      "limitations": ["Chips clones pueden mentir version (dicen v2.1 pero son v1.4)", "Solo OBD-II generico, NO accede a modulos no-motor (ABS, SRS, BCM) salvo apps especificas como Forscan", "Sin coding ni programacion real"],
+      "license": "hardware abierto, chips clones por ~$2",
+      "learning_curve": "facil",
+      "price_range_usd": "$5-30 (clones), $100+ (OBDLink MX+ original con chip mejorado)",
+      "alternatives": ["OBDLink MX+ (chip mejor)", "OBDLink EX (USB)", "Veepeak"],
+      "common_dtc_workflow": "Lectura/borrado DTC P0xxx genericos. Para DTC marca-especificos requiere app/scanner dedicado."
+    },
+
+    "alfa_test": {
+      "id": "alfa_test",
+      "name": "Alfa Test (Alfa Romeo / Fiat / Lancia)",
+      "category": "oem_diagnostic_specific",
+      "publisher": "Comunidad Alfa Romeo / Fiat",
+      "description_es": "Software de diagnostico especializado para Alfa Romeo, Fiat y Lancia. Equivalente comunitario al MultiECUScan / FiatECUScan. Lee y programa modulos especificos del Grupo Fiat.",
+      "supports": {
+        "brands": ["Alfa Romeo", "Fiat", "Lancia", "Abarth"],
+        "protocols": ["KWP2000", "CAN", "ISO9141"],
+        "functions": ["DTC todos modulos Fiat group", "Datos vivos", "Active tests", "Reset servicios", "Codificaciones", "Programacion llaves (con Body Computer access)"]
+      },
+      "hardware_required": ["Interfaz KKL ELM327 modificado o cable Fiat 3-pin"],
+      "alternatives": ["MultiECUScan", "FiatECUScan", "Examiner"],
+      "license": "comercial",
+      "learning_curve": "intermedio"
+    },
+
+    "atsg_2017": {
+      "id": "atsg_2017",
+      "name": "ATSG 2017 (Automatic Transmission Service Group)",
+      "category": "transmission_repair_database",
+      "publisher": "ATSG (USA)",
+      "description_es": "Biblioteca tecnica especializada en transmisiones automaticas. Manuales de despiece, hidraulica, especificaciones de torque, diagramas y guias de troubleshooting para todas las transmisiones automaticas comerciales (4L60E, 4L80E, 6L80, 6L90, ZF 6HP/8HP, Aisin, Jatco, etc.).",
+      "supports": {
+        "brands": ["Cobertura completa transmisiones automaticas mundiales: GM, Ford, Chrysler, ZF, Aisin, Jatco, JF, Mercedes, BMW, etc."],
+        "functions": ["Manuales de servicio/despiece", "Diagramas hidraulicos", "Especificaciones torque y holguras", "Bulletins ATSG", "Diagnostico DTC TCM"]
+      },
+      "use_cases": ["Reconstruccion completa de transmisiones", "Diagnostico TCM/codigos shift problems", "Especificaciones para overhaul"],
+      "strengths": ["Estandar mundial en transmisiones", "Diagramas hidraulicos detallados imposibles de encontrar en otros lugares"],
+      "license": "comercial",
+      "learning_curve": "experto",
+      "alternatives": ["Sonnax tech library", "ETE/Reman manuals"]
+    },
+
+    "scania_sdp3": {
+      "id": "scania_sdp3",
+      "name": "Scania SDP3 (Diagnos & Programmer 3)",
+      "category": "oem_truck_diagnostic",
+      "publisher": "Scania CV AB",
+      "description_es": "Software de diagnostico OEM Scania para camiones, autobuses y motores marinos/industriales. Diagnostico completo, calibracion, programacion y configuracion de chasis Scania.",
+      "supports": {
+        "brands": ["Scania (camiones, autobuses, motores industriales/marinos)"],
+        "protocols": ["KWP/CAN", "SAE J1939", "Scania propietario"],
+        "functions": ["Diagnostico todos modulos", "Configuracion chasis/cabina", "Programacion ECU", "Test de funciones", "Service reset"]
+      },
+      "hardware_required": ["Scania VCI3 (Vehicle Communication Interface 3) o VCI2"],
+      "license": "OEM",
+      "learning_curve": "avanzado",
+      "alternatives": ["Texa IDC5 Truck", "Jaltest"]
+    },
+
+    "renault_dialogys": {
+      "id": "renault_dialogys",
+      "name": "Renault Dialogys 2018",
+      "category": "oem_parts_service",
+      "publisher": "Renault SA",
+      "description_es": "Catalogo electronico de partes y manual de servicio Renault/Dacia/Renault Samsung. Equivalente VAG ETKA pero para Renault. Identificacion por VIN, explosionados, numeros de parte, tiempos de mano de obra.",
+      "supports": {
+        "brands": ["Renault", "Dacia", "Renault Samsung Motors"],
+        "functions": ["Catalogo partes EPC", "Manual servicio", "Tiempos labor"]
+      },
+      "alternatives": ["CLIP (Renault scanner OEM)"],
+      "license": "OEM"
+    },
+
+    "doutor_ie": {
+      "id": "doutor_ie",
+      "name": "DOUTOR-IE",
+      "category": "diagnostic_brazilian",
+      "publisher": "Brasil (comunitario)",
+      "description_es": "Software de diagnostico de origen brasileno orientado a vehiculos del mercado latinoamericano (Volkswagen, Fiat, Chevrolet, Ford Brasil/Argentina). Util para modelos no presentes en bases de datos europeas (Gol, Palio, Celta, Corsa, etc.)."
+    },
+
+    "immo_code_calc": {
+      "id": "immo_code_calc",
+      "name": "IMMO Code Calculator",
+      "category": "immobilizer_tool",
+      "publisher": "Varios (comunitario)",
+      "description_es": "Coleccion de calculadoras de codigo PIN inmovilizador desde EEPROM dump. Permite obtener el codigo PIN/SKC para programar llaves nuevas en multiples marcas (VW Audi, Ford, Renault, Fiat, Hyundai, etc.) cuando se tiene acceso al EEPROM de la BSI/Body Computer.",
+      "use_cases": ["Programacion de llaves cuando se pierden todas", "Reparacion de inmovilizador", "Recovery despues de cambio BCM/ECU"],
+      "hardware_required": ["Programador EEPROM (TL866, XPROG, Orange5, AVDI)"],
+      "license": "comercial / pirata",
+      "learning_curve": "experto"
+    },
+
+    "mitchell_simplo": {
+      "id": "mitchell_simplo",
+      "name": "SIMPLO 2019/2022 (Esquemas Eletricos Brasil)",
+      "category": "wiring_diagrams",
+      "publisher": "Cinel/Simplo (Brasil)",
+      "description_es": "Base de datos de esquemas electricos automotrices popular en Brasil/LATAM. Cubre marcas vendidas en region: Chevrolet, Fiat, Ford, VW, Renault, Peugeot, Citroen, Toyota, Honda, Nissan, Hyundai, Kia.",
+      "use_cases": ["Diagnostico electrico LATAM", "Identificacion de pines en conectores"]
+    },
+
+    "wow_celular": {
+      "id": "simplo_celular",
+      "name": "Simplo Celular",
+      "category": "phone_diagnostic_app",
+      "publisher": "Simplo Brasil",
+      "description_es": "Version mobile de Simplo para consulta rapida de esquemas y datos tecnicos en taller via celular."
+    }
+  },
+
+  "categories": {
+    "tuning_software": "Software para edicion de mapas y calibracion de ECU",
+    "ecu_flasher": "Hardware/software para leer y escribir ECU via OBD",
+    "ecu_flasher_boot": "Programador en modo Boot/BDM/JTAG (requiere desmontar ECU)",
+    "oem_diagnostic": "Software de diagnostico oficial del fabricante",
+    "oem_service_info": "Sistema de informacion tecnica/servicio del fabricante",
+    "oem_parts_service": "Catalogo de partes + servicio del fabricante",
+    "multi_brand_diagnostic": "Scanner multimarca aftermarket",
+    "multi_brand_service": "Base de datos de servicio multimarca",
+    "ecu_database": "Base de datos de pinouts/referencias ECU",
+    "passthru_interface": "Interfaz J2534 para reflash OEM via PC",
+    "obd_basic_interface": "Interfaz OBD-II generica nivel basico",
+    "transmission_repair_database": "Manuales especializados en transmisiones",
+    "immobilizer_tool": "Herramienta para inmovilizadores y llaves",
+    "oem_truck_diagnostic": "Diagnostico OEM camiones/buses",
+    "wiring_diagrams": "Esquemas electricos",
+    "phone_diagnostic_app": "App movil de diagnostico",
+    "diagnostic_brazilian": "Diagnostico mercado brasileno"
+  }
+}

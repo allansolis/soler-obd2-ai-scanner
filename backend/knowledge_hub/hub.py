@@ -235,6 +235,12 @@ class KnowledgeHub:
         stats.map_types = await _safe("map_types", self.import_map_types())
         stats.repair_guides = await _safe("repair_guides", self.import_repair_guides())
         stats.online_resources = await _safe("online_resources", self.import_online_resources())
+        # Expert profiles -> tambien indexados como SoftwareTool/Resource
+        try:
+            await asyncio.to_thread(self._import_expert_profiles_sync)
+        except Exception as exc:
+            logger.exception("Error importing expert profiles: %s", exc)
+            stats.errors.append(f"expert_profiles: {exc}")
 
         stats.finished_at = datetime.utcnow().isoformat()
         try:
@@ -783,6 +789,60 @@ class KnowledgeHub:
                 count += 1
             session.commit()
         logger.info("import_online_resources: %d recursos online indexados.", count)
+        return count
+
+    # ------------------------------------------------------------------
+    # Expert profiles -> indexar en la DB como SoftwareTool + Resource
+    # ------------------------------------------------------------------
+
+    def _import_expert_profiles_sync(self) -> int:
+        """Lee expert_profiles.json y crea/actualiza SoftwareTool + Resource."""
+        profiles_path = Path(__file__).resolve().parent / "expert_profiles.json"
+        if not profiles_path.is_file():
+            logger.warning("expert_profiles.json no encontrado, skipping.")
+            return 0
+
+        with profiles_path.open("r", encoding="utf-8") as fp:
+            data = json.load(fp)
+        tools = data.get("tools", {})
+        count = 0
+
+        with self.SessionLocal() as session:
+            session.query(SoftwareTool).filter(
+                SoftwareTool.publisher.like("expert_profile%")
+            ).delete(synchronize_session=False)
+            for tid, t in tools.items():
+                supports = t.get("supports", {}) or {}
+                resource = Resource(
+                    name=t.get("name", tid),
+                    type="software",
+                    category=t.get("category", "diagnostic"),
+                    source="expert_profile",
+                    source_url=t.get("official_url"),
+                    size_bytes=0,
+                    description=t.get("description_es", ""),
+                    make_tags=supports.get("brands", []) or [],
+                    system_tags=supports.get("functions", []) or [],
+                    language="es",
+                    is_available_local=True,
+                    last_indexed=datetime.utcnow(),
+                )
+                session.add(resource)
+                session.flush()
+                tool = SoftwareTool(
+                    name=t.get("name", tid),
+                    version="expert",
+                    publisher=f"expert_profile:{t.get('publisher','')}",
+                    supports_brands=supports.get("brands", []) or [],
+                    supports_features=supports.get("functions", []) or [],
+                    license_type=t.get("license", "comercial"),
+                    requires_hardware=", ".join(t.get("hardware_required", []) or []),
+                    resource_id=resource.id,
+                )
+                session.add(tool)
+                count += 1
+            session.commit()
+        logger.info("_import_expert_profiles_sync: %d perfiles expertos indexados.", count)
         return count
 
     # ------------------------------------------------------------------
