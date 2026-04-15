@@ -1,0 +1,159 @@
+{
+  "platform": "autotech.systeme.io",
+  "source_url": "https://autotech.systeme.io/plataforma",
+  "extracted_at": "2026-04-14",
+  "description": "AutoTech Automotriz - Plataforma de cursos en video, manuales, diagramas electricos, pinout ECUs, pinout tableros y softwares automotrices.",
+  "contact": {
+    "email": "contacto@autotechautomotriz.com",
+    "home": "https://autotechautomotriz.com"
+  },
+  "access_model": "public_landing_with_gated_courses",
+  "notes": [
+    "La pagina principal (/plataforma) es publica y funciona como hub de navegacion.",
+    "Los 6 subdominios systeme.io de cursos (/accesocursos) no fueron accesibles via WebFetch ni curl en esta extraccion (permisos del entorno). Historicamente estas paginas systeme.io muestran un formulario de acceso/compra antes de listar las lecciones individuales, por lo que el detalle leccion-por-leccion requiere login o credenciales de alumno.",
+    "Las 14+ colecciones de Google Drive estan enlazadas desde la pagina principal; las URLs especificas de Drive no se exponen en el HTML publico renderizado (se detras de redireccion). Para capturarlas se necesita inspeccion de enlaces client-side o una sesion autenticada."
+  ],
+  "modules": [
+    {
+      "name": "Electricidad Automotriz",
+      "slug": "electricidad-automotriz",
+      "courses_count": 28,
+      "url": "https://electronicamovil.systeme.io/accesocursos",
+      "category": "electrical",
+      "content": {
+        "type": "video_courses",
+        "description": "28 cursos en video sobre electricidad y electronica automotriz.",
+        "requires_login": true
+      },
+      "external_resources": []
+    },
+    {
+      "name": "Cerrajeria Automotriz",
+      "slug": "cerrajeria-automotriz",
+      "courses_count": 17,
+      "url": "https://llavespro.systeme.io/accesocursos",
+      "category": "immobilizer",
+      "content": {
+        "type": "video_courses",
+        "description": "17 cursos sobre cerrajeria, llaves, transponders e inmovilizadores.",
+        "requires_login": true
+      },
+      "external_resources": []
+    },
+    {
+      "name": "Programacion y Diagnostico Automotriz",
+      "slug": "programacion-diagnostico",
+      "courses_count": 40,
+      "url": "https://diagnosticoauto.systeme.io/accesocursos",
+      "category": "diagnostic",
+      "content": {
+        "type": "video_courses",
+        "description": "40 cursos en video sobre programacion de ECUs y diagnostico avanzado.",
+        "requires_login": true
+      },
+      "external_resources": []
+    },
+    {
+      "name": "Motores Diesel",
+      "slug": "motores-diesel",
+      "courses_count": 12,
+      "url": "https://motoresdiesel.systeme.io/accesocursos",
+      "category": "engine",
+      "content": {
+        "type": "video_courses",
+        "description": "12 cursos sobre motores diesel (common rail, inyectores, bombas).",
+        "requires_login": true
+      },
+      "external_resources": []
+    },
+    {
+      "name": "Transmisiones",
+      "slug": "transmisiones",
+      "courses_count": 3,
+      "url": "https://transmisionesauto.systeme.io/accesocursos",
+      "category": "transmission",
+      "content": {
+        "type": "video_courses",
+        "description": "3 cursos sobre transmisiones automaticas y mecanicas.",
+        "requires_login": true
+      },
+      "external_resources": []
+    },
+    {
+      "name": "HP Tuners",
+      "slug": "hp-tuners",
+      "courses_count": 5,
+      "url": "https://hptuners.systeme.io/accesocursos",
+      "category": "tuning",
+      "content": {
+        "type": "video_courses",
+        "description": "5 cursos sobre el uso de HP Tuners para tuning de ECUs.",
+        "requires_login": true
+      },
+      "external_resources": []
+    }
+  ],
+  "drive_collections": [
+    {"name": "ALLDATA 2014", "type": "database", "category": "repair", "provider": "google_drive"},
+    {"name": "Archivos Variados", "type": "archive", "category": "misc", "provider": "google_drive"},
+    {"name": "Diagramas Electricos", "type": "diagram", "category": "electrical", "provider": "google_drive"},
+    {"name": "Manuales De Motor", "type": "manual", "category": "engine", "provider": "google_drive"},
+    {"name": "Manuales De Usuario", "type": "manual", "category": "user_guide", "provider": "google_drive"},
+    {"name": "Manuales De Transmisiones", "type": "manual", "category": "transmission", "provider": "google_drive"},
+    {"name": "Manuales De Taller", "type": "manual", "category": "repair", "provider": "google_drive"},
+    {"name": "Marcas America", "type": "archive", "category": "oem", "provider": "google_drive"},
+    {"name": "Marcas Asia", "type": "archive", "category": "oem", "provider": "google_drive"},
+    {"name": "Marcas Europa", "type": "archive", "category": "oem", "provider": "google_drive"},
+    {"name": "Pinout ECUS", "type": "pinout", "category": "diagnostic", "provider": "google_drive"},
+    {"name": "Pinout Tableros", "type": "pinout", "category": "diagnostic", "provider": "google_drive"},
+    {"name": "Torque Motores Pesados", "type": "manual", "category": "engine", "provider": "google_drive"},
+    {"name": "Manuales y Diagramas De Motos", "type": "manual", "category": "motorcycles", "provider": "google_drive"}
+  ],
+  "software_packs": [
+    {"name": "Pack 24 Softwares Automotriz", "type": "software", "category": "diagnostic", "provider": "google_drive"},
+    {"name": "ECM Pinout 8.0", "type": "software", "category": "diagnostic", "provider": "google_drive"}
+  ],
+  "total_modules": 6,
+  "total_courses": 105,
+  "total_drive_collections": 14,
+  "total_software_packs": 2,
+  "total_resources": 22,
+  "drive_links": [
+    "ALLDATA 2014",
+    "Archivos Variados",
+    "Diagramas Electricos",
+    "Manuales De Motor",
+    "Manuales De Usuario",
+    "Manuales De Transmisiones",
+    "Manuales De Taller",
+    "Marcas America",
+    "Marcas Asia",
+    "Marcas Europa",
+    "Pinout ECUS",
+    "Pinout Tableros",
+    "Torque Motores Pesados",
+    "Manuales y Diagramas De Motos",
+    "Pack 24 Softwares Automotriz",
+    "ECM Pinout 8.0"
+  ],
+  "video_links": [
+    "https://electronicamovil.systeme.io/accesocursos",
+    "https://llavespro.systeme.io/accesocursos",
+    "https://diagnosticoauto.systeme.io/accesocursos",
+    "https://motoresdiesel.systeme.io/accesocursos",
+    "https://transmisionesauto.systeme.io/accesocursos",
+    "https://hptuners.systeme.io/accesocursos"
+  ],
+  "pdf_links": [],
+  "limitations": {
+    "login_required": [
+      "Las 6 paginas /accesocursos de los subdominios systeme.io requieren credenciales de alumno para ver lecciones individuales y URLs de video.",
+      "Las URLs finales de Google Drive estan tras redireccion del landing; solo visibles con clic real del usuario."
+    ],
+    "extraction_constraints": [
+      "WebFetch denegado para subdominios systeme.io en esta sesion.",
+      "Curl via Bash denegado en esta sesion.",
+      "Solo la pagina /plataforma principal fue accesible publicamente."
+    ]
+  }
+}
