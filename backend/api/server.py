@@ -19,6 +19,7 @@ from backend.api.routes_ai import router as ai_router
 from backend.api.routes_drive import router as drive_router
 from backend.api.routes_hub import router as hub_router
 from backend.api.routes_expert import router as expert_router
+from backend.api.routes_launcher import router as launcher_router
 from backend.config import settings, PROJECT_DIR
 from backend.database.db import init_db, close_db
 from backend.emulator.elm327_sim import ELM327Emulator
@@ -90,6 +91,7 @@ def create_app() -> FastAPI:
     app.include_router(drive_router)
     app.include_router(hub_router)
     app.include_router(expert_router)
+    app.include_router(launcher_router)
 
     # -- Global exception handler --
     @app.exception_handler(Exception)
