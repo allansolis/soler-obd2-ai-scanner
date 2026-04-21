@@ -1,0 +1,291 @@
+{
+  "schema_version": "1.0",
+  "description": "V3 - component_locations expandido + VIN decode + TSBs comunes + safety warnings",
+  "component_locations": {
+    "sensor_TPS": {
+      "full_name": "Throttle Position Sensor",
+      "typical_location": "cuerpo aceleracion, lateral eje mariposa",
+      "signal_type": "analogo (3-wire: 5V ref / GND / signal)",
+      "voltage_range": "0.3-0.9V cerrado, 4.0-4.8V abierto total",
+      "common_failures": ["lectura erratica", "dead spots", "no cero al cerrar"],
+      "failure_codes": ["P0120-P0123", "P0220-P0223"]
+    },
+    "sensor_APP": {
+      "full_name": "Accelerator Pedal Position",
+      "typical_location": "sobre pedal acelerador",
+      "signal_type": "2 canales redundantes (drive-by-wire)",
+      "voltage_range": "canal 1: 0.5-4.5V, canal 2: mitad canal 1",
+      "failure_codes": ["P2135", "P2138"]
+    },
+    "sensor_BARO": {
+      "full_name": "Barometric Pressure",
+      "typical_location": "integrado en ECU o en colector admision",
+      "signal_type": "analogo o interno ECU",
+      "voltage_range": "1.0-4.5V segun altitud"
+    },
+    "sensor_knock": {
+      "full_name": "Knock Sensor",
+      "typical_location": "bloque motor medio-superior, 1 por banco",
+      "signal_type": "piezoelectrico AC (sin alimentacion)",
+      "voltage_range": "mV AC ~50Hz-15kHz bajo detonacion",
+      "common_failures": ["cableado cortado por vibracion", "apriete incorrecto (debe ser exacto)"],
+      "failure_codes": ["P0325-P0334"]
+    },
+    "sensor_ABS_rueda": {
+      "full_name": "Wheel Speed Sensor",
+      "typical_location": "cada rueda, cerca del rodamiento",
+      "signal_type": "pasivo inductivo (2-wire) o activo Hall (2-wire +5V)",
+      "voltage_range": "pasivo: 0.1-2V AC velocidad; activo: square 0-5V",
+      "resistance": "pasivo 800-1600 ohm",
+      "failure_codes": ["C0035", "C0041", "C0045", "C0050"]
+    },
+    "sensor_EVAP_FTP": {
+      "full_name": "Fuel Tank Pressure (EVAP)",
+      "typical_location": "sobre tanque combustible o canister",
+      "signal_type": "analogo 3-wire (5V/GND/signal)",
+      "voltage_range": "~2.5V estable",
+      "failure_codes": ["P0452", "P0453", "P0456"]
+    },
+    "actuador_IAC": {
+      "full_name": "Idle Air Control (motores antiguos)",
+      "typical_location": "cuerpo aceleracion, bypass mariposa",
+      "signal_type": "solenoide pulsado PWM o motor stepper",
+      "failure_codes": ["P0505-P0508"]
+    },
+    "valvula_EGR_electrica": {
+      "full_name": "EGR Valve electrica",
+      "typical_location": "entre colector escape y admision",
+      "signal_type": "motor DC con posicion potenciometro",
+      "voltage_range": "posicion feedback 0.5-4.5V",
+      "failure_codes": ["P0400-P0406"]
+    },
+    "valvula_turbo_VGT": {
+      "full_name": "VGT/VNT actuator",
+      "typical_location": "sobre turbo (actuador electronico o vacuum)",
+      "signal_type": "electronico con CAN o PWM vacuum",
+      "common_failures": ["stuck por carbon", "actuador fallado"],
+      "failure_codes": ["P0299", "P2263"]
+    },
+    "bobina_encendido_COP": {
+      "full_name": "Coil-on-plug",
+      "typical_location": "sobre bujia, cada cilindro",
+      "signal_type": "primario 12V + senal ignicion ECU",
+      "primary_resistance": "0.3-1.5 ohm",
+      "secondary_resistance": "5-15 kohm",
+      "failure_codes": ["P0351-P0358", "P0300-P0308"]
+    },
+    "bomba_combustible_intank": {
+      "full_name": "Bomba combustible en tanque",
+      "typical_location": "dentro del tanque (acceso via asiento trasero o piso maletero)",
+      "pressure_gasoline": "3.5-4.5 bar (50-65 PSI) typical",
+      "pressure_diesel_CR": "low side 3-6 bar + high side 250-2200 bar",
+      "current_draw": "4-8A ralenti gasolina, +carga acelerando",
+      "failure_signs": ["hot start difficult", "WOT starve", "noise whining"]
+    },
+    "bomba_alta_presion_diesel_CR": {
+      "full_name": "Bomba alta presion Common Rail",
+      "typical_location": "motor, impulsada por correa/cadena o engranaje",
+      "common_types": ["Bosch CP1", "CP1H", "CP3", "CP4.2", "Denso HP3/HP4", "Delphi DFP3"],
+      "failure_signs": ["perdida presion", "metal shavings en combustible", "bomba CP4.2 Ford 6.7 Power Stroke falla comun"]
+    },
+    "inyector_piezo_diesel": {
+      "full_name": "Inyector piezoelectrico diesel",
+      "typical_location": "cabeza cilindro sobre precamara",
+      "common_types": ["Bosch CRI", "Denso", "Siemens/Continental piezo"],
+      "codes_required": ["codificacion IMA/ISA al reemplazar", "equipo obligatorio: scanner profesional"]
+    },
+    "actuador_VVT_solenoide": {
+      "full_name": "Solenoide VVT OCV (Oil Control Valve)",
+      "typical_location": "cabeza cilindro, por banco",
+      "signal_type": "PWM de ECU",
+      "resistance": "6-12 ohm (20C)",
+      "failure_codes": ["P0010-P0022", "P0011-P0017"]
+    },
+    "cuerpo_aceleracion_ETC": {
+      "full_name": "Cuerpo aceleracion electronico (ETC/DBW)",
+      "typical_location": "entre filtro aire y colector admision",
+      "components": ["motor DC", "TPS (2 canales)", "muelle retorno"],
+      "common_failures": ["carbon buildup", "motor fail", "desync position"],
+      "failure_codes": ["P2100-P2138"],
+      "relearn_required": true
+    },
+    "valvula_termostato_electronico": {
+      "full_name": "Termostato mapeado electronico",
+      "typical_location": "carter termostato",
+      "signal_type": "solenoide calentador + sensor posicion",
+      "failure_codes": ["P0597-P0599"]
+    },
+    "sensor_MAP_turbo_post": {
+      "full_name": "Sensor MAP/Boost post-intercooler",
+      "typical_location": "colector admision o tubo post-IC",
+      "signal_type": "analogo 0.5-4.5V",
+      "typical_reading": "vacio -0.3 bar ralenti, +2 bar WOT turbo diesel",
+      "failure_codes": ["P0106-P0108"]
+    },
+    "inmobilizador_antena_bobina": {
+      "full_name": "Anillo antena inmovilizador",
+      "typical_location": "alrededor del barril llave",
+      "function": "lee chip transponder RFID llave",
+      "common_failures": ["bobina rota por doblado llave", "mala soldadura"],
+      "diagnosis": "scanner inmo capable (PCM + BCM handshake)"
+    },
+    "modulo_BCM": {
+      "full_name": "Body Control Module",
+      "typical_location": "debajo volante o consola central",
+      "controls": ["luces", "wipers", "central locking", "alarma", "inmovilizador", "PATS"],
+      "communication": "CAN-B (low speed) bus"
+    },
+    "modulo_ABS_HCU": {
+      "full_name": "ABS Hydraulic Control Unit + EBCM",
+      "typical_location": "vano motor, zona conductora",
+      "components": ["valvulas solenoides", "motor bomba", "modulo electronico"],
+      "common_brands": ["Bosch 5.3, 8.0, 9.0", "Continental MK60, MK100", "TRW"],
+      "failure_signs": ["luz ABS + ESP", "pedal largo", "ruido bomba continuo"]
+    },
+    "modulo_TCM_interno_valve_body": {
+      "full_name": "TCM integrado al valve body transmision",
+      "typical_location": "dentro de transmision (ej: Honda 9-spd, Ford 10R, ZF 8HP)",
+      "diagnosis_access": "requiere drop pan para ver o scanner profesional",
+      "failure_modes": ["sensors temperatura internos", "solenoides shift", "TCC lockup"]
+    },
+    "precalentador_diesel_relay": {
+      "full_name": "Rele calentamiento bujias diesel",
+      "typical_location": "vano motor, caja reles o chasis motor",
+      "function": "aplica 11-12V a bujias 5-15s pre-arranque",
+      "failure_signs": ["no arranque frio", "humo blanco arranque", "P0380"]
+    }
+  },
+  "vin_decode_patterns": {
+    "description": "Patrones VIN por marca - posiciones clave",
+    "universal_positions": {
+      "1-3": "World Manufacturer Identifier (WMI)",
+      "4-8": "Vehicle Descriptor Section (VDS)",
+      "9": "Check digit",
+      "10": "Year model (A=1980, B=1981,... Y=2000, 1=2001,... 9=2009, A=2010,...)",
+      "11": "Assembly plant",
+      "12-17": "Production serial number"
+    },
+    "wmi_common": {
+      "1FA-1FM": "Ford USA",
+      "1G1": "Chevrolet USA",
+      "1GC": "Chevrolet truck USA",
+      "1GN": "Chevrolet SUV USA",
+      "2G1-2G3": "Chevrolet Canada",
+      "3FA": "Ford Mexico",
+      "3VW": "VW Mexico",
+      "4T1": "Toyota USA",
+      "5FN": "Honda USA",
+      "JHM": "Honda Japan",
+      "JT1-JT3": "Toyota Japan",
+      "JN1": "Nissan Japan",
+      "KL1": "Daewoo/Chevrolet Korea",
+      "KM8": "Hyundai Korea SUV",
+      "KNA": "Kia Korea",
+      "SAL": "Land Rover",
+      "WAU": "Audi Germany",
+      "WBA-WBS": "BMW Germany",
+      "WDB-WDD": "Mercedes Germany",
+      "WVW": "VW Germany",
+      "9BD": "Fiat Brasil",
+      "9BF": "Ford Brasil",
+      "9BG": "GM Chevrolet Brasil",
+      "9BH": "Hyundai Brasil",
+      "9BR": "Toyota Brasil",
+      "9BW": "VW Brasil"
+    },
+    "year_codes": {
+      "A": 2010, "B": 2011, "C": 2012, "D": 2013, "E": 2014, "F": 2015,
+      "G": 2016, "H": 2017, "J": 2018, "K": 2019, "L": 2020, "M": 2021,
+      "N": 2022, "P": 2023, "R": 2024, "S": 2025, "T": 2026, "V": 2027,
+      "W": 2028, "X": 2029, "Y": 2030
+    }
+  },
+  "common_tsbs": {
+    "description": "TSBs (Technical Service Bulletins) comunes - referenciar al fabricante oficial",
+    "ford_18S03_throttle_body": {
+      "bulletin": "Ford 18S-03",
+      "affects": ["F-150 2011-2017 3.5 EcoBoost"],
+      "issue": "carbon buildup en cuerpo aceleracion causa codigos P2119/P2111",
+      "fix": "limpieza TB + actualizacion PCM"
+    },
+    "gm_17_NA_032_8L90_shudder": {
+      "bulletin": "GM 17-NA-032",
+      "affects": ["camionetas GM 2015-2019 con 8L90 / 8L45"],
+      "issue": "shudder/judder en 4ta-6ta marcha",
+      "fix": "flush ATF con fluido Mobil 1 LV-HP + software update TCM"
+    },
+    "ford_pspv_ecoboost": {
+      "bulletin": "Ford PSPV Power Steering Pump Voltage",
+      "affects": ["F-150 2011-2014 3.5 EcoBoost"],
+      "issue": "PSEU failure -> direccion pesada",
+      "fix": "reemplazar PSEU + cableado reforzado"
+    },
+    "bmw_n54_hpfp_recall": {
+      "bulletin": "BMW Service Action 11 02 03",
+      "affects": ["BMW N54 motors (135i, 335i, 535i, Z4 sDrive35i 2007-2010)"],
+      "issue": "high pressure fuel pump failure",
+      "fix": "HPFP replacement extended warranty (10yr/120k mi)"
+    },
+    "vw_takata_airbag_recall": {
+      "bulletin": "VW/Audi 69Y8",
+      "affects": ["Multiple VW/Audi 2002-2019"],
+      "issue": "Takata airbag inflator propellant degradation",
+      "fix": "mandatory recall - reemplazo gratuito"
+    },
+    "toyota_t_sb_0034_16_carbon": {
+      "bulletin": "Toyota T-SB-0034-16",
+      "affects": ["Toyota 2GR-FKS 2013+"],
+      "issue": "carbon buildup valvulas admision (direct injection)",
+      "fix": "walnut blasting o Seafoam via admision"
+    },
+    "honda_19_053_cvt_updater": {
+      "bulletin": "Honda 19-053",
+      "affects": ["Honda CR-V 2017-2019 1.5 turbo"],
+      "issue": "oil dilution by fuel (cold climate short trips)",
+      "fix": "software update + ATF change"
+    },
+    "gm_duramax_cp4_fuel_catastrophic": {
+      "bulletin": "known issue (no oficial bulletin)",
+      "affects": ["GM LML Duramax 2011-2016", "Ford 6.7 Power Stroke 2011-2020"],
+      "issue": "Bosch CP4.2 HP fuel pump catastrophic failure contaminando todo sistema",
+      "fix": "reemplazo bomba + limpieza completa ($8000-12000) OR DFCM kit preventivo"
+    }
+  },
+  "safety_warnings_general": {
+    "airbag_srs": [
+      "Desconectar bateria y esperar 10+ minutos antes de trabajar con airbag",
+      "Nunca colocar cabeza sobre airbag armado",
+      "Almacenar airbag removido con cara cubierta hacia arriba",
+      "No conectar ohmetro directo a squib del airbag (puede detonar)",
+      "Manejar SRS clockspring con cuidado - no rotar mas allá tope"
+    ],
+    "hybrid_ev_high_voltage": [
+      "SIEMPRE desactivar servicio HV plug/switch antes de trabajar en cables naranjas",
+      "Esperar 10+ minutos despues de desactivar para descarga capacitores",
+      "Usar guantes CAT III 1000V + casco con visor",
+      "Nunca tocar cables naranjas con equipo no aislado",
+      "Medir ausencia voltaje antes de proceder"
+    ],
+    "ac_refrigerante": [
+      "R-134a y R-1234yf son clasificacion SNAP - requiere licencia 609 EPA en USA",
+      "Nunca mezclar refrigerantes (R-134a + R-1234yf contamina ambos)",
+      "Usar gafas proteccion (congelamiento cornea si salpica)",
+      "No descargar atmosfera (ilegal + contaminacion)",
+      "Vacio 30 min antes de cargar (remueve humedad)"
+    ],
+    "diesel_common_rail": [
+      "Presion sistema 1400-2500 bar - NUNCA aflojar tuberia con motor andando",
+      "Fuga CR puede cortar dedo al momento",
+      "Esperar 30 seg despues apagar motor antes de manipular",
+      "Usar guantes y gafas durante sangrado sistema",
+      "Inyectores piezo cargan electricidad alta - descarga antes de tocar"
+    ],
+    "combustible_general": [
+      "Gasolina inflamable con vapor - ventilar area de trabajo",
+      "No fumar, no chispa cerca de tanque abierto",
+      "Extintor CO2 o polvo quimico disponible",
+      "Tanque aluminio drena chispa estatica - conectar a tierra",
+      "Residuos combustible en trapos = combustion espontanea (disponer apropiadamente)"
+    ]
+  }
+}
