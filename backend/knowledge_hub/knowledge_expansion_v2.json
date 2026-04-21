@@ -1,0 +1,450 @@
+{
+  "schema_version": "1.0",
+  "description": "Expansion de torque_specs, decision_trees, ecu_pinouts_common. Datos tecnicos publicos (SAE, service manuals).",
+  "torque_specs": {
+    "ford_50_coyote_cabeza": {"engine": "Ford 5.0L Coyote V8", "component": "cabeza cilindros", "sequence": ["22 Nm", "+90deg", "+90deg"], "unit": "Nm", "notes": "Bolts new, oil lubricated"},
+    "ford_50_coyote_bielas": {"engine": "Ford 5.0L Coyote V8", "component": "bielas", "sequence": ["20 Nm", "+90deg"], "unit": "Nm"},
+    "ford_50_coyote_munones": {"engine": "Ford 5.0L Coyote V8", "component": "munones ciguenal", "sequence": ["40 Nm", "+85deg"], "unit": "Nm"},
+    "ford_35_ecoboost_cabeza": {"engine": "Ford 3.5L EcoBoost V6", "component": "cabeza cilindros", "sequence": ["20 Nm", "+180deg"], "unit": "Nm"},
+    "ford_35_ecoboost_bielas": {"engine": "Ford 3.5L EcoBoost V6", "component": "bielas", "sequence": ["30 Nm", "+90deg"], "unit": "Nm"},
+    "ford_23_duratec_cabeza": {"engine": "Ford 2.3L Duratec", "component": "cabeza cilindros", "sequence": ["5 Nm", "15 Nm", "45 Nm", "+180deg"], "unit": "Nm"},
+    "ford_62_power_stroke_cabeza": {"engine": "Ford 6.2L V8", "component": "cabeza cilindros", "sequence": ["30 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "gm_ls1_cabeza": {"engine": "GM LS1 5.7L V8", "component": "cabeza cilindros", "sequence": ["30 Nm", "+90deg", "+50deg short / +70deg long"], "unit": "Nm", "notes": "TTY bolts - replace"},
+    "gm_ls3_cabeza": {"engine": "GM LS3 6.2L V8", "component": "cabeza cilindros", "sequence": ["30 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "gm_lt1_cabeza": {"engine": "GM LT1 6.2L V8", "component": "cabeza cilindros", "sequence": ["30 Nm", "+155deg (M11)", "+75deg (M8)"], "unit": "Nm"},
+    "gm_24_ecotec_cabeza": {"engine": "GM 2.4L Ecotec", "component": "cabeza cilindros", "sequence": ["15 Nm", "30 Nm", "+150deg"], "unit": "Nm"},
+    "gm_36_hfv6_cabeza": {"engine": "GM 3.6L HFV6", "component": "cabeza cilindros", "sequence": ["40 Nm", "+155deg"], "unit": "Nm"},
+    "toyota_2azfe_cabeza": {"engine": "Toyota 2AZ-FE 2.4L", "component": "cabeza cilindros", "sequence": ["49 Nm", "+90deg"], "unit": "Nm"},
+    "toyota_2azfe_bielas": {"engine": "Toyota 2AZ-FE 2.4L", "component": "bielas", "sequence": ["20 Nm", "+90deg"], "unit": "Nm"},
+    "toyota_1nzfe_cabeza": {"engine": "Toyota 1NZ-FE 1.5L", "component": "cabeza cilindros", "sequence": ["49 Nm", "+90deg"], "unit": "Nm"},
+    "toyota_2grfe_cabeza": {"engine": "Toyota 2GR-FE 3.5L V6", "component": "cabeza cilindros", "sequence": ["27 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "toyota_2trfe_cabeza": {"engine": "Toyota 2TR-FE 2.7L (Hilux/Tacoma)", "component": "cabeza cilindros", "sequence": ["49 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "toyota_2kdftv_cabeza": {"engine": "Toyota 2KD-FTV 2.5L diesel", "component": "cabeza cilindros", "sequence": ["40 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "honda_r18_cabeza": {"engine": "Honda R18 1.8L (Civic)", "component": "cabeza cilindros", "sequence": ["40 Nm", "+180deg"], "unit": "Nm"},
+    "honda_k24_cabeza": {"engine": "Honda K24 2.4L (Accord/CRV)", "component": "cabeza cilindros", "sequence": ["40 Nm", "+180deg"], "unit": "Nm"},
+    "honda_l15_cabeza": {"engine": "Honda L15 1.5L turbo", "component": "cabeza cilindros", "sequence": ["30 Nm", "+150deg"], "unit": "Nm"},
+    "honda_j35_cabeza": {"engine": "Honda J35 3.5L V6", "component": "cabeza cilindros", "sequence": ["40 Nm", "+180deg"], "unit": "Nm"},
+    "honda_k20c_cabeza": {"engine": "Honda K20C1 (Civic Type R)", "component": "cabeza cilindros", "sequence": ["35 Nm", "+180deg"], "unit": "Nm"},
+    "vw_19tdi_cabeza": {"engine": "VW 1.9 TDI PD", "component": "cabeza cilindros", "sequence": ["40 Nm", "60 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "vw_20tdi_cabeza": {"engine": "VW 2.0 TDI CR (EA189)", "component": "cabeza cilindros", "sequence": ["40 Nm", "60 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "vw_20tsi_cabeza": {"engine": "VW 2.0 TSI EA888 Gen3", "component": "cabeza cilindros", "sequence": ["30 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "vw_14tsi_cabeza": {"engine": "VW 1.4 TSI (EA211)", "component": "cabeza cilindros", "sequence": ["25 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "audi_30tfsi_cabeza": {"engine": "Audi 3.0 TFSI V6 supercharged", "component": "cabeza cilindros", "sequence": ["20 Nm", "40 Nm", "+90deg"], "unit": "Nm"},
+    "bmw_n47_cabeza": {"engine": "BMW N47 2.0D", "component": "cabeza cilindros", "sequence": ["30 Nm", "60 Nm", "+180deg"], "unit": "Nm"},
+    "bmw_n20_cabeza": {"engine": "BMW N20 2.0 turbo", "component": "cabeza cilindros", "sequence": ["30 Nm", "+150deg"], "unit": "Nm"},
+    "bmw_n55_cabeza": {"engine": "BMW N55 3.0 turbo", "component": "cabeza cilindros", "sequence": ["40 Nm", "+170deg"], "unit": "Nm"},
+    "bmw_b58_cabeza": {"engine": "BMW B58 3.0 turbo", "component": "cabeza cilindros", "sequence": ["40 Nm", "+150deg"], "unit": "Nm"},
+    "mercedes_om642_cabeza": {"engine": "Mercedes OM642 3.0 V6 diesel", "component": "cabeza cilindros", "sequence": ["40 Nm", "80 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "mercedes_om651_cabeza": {"engine": "Mercedes OM651 2.1 CDI", "component": "cabeza cilindros", "sequence": ["15 Nm", "50 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "mercedes_m272_cabeza": {"engine": "Mercedes M272 3.5 V6", "component": "cabeza cilindros", "sequence": ["30 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "nissan_hr16de_cabeza": {"engine": "Nissan HR16DE 1.6L", "component": "cabeza cilindros", "sequence": ["20 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "nissan_qr25de_cabeza": {"engine": "Nissan QR25DE 2.5L", "component": "cabeza cilindros", "sequence": ["40 Nm", "aflojar", "40 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "nissan_vq35_cabeza": {"engine": "Nissan VQ35DE 3.5L V6", "component": "cabeza cilindros", "sequence": ["98 Nm", "aflojar", "25 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "nissan_yd25_cabeza": {"engine": "Nissan YD25 2.5L diesel (Frontier/Navara)", "component": "cabeza cilindros", "sequence": ["40 Nm", "80 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "mazda_skyactiv_g_cabeza": {"engine": "Mazda SkyActiv-G 2.0/2.5", "component": "cabeza cilindros", "sequence": ["30 Nm", "+180deg"], "unit": "Nm"},
+    "mazda_skyactiv_d_cabeza": {"engine": "Mazda SkyActiv-D 2.2 diesel", "component": "cabeza cilindros", "sequence": ["40 Nm", "+180deg", "+45deg"], "unit": "Nm"},
+    "subaru_ej25_cabeza": {"engine": "Subaru EJ25 2.5L boxer", "component": "cabeza cilindros", "sequence": ["30 Nm", "aflojar", "44 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "subaru_fa20_cabeza": {"engine": "Subaru FA20 2.0L boxer", "component": "cabeza cilindros", "sequence": ["30 Nm", "+180deg"], "unit": "Nm"},
+    "hyundai_g4kd_cabeza": {"engine": "Hyundai G4KD 2.0 (Theta II)", "component": "cabeza cilindros", "sequence": ["25 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "hyundai_g6db_cabeza": {"engine": "Hyundai G6DB 3.3 V6", "component": "cabeza cilindros", "sequence": ["25 Nm", "+60deg", "+60deg"], "unit": "Nm"},
+    "chevrolet_v8_54_cabeza": {"engine": "Chevy 5.4 V8 (Vortec)", "component": "cabeza cilindros", "sequence": ["32 Nm", "+90deg", "+75deg"], "unit": "Nm"},
+    "fiat_12_firepro_cabeza": {"engine": "Fiat 1.2 Fire/Evo", "component": "cabeza cilindros", "sequence": ["25 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "renault_k4m_cabeza": {"engine": "Renault K4M 1.6 16v", "component": "cabeza cilindros", "sequence": ["25 Nm", "+117deg"], "unit": "Nm"},
+    "renault_15dci_cabeza": {"engine": "Renault 1.5 dCi", "component": "cabeza cilindros", "sequence": ["25 Nm", "aflojar", "25 Nm", "+120deg"], "unit": "Nm"},
+    "peugeot_hdi_16_cabeza": {"engine": "PSA 1.6 HDi (DV6)", "component": "cabeza cilindros", "sequence": ["20 Nm", "60 Nm", "+225deg"], "unit": "Nm"},
+    "peugeot_thp_16_cabeza": {"engine": "PSA 1.6 THP (Prince)", "component": "cabeza cilindros", "sequence": ["30 Nm", "+180deg"], "unit": "Nm"},
+    "kia_g6da_cabeza": {"engine": "Kia G6DA 3.3 V6 (Lambda)", "component": "cabeza cilindros", "sequence": ["25 Nm", "+60deg", "+60deg"], "unit": "Nm"},
+    "mitsubishi_4g63_cabeza": {"engine": "Mitsubishi 4G63 2.0 turbo", "component": "cabeza cilindros", "sequence": ["80 Nm", "aflojar", "25 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "mitsubishi_4b12_cabeza": {"engine": "Mitsubishi 4B12 2.4 (Outlander)", "component": "cabeza cilindros", "sequence": ["25 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "chrysler_hemi_57_cabeza": {"engine": "Chrysler 5.7 HEMI V8", "component": "cabeza cilindros", "sequence": ["45 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "jeep_38_v6_cabeza": {"engine": "Jeep 3.8L V6 (EGH)", "component": "cabeza cilindros", "sequence": ["30 Nm", "65 Nm", "+90deg"], "unit": "Nm"},
+    "jeep_36_pentastar_cabeza": {"engine": "Jeep/Chrysler 3.6 Pentastar V6", "component": "cabeza cilindros", "sequence": ["40 Nm", "+90deg"], "unit": "Nm"},
+    "iveco_daily_30_cabeza": {"engine": "Iveco Daily 3.0 F1C diesel", "component": "cabeza cilindros", "sequence": ["80 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "gm_duramax_66_cabeza": {"engine": "GM Duramax 6.6 V8 diesel", "component": "cabeza cilindros", "sequence": ["80 Nm", "140 Nm", "+90deg"], "unit": "Nm"},
+    "cummins_59_cabeza": {"engine": "Cummins 5.9 ISB diesel", "component": "cabeza cilindros", "sequence": ["60 Nm", "90 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "cummins_67_cabeza": {"engine": "Cummins 6.7 ISB diesel", "component": "cabeza cilindros", "sequence": ["60 Nm", "90 Nm", "+90deg", "+90deg"], "unit": "Nm"},
+    "ford_powerstroke_60_cabeza": {"engine": "Ford 6.0L Power Stroke diesel", "component": "cabeza cilindros", "sequence": ["85 Nm", "175 Nm", "aflojar", "85 Nm", "+90deg", "+90deg"], "unit": "Nm", "notes": "Problema comun: salto tornillos - upgrade ARP recomendado"},
+    "bujias_estandar": {"component": "bujias gasolina", "value": "25-30 Nm", "unit": "Nm", "notes": "general, verificar OEM"},
+    "bujias_chispa_iridium_fino": {"component": "bujias iridium finas", "value": "15-20 Nm", "unit": "Nm"},
+    "colector_admision_aluminio": {"component": "colector admision aluminio", "value": "10-12 Nm", "unit": "Nm"},
+    "colector_escape_fe": {"component": "colector escape hierro", "value": "45-55 Nm", "unit": "Nm"},
+    "carter_aceite_al": {"component": "carter aluminio", "value": "10-12 Nm", "unit": "Nm"},
+    "tapa_valvulas_plastico": {"component": "tapa valvulas plastico", "value": "8-10 Nm", "unit": "Nm"},
+    "rueda_tuercas_auto": {"component": "tuercas rueda automovil", "value": "110-140 Nm", "unit": "Nm"},
+    "rueda_tuercas_camioneta": {"component": "tuercas rueda SUV/camioneta", "value": "140-180 Nm", "unit": "Nm"},
+    "tornillo_volante": {"component": "tornillo volante motor", "value": "70-90 Nm + 45deg", "unit": "Nm", "notes": "generalmente TTY"},
+    "tornillo_polea_ciguenal": {"component": "polea ciguenal (harmonic balancer)", "value": "220 Nm (generic)", "unit": "Nm", "notes": "Variable por modelo - consultar manual"},
+    "sensor_O2_hembra": {"component": "sensor O2 (lambda)", "value": "40-50 Nm", "unit": "Nm"},
+    "sensor_CKP": {"component": "sensor CKP", "value": "8-10 Nm", "unit": "Nm"},
+    "inyector_diesel_CR": {"component": "inyector diesel Common Rail", "value": "40-50 Nm (bridas)", "unit": "Nm", "notes": "tornillos nuevos - TTY"},
+    "tornillo_damper_honda": {"component": "tornillo damper Honda J/K series", "value": "245 Nm + 90deg", "unit": "Nm"},
+    "tornillo_damper_toyota_2gr": {"component": "tornillo damper Toyota 2GR-FE", "value": "225 Nm", "unit": "Nm"},
+    "tornillo_damper_vag": {"component": "tornillo polea VAG 2.0 TFSI", "value": "230 Nm + 90deg", "unit": "Nm"}
+  },
+  "decision_trees_extended": {
+    "tpms_warning": {
+      "symptom": "Testigo TPMS enciende",
+      "steps": [
+        {"step": 1, "check": "presion fisica 4 llantas con manometro"},
+        {"step": 2, "if_low": "inflar a especificacion puerta (tipicamente 30-35 PSI)"},
+        {"step": 3, "if_ok": "escaner - leer presiones reportadas por cada sensor"},
+        {"step": 4, "if_missing": "sensor fallado - reemplazar (~$30-100 c/u)"},
+        {"step": 5, "if_discrepancia": "reset TPMS via scanner o procedimiento OEM"}
+      ]
+    },
+    "srs_airbag_light": {
+      "symptom": "Testigo airbag enciende permanente",
+      "steps": [
+        {"step": 1, "check": "leer DTCs SRS con scanner capaz (no OBD-II basico)"},
+        {"step": 2, "if_B0001_2": "revisar conector reloj espiral volante"},
+        {"step": 3, "if_B0022_23": "resistencia airbag conductor 2-5 ohm"},
+        {"step": 4, "if_short_circuit": "reemplazar cable/modulo afectado"},
+        {"step": 5, "warning": "SIEMPRE desconectar bateria 10+ min antes de tocar airbag"},
+        {"step": 6, "clear_codes": "con scanner SRS (no OBD-II)"}
+      ]
+    },
+    "evap_leak_p0456": {
+      "symptom": "P0456 (fuga EVAP muy pequeña)",
+      "steps": [
+        {"step": 1, "check": "tapa combustible bien cerrada (click audible)"},
+        {"step": 2, "if_tapa_vieja": "reemplazar tapa ($10-30) y borrar codigo"},
+        {"step": 3, "if_vuelve": "smoke test al sistema EVAP"},
+        {"step": 4, "if_fuga_canister": "reemplazar canister o orings"},
+        {"step": 5, "if_fuga_purge_valve": "reemplazar valvula purga"}
+      ]
+    },
+    "transmision_deslizando": {
+      "symptom": "Transmision se resbala (no engancha marcha)",
+      "steps": [
+        {"step": 1, "check": "nivel y color ATF (debe ser rojo traslucido)"},
+        {"step": 2, "if_bajo": "verificar fugas bomba/sellos/enfriador"},
+        {"step": 3, "if_quemado": "requiere overhaul o reemplazo"},
+        {"step": 4, "if_ok": "scanner - leer DTCs TCM + datos solenoides"},
+        {"step": 5, "if_codigo_solenoide": "reemplazar solenoide ($150-500)"},
+        {"step": 6, "if_sin_codigos": "test dinamico presion hidraulica"}
+      ]
+    },
+    "glow_plug_diesel": {
+      "symptom": "Diesel arranca mal en frio, humo blanco al arranque",
+      "steps": [
+        {"step": 1, "check": "tension bujias precalentamiento con llave ON (11-12V durante ~5-10s)"},
+        {"step": 2, "check": "resistencia bujias (<1 ohm OK, >3 ohm o abierto = falla)"},
+        {"step": 3, "if_abierto": "reemplazar bujia (todas mismo juego, $15-40 c/u)"},
+        {"step": 4, "if_bujias_ok": "verificar rele calentamiento"},
+        {"step": 5, "if_rele_ok": "ECU control y sensor temperatura motor"}
+      ]
+    },
+    "dpf_regen_problem": {
+      "symptom": "DPF no regenera, testigo encendido, consumo aumenta",
+      "steps": [
+        {"step": 1, "check": "leer datos live: % hollin DPF, temperatura pre/post DPF, contador regens"},
+        {"step": 2, "if_hollin_>90": "regen forzada estatica con scanner (requiere tool profesional)"},
+        {"step": 3, "if_regen_falla": "verificar sensor presion diferencial DPF"},
+        {"step": 4, "check": "ensayo ruta 30 min 3000+ rpm para regen pasiva"},
+        {"step": 5, "if_saturado": "limpieza quimica o reemplazo DPF"},
+        {"step": 6, "warning": "delete DPF es ILEGAL en casi todos los paises"}
+      ]
+    },
+    "battery_drain_parasitic": {
+      "symptom": "Bateria descargada despues 1-3 dias",
+      "steps": [
+        {"step": 1, "check": "estado bateria con carga de prueba (load test)"},
+        {"step": 2, "if_bateria_mala": "reemplazar bateria ($80-250)"},
+        {"step": 3, "if_bateria_ok": "amperaje parasito: amperimetro en serie despues sleep 30 min"},
+        {"step": 4, "expected": "<50 mA con todo apagado y alarma armada"},
+        {"step": 5, "if_mayor": "pulling fusibles 1 por 1 para aislar circuito culpable"},
+        {"step": 6, "common": "luz maletero/guantera stuck on, modulo no duerme, radio aftermarket"}
+      ]
+    },
+    "abs_warning_constante": {
+      "symptom": "Testigo ABS permanente, frenos basicos OK",
+      "steps": [
+        {"step": 1, "scan": "leer DTCs C-codes con scanner ABS"},
+        {"step": 2, "if_C0035_40_45_50": "sensor rueda especifico - reemplazar"},
+        {"step": 3, "check_sensor": "resistencia tipica 1000-1500 ohm, voltaje en movimiento 0.5-2V AC"},
+        {"step": 4, "if_anillo_dañado": "reemplazar rodamiento con tono (incluye anillo)"},
+        {"step": 5, "if_modulo_ABS_falla": "reemplazo o reparacion modulo (ej Bosch 8.0/8.1)"}
+      ]
+    },
+    "cat_efficiency_p0420": {
+      "symptom": "P0420 (eficiencia cat banco 1)",
+      "steps": [
+        {"step": 1, "check_O2": "senales O2 upstream vs downstream - upstream oscila 0.1-0.9V, downstream debe estar ~casi plano ~0.5-0.7V"},
+        {"step": 2, "if_downstream_oscila_igual": "catalizador gastado (eficiencia <95%)"},
+        {"step": 3, "but_first": "descartar fuga escape pre-cat con humo o estetoscopio"},
+        {"step": 4, "if_fuga": "sellar antes reemplazar cat (fuga contamina lectura)"},
+        {"step": 5, "cost": "cat OEM $300-1500, aftermarket $100-400"},
+        {"step": 6, "fraud_warning": "straight pipe / delete es ilegal emisiones"}
+      ]
+    },
+    "power_steering_electric_fail": {
+      "symptom": "Direccion electrica se pone pesada, testigo EPS",
+      "steps": [
+        {"step": 1, "scan": "leer DTCs C/U del modulo EPS"},
+        {"step": 2, "check_voltage": "12V bateria estable con motor andando (13.8-14.5V)"},
+        {"step": 3, "if_low_voltage": "alternador o bateria debil causa fail-safe EPS"},
+        {"step": 4, "if_sensor_torque": "ajuste o reemplazo sensor par volante"},
+        {"step": 5, "if_motor_eps_fail": "reemplazo modulo EPS completo ($400-1500)"}
+      ]
+    },
+    "ac_no_fria": {
+      "symptom": "AC enciende compresor pero no enfria / enfria poco",
+      "steps": [
+        {"step": 1, "check_presiones": "manifold: baja 25-35 PSI / alta 200-250 PSI a 90F ambiente"},
+        {"step": 2, "if_ambas_bajas": "refrigerante bajo - buscar fuga con UV o electronica"},
+        {"step": 3, "if_alta_baja_baja": "fuga grande o compresor debil"},
+        {"step": 4, "if_alta_muy_alta": "condensador obstruido o sobrecarga refrigerante"},
+        {"step": 5, "if_baja_muy_baja": "expansion valve bloqueada o filter drier saturado"},
+        {"step": 6, "evacuate_recharge": "vacio 30 min, recargar peso exacto (verifica calca capacidad)"}
+      ]
+    },
+    "motor_se_ahoga_aceleracion": {
+      "symptom": "Motor se ahoga al acelerar fuerte, vuelve a normal ralenti",
+      "steps": [
+        {"step": 1, "scan": "DTCs + fuel trims (LTFT/STFT), MAF live"},
+        {"step": 2, "if_misfire": "bobinas/bujias - hacer cylinder balance test"},
+        {"step": 3, "if_fuel_trim_lean_wot": "bomba combustible debil o filtro"},
+        {"step": 4, "check_fuel_pressure": "en WOT debe mantenerse 3.5-4.5 bar gasolina"},
+        {"step": 5, "if_MAF_count_bajo_WOT": "fuga admision post-MAF o MAF sucio"},
+        {"step": 6, "if_knock_sensor_retard": "combustible calidad baja o tuning agresivo"}
+      ]
+    },
+    "oil_pressure_low_warning": {
+      "symptom": "Testigo presion aceite enciende",
+      "steps": [
+        {"step": 1, "STOP_INMEDIATO": "apagar motor - presion baja dana rodamientos en segundos"},
+        {"step": 2, "check_nivel": "bayoneta - rellenar si bajo"},
+        {"step": 3, "if_testigo_persiste_con_nivel_ok": "instalar manometro mecanico"},
+        {"step": 4, "presion_esperada": "ralenti 15-25 PSI, 2500rpm 40-60 PSI caliente"},
+        {"step": 5, "if_real_baja": "bomba aceite debil o munones gastados - requiere overhaul"},
+        {"step": 6, "if_real_ok": "sensor presion aceite fallo"}
+      ]
+    },
+    "no_power_cuts_out": {
+      "symptom": "Motor se apaga al andar, vuelve a arrancar",
+      "steps": [
+        {"step": 1, "scan_history": "DTCs pendientes + freeze frame"},
+        {"step": 2, "common_cause_crank_sensor": "CKP defectuoso = apagada intermitente"},
+        {"step": 3, "check_fuel": "presion combustible bajo carga"},
+        {"step": 4, "check_ignition_switch": "ignition switch desgastado pierde contacto"},
+        {"step": 5, "check_fuel_pump_relay": "rele bomba sobrecalentado"},
+        {"step": 6, "check_ground_straps": "ground motor-chassis corroido"}
+      ]
+    },
+    "check_engine_flashing": {
+      "symptom": "Check engine parpadeando (misfire critico)",
+      "steps": [
+        {"step": 1, "CRITICO": "misfire activo puede dañar catalizador en minutos - reducir carga"},
+        {"step": 2, "scan": "P0300 + P030X identifica cilindro(s)"},
+        {"step": 3, "swap_test": "swap bobina/bujia a cilindro vecino - si el codigo sigue = inyector"},
+        {"step": 4, "if_sigue_tras_swap": "inyector fugando o compresion baja"},
+        {"step": 5, "check_compression": "test compresion - diferencia >15% entre cilindros = problema mecanico"}
+      ]
+    },
+    "intermitent_no_start": {
+      "symptom": "A veces arranca, a veces no, sin patron obvio",
+      "steps": [
+        {"step": 1, "cuando_no_arranca": "escuchar arranque - ¿gira motor?"},
+        {"step": 2, "no_gira": "bateria/arrancador/rele - test voltaje al solenoide arrancador"},
+        {"step": 3, "gira_pero_no_prende": "no hay chispa o no hay combustible"},
+        {"step": 4, "check_spark": "remover bobina y ver chispa contra masa"},
+        {"step": 5, "check_fuel_pressure": "al momento de giro"},
+        {"step": 6, "common_intermittent": "crank sensor se expande con calor, falla aleatoria"}
+      ]
+    },
+    "aceite_mezcla_coolant": {
+      "symptom": "Aceite tipo cafe/mayonesa, o coolant con aceite",
+      "steps": [
+        {"step": 1, "if_mayonesa_solo_tapa": "condensacion normal en viajes cortos frio"},
+        {"step": 2, "if_mayonesa_bayoneta": "junta cabeza rota o grieta"},
+        {"step": 3, "test_compresion": "cilindro afectado baja presion, burbujas en radiador"},
+        {"step": 4, "test_gases_coolant": "block tester con liquido reactivo"},
+        {"step": 5, "if_positivo": "junta cabeza + verificar maquinado cabeza + torque TTY"},
+        {"step": 6, "worst_case": "cilindros rayados - rectificacion/overhaul"}
+      ]
+    },
+    "humo_azul_persistente": {
+      "symptom": "Humo azul persistente por escape",
+      "steps": [
+        {"step": 1, "consumo_aceite": "registrar millas por litro consumido"},
+        {"step": 2, "if_aceleracion": "sellos de valvulas (pasan aceite al ralenti-aceleracion)"},
+        {"step": 3, "if_continuo": "anillos gastados (pistones/cilindros)"},
+        {"step": 4, "test_compresion_humedo_seco": "si seco bajo pero humedo mejora = anillos"},
+        {"step": 5, "if_turbo_car": "turbo leak por sellos - inspeccionar intercooler por aceite"},
+        {"step": 6, "cost": "sellos valvula $300-800, anillos $1500-3500"}
+      ]
+    },
+    "vibracion_ralenti": {
+      "symptom": "Vibracion fuerte ralenti, desaparece aceleracion",
+      "steps": [
+        {"step": 1, "scan_misfire": "verificar misfire counter por cilindro"},
+        {"step": 2, "if_clean": "soportes motor rotos/colapsados - inspeccion visual"},
+        {"step": 3, "if_misfire": "bujia/bobina/inyector cilindro afectado"},
+        {"step": 4, "check_vacuum_leak": "humo o propano en carburador/TB"},
+        {"step": 5, "balancin_turbo": "en motores con balance shaft - chain stretch"},
+        {"step": 6, "idle_relearn": "tras reparacion, reset adaptaciones ECU"}
+      ]
+    },
+    "fan_noise_sobrecarga": {
+      "symptom": "Ventilador radiador full speed siempre, motor temp normal",
+      "steps": [
+        {"step": 1, "scan": "codigo P0480 (circuito rele ventilador)"},
+        {"step": 2, "if_fan_stuck_on_KOEO": "rele ventilador pegado ON"},
+        {"step": 3, "check_AC_pressure": "alta presion AC dispara ventilador"},
+        {"step": 4, "check_ECT_signal": "sensor ECT dando lectura alta falsa"},
+        {"step": 5, "check_PCM_control": "si PCM mantiene comando = modulo fan o PCM"}
+      ]
+    }
+  },
+  "ecu_pinouts_common_v2": {
+    "bosch_ME7_5": {
+      "name": "Bosch ME7.5 gasolina",
+      "vehicles": ["VW/Audi/Seat/Skoda 1999-2005", "Porsche 911 996"],
+      "connector": "121 pin",
+      "key_pins": {
+        "1": "GND power",
+        "2": "GND signal",
+        "3": "+12V bateria (KL30)",
+        "4": "+12V despues llave (KL15)",
+        "10": "K-line OBD",
+        "58": "CAN High",
+        "59": "CAN Low",
+        "85": "MAF signal",
+        "86": "MAP signal"
+      }
+    },
+    "bosch_EDC16": {
+      "name": "Bosch EDC16 diesel CR",
+      "vehicles": ["VW 1.9/2.0 TDI (2003-2009)", "BMW/Mercedes diesel", "Fiat JTD"],
+      "connector": "89 + 94 pin (2 conectores)",
+      "key_pins": {
+        "1": "GND power",
+        "2": "+12V KL30",
+        "3": "+12V KL15",
+        "6": "CAN-H drivetrain",
+        "7": "CAN-L drivetrain",
+        "33": "K-line",
+        "42": "inyector 1",
+        "43": "inyector 2"
+      },
+      "notes": "Boot mode: pin 24 (boot) + boot tools"
+    },
+    "bosch_EDC17": {
+      "name": "Bosch EDC17 diesel/gasolina moderno",
+      "vehicles": ["VW/Audi 2.0 TDI CR (2008+)", "BMW diesel", "Mercedes", "Opel"],
+      "connector": "94+60+121 pin multi-conector",
+      "key_pins": {
+        "description": "Variable por subtipo (C46, CP14, CP20, etc.)",
+        "boot_pin": "habilitar BOOT mode segun tool (ej: pin 2 + GND con KTAG/KESS)"
+      },
+      "notes": "Soporta OBD flashing via UDS/KWP2000; bench/boot para recovery"
+    },
+    "bosch_MED17": {
+      "name": "Bosch MED17 gasolina direct injection",
+      "vehicles": ["VW 2.0 TSI EA888", "Audi", "BMW N-series"],
+      "connector": "94+60+121 similar a EDC17",
+      "notes": "TP mode y boot disponibles via bench"
+    },
+    "siemens_MS41": {
+      "name": "Siemens MS41/MS42/MS43 BMW",
+      "vehicles": ["BMW E36/E46/E39 gasolina"],
+      "connector": "88 pin",
+      "key_pins": {"1": "GND", "27": "+12V", "64": "K-line"},
+      "notes": "Chip tuning via socket EEPROM fisico"
+    },
+    "siemens_MS45": {
+      "name": "Siemens MS45 BMW",
+      "vehicles": ["BMW E46 M3", "E39 M5"],
+      "connector": "88 pin",
+      "notes": "OBD flashing con WinKFP"
+    },
+    "siemens_MSV70": {
+      "name": "Siemens MSV70/MSS70 BMW",
+      "vehicles": ["BMW N52/N54/S65 (2004-2010)"],
+      "connector": "multi-pin",
+      "notes": "OBD via BMW Coding/WinKFP o MHD tool"
+    },
+    "siemens_MSV80": {
+      "name": "Siemens MSV80/MSD80 BMW",
+      "vehicles": ["BMW N54/N55 (2008-2013)"],
+      "connector": "multi-pin",
+      "notes": "MHD Flasher tool soporta"
+    },
+    "siemens_SIM2": {
+      "name": "Siemens SIM2K Hyundai/Kia",
+      "vehicles": ["Hyundai/Kia CRDi diesel", "Theta II gasolina"],
+      "notes": "Flashing via K-line + specific tool (KSUITE, etc)"
+    },
+    "siemens_SID208": {
+      "name": "Siemens SID208 diesel",
+      "vehicles": ["Ford 1.6/2.0 TDCi", "PSA 1.6 HDi"],
+      "notes": "OBD via KWP2000"
+    },
+    "delphi_DCM32": {
+      "name": "Delphi DCM3.2/3.5/3.7",
+      "vehicles": ["Renault/Dacia/Nissan dCi diesel"],
+      "notes": "Delphi protocol, OBD flashing soportado"
+    },
+    "delphi_MT05_MT22": {
+      "name": "Delphi MT05/MT22 Fiat",
+      "vehicles": ["Fiat/Alfa Romeo gasolina (Uno, Palio, Stilo)"],
+      "notes": "Socket EEPROM comun"
+    },
+    "marelli_IAW_4SF": {
+      "name": "Marelli IAW 4SF/5AF/5SF",
+      "vehicles": ["Fiat/Lancia gasolina"],
+      "notes": "OBD por K-line"
+    },
+    "denso_32bit_toyota": {
+      "name": "Denso 32bit Toyota",
+      "vehicles": ["Toyota 2006+ (2GR, 1GR, 2AZ, etc.)"],
+      "notes": "Bench flash recomendado, OBD limitado"
+    },
+    "denso_subaru": {
+      "name": "Denso Subaru (Bosch-made)",
+      "vehicles": ["Subaru Impreza/Legacy/Forester gasolina"],
+      "notes": "Usa RomRaider + OpenPort / Tactrix"
+    },
+    "hitachi_nissan": {
+      "name": "Hitachi Nissan",
+      "vehicles": ["Nissan gasolina modernos (QR25, VQ35, VR30)"],
+      "notes": "Protocolo CAN-UDS, tools: ECUTEK, UpRev, COBB"
+    },
+    "keihin_honda": {
+      "name": "Keihin Honda/Acura",
+      "vehicles": ["Honda/Acura gasolina"],
+      "notes": "KTuner, Hondata, FlashPro"
+    },
+    "mitsubishi_MH8000": {
+      "name": "Mitsubishi MH8x00 series",
+      "vehicles": ["Mitsubishi gasolina (4G6x, 4B1x)"],
+      "notes": "Socket EEPROM / ECUFlash / EcuTek"
+    },
+    "continental_SID_ford": {
+      "name": "Continental SID 206/208/209 diesel",
+      "vehicles": ["Ford 2.0/2.2 TDCi (Transit, Ranger, Everest)"],
+      "notes": "Bench mode recomendado"
+    },
+    "continental_SIM210_PSA": {
+      "name": "Continental SIM2K-PSA",
+      "vehicles": ["PSA gasolina (1.6 THP Prince)"],
+      "notes": "OBD flashing con PSA tools"
+    },
+    "dlc_j1962_obd2": {
+      "name": "DLC J1962 OBD-II estandar",
+      "vehicles": ["TODOS 1996+ (USA), 2001+ (EU), 2008+ (LATAM general)"],
+      "connector": "16-pin trapezoidal",
+      "key_pins": {
+        "2": "J1850+ (SAE)",
+        "4": "Chassis ground",
+        "5": "Signal ground",
+        "6": "CAN High (ISO 15765-4)",
+        "7": "ISO 9141-2 K-line",
+        "10": "J1850-",
+        "14": "CAN Low",
+        "15": "ISO 9141-2 L-line (raro)",
+        "16": "+12V bateria"
+      }
+    }
+  }
+}
