@@ -67,6 +67,11 @@ def cmd_optimize(args):
     print(opt.summary(maps["ignition"], optimized))
 
 
+def cmd_gui(args):
+    from .gui.app import run_gui
+    run_gui(demo=args.port is None)
+
+
 def main():
     parser = argparse.ArgumentParser(prog="scaner_soler", description="Scaner Soler Pro")
     sub = parser.add_subparsers(dest="cmd")
@@ -80,6 +85,9 @@ def main():
     p_opt.add_argument("--profile", default="track", choices=["street", "track", "race"])
     p_opt.add_argument("--fuel", type=int, default=95, help="Octanaje del combustible")
 
+    p_gui = sub.add_parser("gui", help="Lanzar interfaz grafica (Tkinter)")
+    p_gui.add_argument("--port", default=None, help="Puerto COM del adaptador ELM327 (omitir = modo demo)")
+
     args = parser.parse_args()
 
     if args.cmd == "scan":
@@ -88,6 +96,8 @@ def main():
         cmd_demo(args)
     elif args.cmd == "optimize":
         cmd_optimize(args)
+    elif args.cmd == "gui":
+        cmd_gui(args)
     else:
         parser.print_help()
 

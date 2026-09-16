@@ -86,12 +86,15 @@ class DTCDatabase:
     def _init_db(self):
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         with self._conn() as con:
+            # dtc_codes may have composite PK (code, source) if migrated, or old single PK
             con.execute("""
                 CREATE TABLE IF NOT EXISTS dtc_codes (
-                    code TEXT PRIMARY KEY,
+                    code     TEXT NOT NULL,
                     description TEXT,
-                    system TEXT,
-                    severity TEXT
+                    system   TEXT,
+                    severity TEXT,
+                    source   TEXT NOT NULL DEFAULT 'SAE J2012',
+                    PRIMARY KEY (code, source)
                 )
             """)
             con.execute("""
@@ -106,8 +109,8 @@ class DTCDatabase:
             existing = con.execute("SELECT COUNT(*) FROM dtc_codes").fetchone()[0]
             if existing == 0:
                 con.executemany(
-                    "INSERT OR IGNORE INTO dtc_codes VALUES (?,?,?,?)",
-                    [(code, desc, system, sev) for code, (desc, system, sev) in GENERIC_DTCS.items()]
+                    "INSERT OR IGNORE INTO dtc_codes (code,description,system,severity,source) VALUES (?,?,?,?,?)",
+                    [(code, desc, system, sev, "SAE J2012") for code, (desc, system, sev) in GENERIC_DTCS.items()]
                 )
 
     def _conn(self):
@@ -123,17 +126,31 @@ class DTCDatabase:
                 ).fetchone()
                 if row:
                     return {"code": code, "description": row[0], "fix_hint": row[1], "source": "oem"}
-            row = con.execute(
-                "SELECT description, system, severity FROM dtc_codes WHERE code=?", (code,)
-            ).fetchone()
-            if row:
+                # Also check dtc_codes with OEM source
+                row = con.execute(
+                    "SELECT description, system, severity, source FROM dtc_codes "
+                    "WHERE code=? AND LOWER(source) LIKE ?",
+                    (code, f"%{make.lower()}%")
+                ).fetchone()
+                if row:
+                    return {
+                        "code": code, "description": row[0], "system": row[1],
+                        "severity": row[2], "suggested_action": SUGGESTIONS.get(row[2], ""),
+                        "source": row[3],
+                    }
+            # Generic SAE lookup — return all matches, prefer SAE J2012
+            rows = con.execute(
+                "SELECT description, system, severity, source FROM dtc_codes WHERE code=? ORDER BY source",
+                (code,)
+            ).fetchall()
+            if rows:
+                # Prefer SAE J2012 generic entry
+                sae = next((r for r in rows if "SAE" in (r[3] or "")), rows[0])
                 return {
-                    "code": code,
-                    "description": row[0],
-                    "system": row[1],
-                    "severity": row[2],
-                    "suggested_action": SUGGESTIONS.get(row[2], ""),
-                    "source": "generic",
+                    "code": code, "description": sae[0], "system": sae[1],
+                    "severity": sae[2], "suggested_action": SUGGESTIONS.get(sae[2], ""),
+                    "source": sae[3],
+                    "oem_variants": len(rows) - 1,
                 }
         return {"code": code, "description": "Codigo desconocido", "severity": "info", "source": "unknown"}
 
@@ -144,14 +161,22 @@ class DTCDatabase:
                 (code.upper(), make.upper(), description, fix_hint)
             )
 
-    def search(self, query: str) -> list[dict]:
+    def search(self, query: str, make: str = "") -> list[dict]:
         q = f"%{query.upper()}%"
         with self._conn() as con:
-            rows = con.execute(
-                "SELECT code, description, system, severity FROM dtc_codes WHERE code LIKE ? OR description LIKE ?",
-                (q, q)
-            ).fetchall()
-        return [{"code": r[0], "description": r[1], "system": r[2], "severity": r[3]} for r in rows]
+            if make:
+                rows = con.execute(
+                    "SELECT code, description, system, severity, source FROM dtc_codes "
+                    "WHERE (code LIKE ? OR description LIKE ?) AND LOWER(source) LIKE ?",
+                    (q, q, f"%{make.lower()}%")
+                ).fetchall()
+            else:
+                rows = con.execute(
+                    "SELECT code, description, system, severity, source FROM dtc_codes "
+                    "WHERE code LIKE ? OR description LIKE ?",
+                    (q, q)
+                ).fetchall()
+        return [{"code": r[0], "description": r[1], "system": r[2], "severity": r[3], "source": r[4]} for r in rows]
 
     # ── ECU repair knowledge (from Guia Completo de Reparo de ECUs) ──────────
 
