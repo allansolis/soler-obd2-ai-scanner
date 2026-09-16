@@ -22,7 +22,8 @@ except Exception:
     BackendClient = None  # type: ignore
 
 APP_TITLE   = "Scaner Soler Pro"
-WIN_SIZE    = "1200x780"
+WIN_SIZE    = "1400x860"
+APP_VERSION = "v2.0 Pro"
 DARK_BG     = "#1e1e2e"
 ACCENT      = "#89b4fa"
 TAB_BG      = "#181825"
@@ -95,6 +96,9 @@ class ScanerSolerApp(tk.Tk):
         tk.Label(hdr, text="⚡  SCANER SOLER PRO",
                  bg=TAB_BG, fg=ACCENT,
                  font=("Consolas", 14, "bold")).pack(side="left", padx=16)
+        tk.Label(hdr, text=APP_VERSION,
+                 bg=TAB_BG, fg="#585b70",
+                 font=("Consolas", 9)).pack(side="left", padx=(0, 12))
         mode_txt = "MODO DEMO" if self.demo else "CONECTADO"
         mode_color = "#f9e2af" if self.demo else "#a6e3a1"
         tk.Label(hdr, text=f"● {mode_txt}",
@@ -143,19 +147,14 @@ class ScanerSolerApp(tk.Tk):
         self.tab_objects["⚡  Programación ECU"] = self.programmer_tab
 
     def _build_statusbar(self):
+        from .widgets import StatusBar
+        self.statusbar = StatusBar(self)
+        self.statusbar.pack(fill="x", side="bottom")
+        self.statusbar.update_status(version=APP_VERSION)
+        # Mantener status_var para compatibilidad con set_status()
         self.status_var = tk.StringVar(value="Listo.")
+        # backend_status_var conservado para compatibilidad
         self.backend_status_var = tk.StringVar(value="Backend: verificando…")
-
-        bar_frame = tk.Frame(self, bg=TAB_BG)
-        bar_frame.pack(fill="x", side="bottom")
-
-        tk.Label(bar_frame, textvariable=self.status_var,
-                 bg=TAB_BG, fg="#585b70",
-                 font=("Consolas", 9), anchor="w", padx=12).pack(side="left")
-
-        tk.Label(bar_frame, textvariable=self.backend_status_var,
-                 bg=TAB_BG, fg="#585b70",
-                 font=("Consolas", 9), anchor="e", padx=12).pack(side="right")
 
     def set_status(self, msg: str, color: str = "#585b70"):
         self.status_var.set(msg)
@@ -163,16 +162,26 @@ class ScanerSolerApp(tk.Tk):
     def _schedule_backend_check(self):
         """Actualiza el indicador de backend en la barra de estado cada 5 s."""
         def _check():
-            online = bool(self.backend and self.backend.is_online())
+            online = bool(
+                self.backend and
+                getattr(self.backend, 'is_online', lambda: False)()
+            )
             if online:
                 self.backend_status_var.set("Backend: online ●")
+                # Actualizar StatusBar moderno desde el hilo principal via after
+                self.after(0, lambda: self.statusbar.update_status(
+                    connected=True,
+                    status="Online ●",
+                    protocol="OBD-II / UDS",
+                ))
             else:
                 self.backend_status_var.set("Backend: offline ○")
+                self.after(0, lambda: self.statusbar.update_status(
+                    connected=False,
+                    status="Desconectado",
+                ))
 
-        def _worker():
-            _check()
-
-        threading.Thread(target=_worker, daemon=True).start()
+        threading.Thread(target=_check, daemon=True).start()
         self.after(5000, self._schedule_backend_check)
 
     def _on_close(self):

@@ -34,7 +34,7 @@ class SandboxTab(ttk.Frame):
 
     def __init__(self, parent, backend_client=None, **kwargs):
         super().__init__(parent, **kwargs)
-        self.configure(style="Dark.TFrame")
+        # NOTE: "Dark.TFrame" style no se registra globalmente; se omite para evitar TclError
         self.backend = backend_client
         self._q: queue.Queue = queue.Queue()
         self._sandbox = None
@@ -51,12 +51,15 @@ class SandboxTab(ttk.Frame):
         ctrl.pack(fill="x", pady=(0, 8))
 
         ttk.Label(ctrl, text="Objetivo:").grid(row=0, column=0, sticky="w", padx=4)
-        self._goal_var = tk.StringVar(value="power")
-        ttk.Combobox(ctrl, textvariable=self._goal_var,
+        self._goal_var = tk.StringVar(value="power — Máxima potencia")
+        self._goal_cb = ttk.Combobox(ctrl, textvariable=self._goal_var,
                      values=["power — Máxima potencia",
                              "efficiency — Menor consumo",
                              "speed — Máxima aceleración"],
-                     state="readonly", width=26).grid(row=0, column=1, padx=4)
+                     state="readonly", width=26)
+        self._goal_cb.grid(row=0, column=1, padx=4)
+        # Fix: forzar visualización del valor inicial
+        self._goal_cb.set("power — Máxima potencia")
 
         ttk.Label(ctrl, text="Combinaciones:").grid(row=0, column=2, sticky="w", padx=8)
         self._n_var = tk.StringVar(value="1000")
@@ -64,9 +67,12 @@ class SandboxTab(ttk.Frame):
 
         ttk.Label(ctrl, text="Perfil seguridad:").grid(row=0, column=4, sticky="w", padx=8)
         self._profile_var = tk.StringVar(value="street")
-        ttk.Combobox(ctrl, textvariable=self._profile_var,
+        self._profile_cb = ttk.Combobox(ctrl, textvariable=self._profile_var,
                      values=["street", "track", "economy"],
-                     state="readonly", width=10).grid(row=0, column=5, padx=4)
+                     state="readonly", width=10)
+        self._profile_cb.grid(row=0, column=5, padx=4)
+        # Fix: forzar visualización del valor inicial (bug Tkinter en algunos sistemas)
+        self._profile_cb.set("street")
 
         self._run_btn = ttk.Button(ctrl, text="▶  Simular",
                                    command=self._start_simulation, style="Accent.TButton")
@@ -166,7 +172,7 @@ class SandboxTab(ttk.Frame):
             # Intenta enriquecer con datos reales del backend
             live_params = {}
             dtcs: list = []
-            if self.backend and self.backend.is_online():
+            if self.backend and getattr(self.backend, 'is_online', lambda: False)():
                 sensors = self.backend.get_live_sensors()
                 if isinstance(sensors, dict) and "error" not in sensors:
                     live_params = sensors

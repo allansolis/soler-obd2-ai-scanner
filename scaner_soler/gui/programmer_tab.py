@@ -309,7 +309,7 @@ class ProgrammerTab(ttk.Frame):
             # Demo: obtiene DTCs del backend si está disponible
             dtcs = []
             backend = getattr(self.app, "backend", None)
-            if backend and backend.is_online():
+            if backend and getattr(backend, 'is_online', lambda: False)():
                 data = backend.get_dtc_info("active")
                 if isinstance(data, list):
                     dtcs = data
@@ -343,9 +343,14 @@ class ProgrammerTab(ttk.Frame):
             # Intenta via backend
             backend = getattr(self.app, "backend", None)
             ok = False
-            if backend and backend.is_online():
-                result = backend._post("/api/dtc/clear", {})
-                ok = bool(result)
+            if backend and getattr(backend, 'is_online', lambda: False)():
+                try:
+                    # Intentar método público primero, luego privado como fallback
+                    _post = getattr(backend, 'post', None) or getattr(backend, '_post', None)
+                    result = _post("/api/dtc/clear", {}) if _post else None
+                    ok = bool(result)
+                except Exception:
+                    ok = False
 
             # Fallback: ELM327 directo
             if not ok:
@@ -402,7 +407,7 @@ class ProgrammerTab(ttk.Frame):
             vehicle_info = {"vin": "DEMO_VIN", "make": "Generic"}
 
             backend = getattr(self.app, "backend", None)
-            if backend and backend.is_online():
+            if backend and getattr(backend, 'is_online', lambda: False)():
                 sensors = backend.get_live_sensors()
                 if isinstance(sensors, dict) and "error" not in sensors:
                     live_data.update(sensors)
@@ -480,10 +485,14 @@ class ProgrammerTab(ttk.Frame):
         try:
             backend = getattr(self.app, "backend", None)
             info = {}
-            if backend and backend.is_online():
-                data = backend._get("/api/ecu/info")
-                if isinstance(data, dict):
-                    info = data
+            if backend and getattr(backend, 'is_online', lambda: False)():
+                try:
+                    _get = getattr(backend, 'get', None) or getattr(backend, '_get', None)
+                    data = _get("/api/ecu/info") if _get else None
+                    if isinstance(data, dict):
+                        info = data
+                except Exception:
+                    info = {}
 
             if not info:
                 info = {
