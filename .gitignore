@@ -26,6 +26,8 @@ Thumbs.db
 # Database
 *.db
 *.sqlite
+# Exception: scaner_soler knowledge base (committed intentionally)
+!scaner_soler/database/dtc_codes.db
 
 # Data
 data/knowledge_base/*.json
