@@ -155,8 +155,8 @@ class ServiceResetManager:
         Instancia ya inicializada y conectada al adaptador ELM327.
     """
 
-    def __init__(self, elm: ELM327Protocol) -> None:
-        self._elm = elm
+    def __init__(self, elm: ELM327Protocol = None, backend=None) -> None:
+        self._elm = elm or backend
 
     # ------------------------------------------------------------------
     # Helpers internos
@@ -164,9 +164,14 @@ class ServiceResetManager:
 
     def _send_raw(self, cmd: str, delay: float = 0.3) -> str:
         """Envía un comando AT/OBD al ELM327 y devuelve la respuesta limpia."""
-        resp = self._elm.send_command(cmd)
+        if self._elm is None:
+            return ""
+        send_fn = getattr(self._elm, 'send_command', None) or getattr(self._elm, '_send_command', None)
+        if send_fn is None:
+            return ""
+        resp = send_fn(cmd)
         time.sleep(delay)
-        return resp.strip()
+        return (resp or "").strip()
 
     def _obd_raw(self, hex_cmd: str, delay: float = 0.4) -> str:
         """

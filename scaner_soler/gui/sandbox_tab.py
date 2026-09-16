@@ -168,8 +168,8 @@ class ModernButton(tk.Canvas):
         self.command  = command
         self.color    = color
         self.text_color = text_color
-        self._w = width
-        self._h = height
+        self._btn_w = width
+        self._btn_h = height
         self._disabled = False
         self._draw(False)
         self.bind("<Enter>",           lambda e: self._draw(True))
@@ -185,7 +185,7 @@ class ModernButton(tk.Canvas):
     def _draw(self, hover=False):
         self.delete("all")
         r = 6
-        w, h = self._w, self._h
+        w, h = self._btn_w, self._btn_h
         clr = ACCENT2 if hover else self.color
         if self._disabled:
             clr = BORDER

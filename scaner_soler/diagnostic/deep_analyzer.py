@@ -497,7 +497,11 @@ class DeepAnalyzer:
         vehicle_info : dict
             Información del vehículo: {"vin": "...", "make": "...", ...}
         """
-        dtcs_clean = [d.strip().upper() for d in dtcs if d.strip()]
+        dtcs_clean = [
+            (d.code if hasattr(d, 'code') else str(d)).strip().upper()
+            for d in dtcs
+            if (d.code if hasattr(d, 'code') else str(d)).strip()
+        ]
         live_flat  = self._flatten_live_data(live_data)
 
         sensor_alerts = self.analyze_sensor_deviations(live_data)
