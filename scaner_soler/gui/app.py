@@ -6,12 +6,18 @@ import threading
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from .diagnostics_tab import DiagnosticsTab
-from .live_data_tab    import LiveDataTab
-from .map_editor_tab   import MapEditorTab
-from .optimizer_tab    import OptimizerTab
-from .telemetry_tab    import TelemetryTab
-from .knowledge_tab    import KnowledgeTab
+from .diagnostics_tab  import DiagnosticsTab
+from .live_data_tab     import LiveDataTab
+from .map_editor_tab    import MapEditorTab
+from .optimizer_tab     import OptimizerTab
+from .telemetry_tab     import TelemetryTab
+from .knowledge_tab     import KnowledgeTab
+from .ai_copilot_tab    import AICopilotTab
+
+try:
+    from ..integration.backend_client import BackendClient
+except Exception:
+    BackendClient = None  # type: ignore
 
 APP_TITLE   = "Scaner Soler Pro"
 WIN_SIZE    = "1200x780"
@@ -71,10 +77,15 @@ class ScanerSolerApp(tk.Tk):
         self.geometry(WIN_SIZE)
         self.minsize(900, 600)
         apply_theme(self)
+
+        # Backend client (None si el módulo no está disponible)
+        self.backend: "BackendClient | None" = BackendClient() if BackendClient else None
+
         self._build_header()
         self._build_notebook()
         self._build_statusbar()
         self.protocol("WM_DELETE_WINDOW", self._on_close)
+        self._schedule_backend_check()
 
     def _build_header(self):
         hdr = tk.Frame(self, bg=TAB_BG, pady=6)
@@ -108,15 +119,45 @@ class ScanerSolerApp(tk.Tk):
             obj.pack(fill="both", expand=True)
             self.tab_objects[label] = obj
 
+        # 7ª pestaña: AI Copilot
+        ai_frame = ttk.Frame(self.nb)
+        self.nb.add(ai_frame, text="🤖  AI Copilot")
+        self.ai_copilot = AICopilotTab(ai_frame, backend_client=self.backend)
+        self.ai_copilot.pack(fill="both", expand=True)
+        self.tab_objects["🤖  AI Copilot"] = self.ai_copilot
+
     def _build_statusbar(self):
         self.status_var = tk.StringVar(value="Listo.")
-        bar = tk.Label(self, textvariable=self.status_var,
-                       bg=TAB_BG, fg="#585b70",
-                       font=("Consolas", 9), anchor="w", padx=12)
-        bar.pack(fill="x", side="bottom")
+        self.backend_status_var = tk.StringVar(value="Backend: verificando…")
+
+        bar_frame = tk.Frame(self, bg=TAB_BG)
+        bar_frame.pack(fill="x", side="bottom")
+
+        tk.Label(bar_frame, textvariable=self.status_var,
+                 bg=TAB_BG, fg="#585b70",
+                 font=("Consolas", 9), anchor="w", padx=12).pack(side="left")
+
+        tk.Label(bar_frame, textvariable=self.backend_status_var,
+                 bg=TAB_BG, fg="#585b70",
+                 font=("Consolas", 9), anchor="e", padx=12).pack(side="right")
 
     def set_status(self, msg: str, color: str = "#585b70"):
         self.status_var.set(msg)
+
+    def _schedule_backend_check(self):
+        """Actualiza el indicador de backend en la barra de estado cada 5 s."""
+        def _check():
+            online = bool(self.backend and self.backend.is_online())
+            if online:
+                self.backend_status_var.set("Backend: online ●")
+            else:
+                self.backend_status_var.set("Backend: offline ○")
+
+        def _worker():
+            _check()
+
+        threading.Thread(target=_worker, daemon=True).start()
+        self.after(5000, self._schedule_backend_check)
 
     def _on_close(self):
         for obj in self.tab_objects.values():
