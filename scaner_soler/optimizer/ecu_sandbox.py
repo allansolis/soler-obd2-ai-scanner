@@ -52,105 +52,102 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from ..ecu.maps.map_table import MapTable, SafetyError
-from .safety_guard import SafetyGuard, PROFILES, SafetyLimits
+from ..ecu.maps.map_table import MapTable
+from .safety_guard import SafetyGuard, SafetyError, PROFILES, SafetyLimits
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Modelos físicos simplificados
-# (Reemplazar con modelos validados en banco de pruebas / dyno)
+# Modelos de score basados en DELTAS porcentuales
+# ─────────────────────────────────────────────────────────────────────────────
+# El sandbox mide MEJORA RELATIVA al estado base clonado, no valores absolutos.
+# Esto es más robusto: no asume unidades ni rangos fijos por motor.
+#
+# Cada modelo recibe los deltas% aplicados a cada mapa y estima un score [0-100].
+# Reemplazar con modelos validados en banco de pruebas / dyno cuando estén disponibles.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _model_power(ignition: np.ndarray, fuel_ms: np.ndarray,
-                 boost_bar: Optional[np.ndarray] = None) -> float:
+def _model_power(delta_ign: float, delta_fuel: float,
+                 delta_boost: float = 0.0) -> float:
     """
-    Estimación normalizada de potencia [0–100 pts].
+    Score de potencia [0–100].
 
-    Física simplificada:
-    - Avance óptimo MBT ≈ 35° BTDC. Desviación reduce potencia parabólicamente.
-    - Lambda rico (fuel_ms alto) incrementa potencia hasta λ ≈ 0.85.
-    - Boost multiplica la densidad de carga.
+    Física simplificada con deltas%:
+    - Avance moderadamente adelantado (+5..+12%) ≈ más torque hasta MBT.
+      Demasiado adelante (+>15%) puede knock (penaliza).
+    - Combustible rico (delta_fuel > 0, λ <1) mejora potencia hasta cierto punto.
+    - Boost positivo multiplica potencia en motores turbo.
     """
-    peak_advance = 35.0
-    torque_factor = 1.0 - ((ignition.mean() - peak_advance) / peak_advance) ** 2
-    torque_factor = float(np.clip(torque_factor, 0.0, 1.0))
+    # Avance: pico alrededor de +8%, cae en extremos
+    ign_score = 1.0 - ((delta_ign - 8.0) / 15.0) ** 2
+    ign_score = float(np.clip(ign_score, 0.0, 1.0))
 
-    # Índice lambda aproximado desde ms de inyección (mayor ms = más combustible = más rico)
-    fuel_norm = float(np.clip(fuel_ms.mean() / 8.0, 0.5, 2.0))   # 8 ms = referencia estequiométrica
-    lambda_approx = 1.0 / fuel_norm
-    # Potencia pico en λ ≈ 0.85; cae por debajo de 0.78 (demasiado rico) y sobre 1.0 (pobre)
-    if lambda_approx < 0.78:
-        fuel_factor = 0.85 + (lambda_approx - 0.78) * 2.0
-    elif lambda_approx <= 0.88:
-        fuel_factor = 1.0
+    # Combustible: delta positivo = más rico = más potencia (hasta +15%)
+    fuel_score = float(np.clip((delta_fuel + 20.0) / 40.0, 0.0, 1.0))
+    # Penaliza exceso de riqueza (>+18% = demasiado rico)
+    if delta_fuel > 18.0:
+        fuel_score *= 1.0 - (delta_fuel - 18.0) / 5.0
+    fuel_score = float(np.clip(fuel_score, 0.0, 1.0))
+
+    # Boost: lineal hasta +10%
+    boost_score = float(np.clip((delta_boost + 10.0) / 20.0, 0.0, 1.0))
+
+    raw = 0.45 * ign_score + 0.35 * fuel_score + 0.20 * boost_score
+    return float(np.clip(raw * 100.0, 0.0, 100.0))
+
+
+def _model_efficiency(delta_ign: float, delta_fuel: float,
+                      delta_boost: float = 0.0) -> float:
+    """
+    Score de eficiencia de combustible [0–100].
+
+    - Avance óptimo cerca de 0% (base ya bien calibrado para consumo).
+    - Combustible: neutral o ligeramente negativo (lambda >1 en crucero).
+    - Boost bajo.
+    """
+    # Avance cercano a 0 delta = ya estaba en MBT para consumo
+    ign_score = 1.0 - abs(delta_ign) / 15.0
+    ign_score = float(np.clip(ign_score, 0.0, 1.0))
+
+    # Fuel: lean es más eficiente (delta_fuel negativo = menos combustible)
+    fuel_score = float(np.clip((-delta_fuel + 20.0) / 40.0, 0.0, 1.0))
+
+    # Boost: menos boost = menos consumo de bomba
+    boost_score = float(np.clip((-delta_boost + 10.0) / 20.0, 0.0, 1.0))
+
+    raw = 0.40 * ign_score + 0.40 * fuel_score + 0.20 * boost_score
+    return float(np.clip(raw * 100.0, 0.0, 100.0))
+
+
+def _model_speed(delta_ign: float, delta_fuel: float,
+                 delta_boost: float = 0.0) -> float:
+    """
+    Score de respuesta / aceleración [0–100].
+
+    Prioriza torque bajo-medio RPM:
+    - Avance adelantado (+3..+10%) para respuesta rápida.
+    - Combustible ligeramente rico (+5..+12%) para torque máximo instantáneo.
+    - Boost agresivo positivo.
+    """
+    # Avance: respuesta pico alrededor de +6%
+    ign_score = 1.0 - ((delta_ign - 6.0) / 12.0) ** 2
+    ign_score = float(np.clip(ign_score, 0.0, 1.0))
+
+    # Fuel: ligeramente rico (+5..+12%) = mejor torque transitorio
+    if 0.0 <= delta_fuel <= 15.0:
+        fuel_score = 1.0 - abs(delta_fuel - 8.0) / 10.0
     else:
-        fuel_factor = 1.0 - (lambda_approx - 0.88) * 1.5
-    fuel_factor = float(np.clip(fuel_factor, 0.0, 1.0))
+        fuel_score = 0.5 - abs(delta_fuel - 8.0) / 25.0
+    fuel_score = float(np.clip(fuel_score, 0.0, 1.0))
 
-    boost_factor = 1.0
-    if boost_bar is not None:
-        boost_factor = float(np.clip(boost_bar.mean() / 1.0, 0.8, 2.5))
+    # Boost: mayor boost = más aceleración
+    boost_score = float(np.clip((delta_boost + 10.0) / 20.0, 0.0, 1.0))
 
-    raw = torque_factor * fuel_factor * boost_factor
-    return float(np.clip(raw * 100.0, 0.0, 100.0))
-
-
-def _model_efficiency(ignition: np.ndarray, fuel_ms: np.ndarray,
-                      boost_bar: Optional[np.ndarray] = None) -> float:
-    """
-    Estimación de eficiencia térmica normalizada [0–100 pts].
-
-    - Lambda ≈ 1.0 (estequiométrico) maximiza eficiencia en consumo.
-    - Avance cercano a MBT sin knock.
-    - Boost moderado.
-    """
-    peak_advance = 33.0
-    advance_factor = 1.0 - abs(ignition.mean() - peak_advance) / peak_advance
-    advance_factor = float(np.clip(advance_factor, 0.0, 1.0))
-
-    fuel_norm = float(np.clip(fuel_ms.mean() / 8.0, 0.5, 2.0))
-    lambda_approx = 1.0 / fuel_norm
-    # Máxima eficiencia en λ = 1.0
-    lambda_factor = 1.0 - abs(lambda_approx - 1.0) * 2.5
-    lambda_factor = float(np.clip(lambda_factor, 0.0, 1.0))
-
-    boost_factor = 1.0
-    if boost_bar is not None:
-        # Boost bajo = mejor eficiencia en city driving
-        boost_factor = float(np.clip(1.2 - (boost_bar.mean() - 1.0) * 0.4, 0.6, 1.0))
-
-    raw = advance_factor * lambda_factor * boost_factor
-    return float(np.clip(raw * 100.0, 0.0, 100.0))
-
-
-def _model_speed(ignition: np.ndarray, fuel_ms: np.ndarray,
-                 boost_bar: Optional[np.ndarray] = None) -> float:
-    """
-    Estimación de respuesta en aceleración / velocidad [0–100 pts].
-
-    Prioriza respuesta de torque en rango bajo/medio RPM y boost rápido.
-    """
-    # Avance agresivo en zona baja-media
-    low_rpm_advance = float(ignition[:ignition.shape[0]//2, :].mean())
-    advance_score = float(np.clip(low_rpm_advance / 32.0, 0.0, 1.0))
-
-    fuel_norm = float(np.clip(fuel_ms.mean() / 8.0, 0.5, 2.0))
-    lambda_approx = 1.0 / fuel_norm
-    # Ligeramente rico (λ 0.90) maximiza torque bajo
-    lambda_factor = 1.0 - abs(lambda_approx - 0.90) * 3.0
-    lambda_factor = float(np.clip(lambda_factor, 0.0, 1.0))
-
-    boost_factor = 1.0
-    if boost_bar is not None:
-        # Boost alto en zona media RPM
-        boost_factor = float(np.clip(boost_bar.mean() / 1.2, 0.5, 1.8))
-
-    raw = advance_score * lambda_factor * boost_factor
+    raw = 0.40 * ign_score + 0.35 * fuel_score + 0.25 * boost_score
     return float(np.clip(raw * 100.0, 0.0, 100.0))
 
 
 def _model_egt(ignition: np.ndarray, boost_bar: Optional[np.ndarray] = None) -> float:
-    """Temperatura estimada de gases de escape [°C]."""
+    """Temperatura estimada de gases de escape [°C] (basada en valores absolutos del mapa)."""
     base = 700.0
     egt = base + (ignition.mean() - 25.0) * 6.0
     if boost_bar is not None:
@@ -435,25 +432,32 @@ class ECUSandbox:
         fuel = perturbed_maps.get("fuel")
         bst  = perturbed_maps.get("boost")
 
-        ign_arr  = ign.values  if ign  else None
-        fuel_arr = fuel.values if fuel else None
-        bst_arr  = bst.values  if bst  else None
+        ign_arr = ign.values if ign else None
+        bst_arr = bst.values if bst else None
 
-        # Scores por objetivo
+        # Deltas% para los modelos de score (más robustos que valores absolutos)
+        d_ign   = delta_combo.get("ignition", 0.0)
+        d_fuel  = delta_combo.get("fuel",     0.0)
+        d_boost = delta_combo.get("boost",    0.0)
+
+        # Scores por objetivo (basados en deltas relativos al estado base)
         scores = {
-            "power":      _model_power(ign_arr, fuel_arr, bst_arr)      if (ign_arr is not None and fuel_arr is not None) else 0.0,
-            "efficiency": _model_efficiency(ign_arr, fuel_arr, bst_arr) if (ign_arr is not None and fuel_arr is not None) else 0.0,
-            "speed":      _model_speed(ign_arr, fuel_arr, bst_arr)      if (ign_arr is not None and fuel_arr is not None) else 0.0,
+            "power":      _model_power(d_ign, d_fuel, d_boost),
+            "efficiency": _model_efficiency(d_ign, d_fuel, d_boost),
+            "speed":      _model_speed(d_ign, d_fuel, d_boost),
         }
 
         egt = _model_egt(ign_arr, bst_arr) if ign_arr is not None else 700.0
 
         # Validación de seguridad con SafetyGuard
+        # NOTA: fuel_arr está en ms de inyección, NO en lambda.
+        # SafetyGuard.validate_fuel_map espera valores lambda (≈0.78–1.05).
+        # Solo validamos ignición y boost — el modelo de scoring maneja el
+        # rango de combustible internamente.
         violations: List[str] = []
         try:
             self.guard.assert_safe(
                 ignition=ign_arr,
-                fuel_lambda=fuel_arr / 8.0 if fuel_arr is not None else None,  # ms→lambda aprox
                 boost=bst_arr,
             )
             is_safe = True

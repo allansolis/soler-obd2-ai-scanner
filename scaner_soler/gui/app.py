@@ -14,6 +14,7 @@ from .telemetry_tab     import TelemetryTab
 from .knowledge_tab     import KnowledgeTab
 from .ai_copilot_tab    import AICopilotTab
 from .sandbox_tab       import SandboxTab
+from .programmer_tab    import ProgrammerTab
 
 try:
     from ..integration.backend_client import BackendClient
@@ -133,6 +134,13 @@ class ScanerSolerApp(tk.Tk):
         self.sandbox_tab = SandboxTab(sb_frame, backend_client=self.backend)
         self.sandbox_tab.pack(fill="both", expand=True)
         self.tab_objects["🧪  ECU Sandbox"] = self.sandbox_tab
+
+        # 9ª pestaña: Programación ECU (borrar DTCs, resets, flash)
+        prog_frame = ttk.Frame(self.nb)
+        self.nb.add(prog_frame, text="⚡  Programación ECU")
+        self.programmer_tab = ProgrammerTab(prog_frame, app=self)
+        self.programmer_tab.pack(fill="both", expand=True)
+        self.tab_objects["⚡  Programación ECU"] = self.programmer_tab
 
     def _build_statusbar(self):
         self.status_var = tk.StringVar(value="Listo.")
