@@ -13,6 +13,7 @@ from .optimizer_tab     import OptimizerTab
 from .telemetry_tab     import TelemetryTab
 from .knowledge_tab     import KnowledgeTab
 from .ai_copilot_tab    import AICopilotTab
+from .sandbox_tab       import SandboxTab
 
 try:
     from ..integration.backend_client import BackendClient
@@ -125,6 +126,13 @@ class ScanerSolerApp(tk.Tk):
         self.ai_copilot = AICopilotTab(ai_frame, backend_client=self.backend)
         self.ai_copilot.pack(fill="both", expand=True)
         self.tab_objects["🤖  AI Copilot"] = self.ai_copilot
+
+        # 8ª pestaña: ECU Sandbox (MiroFish)
+        sb_frame = ttk.Frame(self.nb)
+        self.nb.add(sb_frame, text="🧪  ECU Sandbox")
+        self.sandbox_tab = SandboxTab(sb_frame, backend_client=self.backend)
+        self.sandbox_tab.pack(fill="both", expand=True)
+        self.tab_objects["🧪  ECU Sandbox"] = self.sandbox_tab
 
     def _build_statusbar(self):
         self.status_var = tk.StringVar(value="Listo.")
