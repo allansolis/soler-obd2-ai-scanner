@@ -22,52 +22,123 @@ except Exception:
     BackendClient = None  # type: ignore
 
 APP_TITLE   = "Scaner Soler Pro"
-WIN_SIZE    = "1400x860"
+WIN_SIZE    = "1440x880"
 APP_VERSION = "v2.0 Pro"
-DARK_BG     = "#1e1e2e"
-ACCENT      = "#89b4fa"
-TAB_BG      = "#181825"
-FG          = "#cdd6f4"
-ENTRY_BG    = "#313244"
+
+# ── Paleta 2026 ────────────────────────────────────────────────────────────────
+DARK_BG   = "#080812"   # fondo abismal
+SURFACE   = "#0e0e1c"   # surface
+CARD      = "#141428"   # tarjetas
+BORDER    = "#1e1e38"   # bordes sutiles
+ACCENT    = "#7c3aed"   # púrpura principal
+ACCENT_LT = "#a855f7"   # púrpura hover
+CYAN      = "#06b6d4"   # cian datos
+GREEN     = "#10b981"   # verde OK
+RED       = "#f43f5e"   # rojo crítico
+YELLOW    = "#f59e0b"   # amarillo warning
+FG        = "#e2e8f0"   # texto principal
+SUBTEXT   = "#64748b"   # texto secundario
+ENTRY_BG  = "#1a1a32"   # campos de entrada
+TAB_BG    = SURFACE
 
 
 def apply_theme(root: tk.Tk):
     style = ttk.Style(root)
     style.theme_use("clam")
-    style.configure(".", background=DARK_BG, foreground=FG, font=("Consolas", 10))
-    style.configure("TNotebook",         background=TAB_BG, tabmargins=[2, 4, 0, 0])
-    style.configure("TNotebook.Tab",     background=ENTRY_BG, foreground=FG,
-                    padding=[14, 6], font=("Consolas", 10, "bold"))
+
+    # Base
+    style.configure(".",
+        background=DARK_BG, foreground=FG,
+        font=("Consolas", 10),
+        borderwidth=0, relief="flat")
+
+    # Notebook tabs — línea inferior como indicador activo
+    style.configure("TNotebook",
+        background=SURFACE, tabmargins=[0, 0, 0, 0], borderwidth=0)
+    style.configure("TNotebook.Tab",
+        background=SURFACE, foreground=SUBTEXT,
+        padding=[16, 8], font=("Consolas", 9, "bold"),
+        borderwidth=0)
     style.map("TNotebook.Tab",
-              background=[("selected", DARK_BG)],
-              foreground=[("selected", ACCENT)])
-    style.configure("TFrame",            background=DARK_BG)
-    style.configure("TLabel",            background=DARK_BG, foreground=FG)
-    style.configure("TButton",           background=ENTRY_BG, foreground=FG,
-                    font=("Consolas", 10), relief="flat", padding=[8, 4])
+        background=[("selected", DARK_BG), ("active", CARD)],
+        foreground=[("selected", ACCENT_LT), ("active", FG)])
+
+    # Frames
+    style.configure("TFrame",      background=DARK_BG)
+    style.configure("Card.TFrame", background=CARD, relief="flat")
+
+    # Labels
+    style.configure("TLabel",       background=DARK_BG, foreground=FG)
+    style.configure("Card.TLabel",  background=CARD,    foreground=FG)
+    style.configure("Sub.TLabel",   background=DARK_BG, foreground=SUBTEXT,
+                    font=("Consolas", 8))
+
+    # Buttons
+    style.configure("TButton",
+        background=BORDER, foreground=FG,
+        font=("Consolas", 9, "bold"), relief="flat",
+        padding=[10, 5], borderwidth=0)
     style.map("TButton",
-              background=[("active", ACCENT), ("pressed", "#1e66f5")],
-              foreground=[("active", "#1e1e2e")])
-    style.configure("Accent.TButton",    background=ACCENT, foreground="#1e1e2e",
-                    font=("Consolas", 10, "bold"))
-    style.configure("TEntry",            fieldbackground=ENTRY_BG, foreground=FG,
-                    insertcolor=FG, relief="flat")
-    style.configure("TCombobox",         fieldbackground=ENTRY_BG, foreground=FG,
-                    selectbackground=ACCENT, selectforeground="#1e1e2e")
-    style.configure("Treeview",          background=ENTRY_BG, foreground=FG,
-                    fieldbackground=ENTRY_BG, rowheight=22)
-    style.configure("Treeview.Heading",  background=TAB_BG, foreground=ACCENT,
-                    font=("Consolas", 9, "bold"))
-    style.map("Treeview", background=[("selected", ACCENT)],
-              foreground=[("selected", "#1e1e2e")])
-    style.configure("TLabelframe",       background=DARK_BG, foreground=ACCENT,
-                    relief="groove")
-    style.configure("TLabelframe.Label", background=DARK_BG, foreground=ACCENT,
-                    font=("Consolas", 10, "bold"))
-    style.configure("TScrollbar",        background=ENTRY_BG, troughcolor=TAB_BG,
-                    arrowcolor=FG)
-    style.configure("TScale",            background=DARK_BG, troughcolor=ENTRY_BG,
-                    sliderrelief="flat")
+        background=[("active", CARD), ("pressed", ACCENT)],
+        foreground=[("active", FG)])
+    style.configure("Accent.TButton",
+        background=ACCENT, foreground="#ffffff",
+        font=("Consolas", 9, "bold"), padding=[10, 5])
+    style.map("Accent.TButton",
+        background=[("active", ACCENT_LT), ("pressed", "#6d28d9")])
+    style.configure("Danger.TButton",
+        background="#7f1d1d", foreground="#fca5a5",
+        font=("Consolas", 9, "bold"), padding=[10, 5])
+    style.map("Danger.TButton",
+        background=[("active", "#991b1b")])
+
+    # Entry
+    style.configure("TEntry",
+        fieldbackground=ENTRY_BG, foreground=FG,
+        insertcolor=ACCENT_LT, relief="flat",
+        borderwidth=1, padding=[6, 4])
+
+    # Combobox
+    style.configure("TCombobox",
+        fieldbackground=ENTRY_BG, foreground=FG,
+        selectbackground=ACCENT, selectforeground="#fff")
+
+    # Treeview — filas altas para legibilidad
+    style.configure("Treeview",
+        background=CARD, foreground=FG,
+        fieldbackground=CARD, rowheight=28,
+        font=("Consolas", 9), borderwidth=0)
+    style.configure("Treeview.Heading",
+        background=SURFACE, foreground=SUBTEXT,
+        font=("Consolas", 8, "bold"), relief="flat",
+        padding=[8, 6])
+    style.map("Treeview",
+        background=[("selected", ACCENT)],
+        foreground=[("selected", "#ffffff")])
+
+    # LabelFrame como separador sutil
+    style.configure("TLabelframe",
+        background=DARK_BG, foreground=BORDER,
+        relief="flat", borderwidth=1)
+    style.configure("TLabelframe.Label",
+        background=DARK_BG, foreground=SUBTEXT,
+        font=("Consolas", 8, "bold"))
+
+    # Scrollbar mínima
+    style.configure("TScrollbar",
+        background=BORDER, troughcolor=DARK_BG,
+        arrowcolor=BORDER, relief="flat", width=6)
+    style.map("TScrollbar",
+        background=[("active", ACCENT)])
+
+    style.configure("TScale",
+        background=DARK_BG, troughcolor=ENTRY_BG,
+        sliderrelief="flat")
+
+    style.configure("TProgressbar",
+        troughcolor=ENTRY_BG, background=ACCENT,
+        thickness=4)
+
     root.configure(bg=DARK_BG)
 
 
@@ -91,19 +162,41 @@ class ScanerSolerApp(tk.Tk):
         self._schedule_backend_check()
 
     def _build_header(self):
-        hdr = tk.Frame(self, bg=TAB_BG, pady=6)
+        hdr = tk.Frame(self, bg=SURFACE, pady=0)
         hdr.pack(fill="x")
-        tk.Label(hdr, text="⚡  SCANER SOLER PRO",
-                 bg=TAB_BG, fg=ACCENT,
-                 font=("Consolas", 14, "bold")).pack(side="left", padx=16)
-        tk.Label(hdr, text=APP_VERSION,
-                 bg=TAB_BG, fg="#585b70",
-                 font=("Consolas", 9)).pack(side="left", padx=(0, 12))
-        mode_txt = "MODO DEMO" if self.demo else "CONECTADO"
-        mode_color = "#f9e2af" if self.demo else "#a6e3a1"
-        tk.Label(hdr, text=f"● {mode_txt}",
-                 bg=TAB_BG, fg=mode_color,
-                 font=("Consolas", 10)).pack(side="right", padx=16)
+
+        # Línea de acento superior (3px púrpura)
+        tk.Frame(hdr, bg=ACCENT, height=3).pack(fill="x", side="top")
+
+        inner = tk.Frame(hdr, bg=SURFACE)
+        inner.pack(fill="x", padx=16, pady=8)
+
+        # Logo — "SCANER SOLER" blanco + "PRO" en púrpura
+        logo_frame = tk.Frame(inner, bg=SURFACE)
+        logo_frame.pack(side="left")
+        tk.Label(logo_frame, text="SCANER SOLER ",
+                 bg=SURFACE, fg=FG,
+                 font=("Consolas", 13, "bold")).pack(side="left")
+        tk.Label(logo_frame, text="PRO",
+                 bg=SURFACE, fg=ACCENT_LT,
+                 font=("Consolas", 13, "bold")).pack(side="left")
+        tk.Label(inner, text=f" · {APP_VERSION}",
+                 bg=SURFACE, fg=SUBTEXT,
+                 font=("Consolas", 9)).pack(side="left")
+
+        # Indicadores de estado lado derecho
+        right = tk.Frame(inner, bg=SURFACE)
+        right.pack(side="right")
+
+        mode_txt   = "MODO DEMO" if self.demo else "EN VIVO"
+        mode_color = YELLOW if self.demo else GREEN
+        mode_dot   = "●"
+        tk.Label(right, text=f"{mode_dot} {mode_txt}",
+                 bg=SURFACE, fg=mode_color,
+                 font=("Consolas", 9, "bold")).pack(side="right", padx=(16, 0))
+
+        # Separador debajo del header
+        tk.Frame(self, bg=BORDER, height=1).pack(fill="x")
 
     def _build_notebook(self):
         self.nb = ttk.Notebook(self)
