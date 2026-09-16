@@ -69,6 +69,21 @@ class BackendClient:
         except Exception:
             return False
 
+    def ensure_connected(self) -> bool:
+        """Conecta el emulador si el backend está online pero no conectado."""
+        if not self.is_online():
+            return False
+        try:
+            st = requests.get(f"{self.BASE_URL}/api/status", timeout=_TIMEOUT)
+            if st.ok and st.json().get("connected"):
+                return True
+            # Conectar al emulador
+            r = requests.post(f"{self.BASE_URL}/api/connect",
+                              json={"use_emulator": True}, timeout=_TIMEOUT)
+            return r.ok
+        except Exception:
+            return False
+
     def chat(self, message: str, context: dict | None = None) -> str | None:
         """POST /api/ai/chat — devuelve el texto de respuesta o None."""
         payload: dict = {"message": message}
@@ -138,6 +153,7 @@ class BackendClient:
 
     def get_live_sensors(self) -> dict:
         """GET /api/sensors — sensores del emulador OBD."""
+        self.ensure_connected()
         result = self._get("/api/sensors")
         if result is None:
             return {"error": "backend_offline"}
@@ -145,6 +161,7 @@ class BackendClient:
 
     def get_health_score(self) -> dict:
         """GET /api/health-score — score de salud del motor."""
+        self.ensure_connected()
         result = self._get("/api/health-score")
         if result is None:
             return {"error": "backend_offline"}
