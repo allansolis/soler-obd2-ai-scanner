@@ -92,14 +92,16 @@ def detect_elm327_error(raw: str) -> str | None:
 
 def clean_elm327_response(raw: str) -> str:
     """
-    Pipeline de limpieza de respuesta ELM327 en 4 pasos (orden importa).
+    Pipeline de limpieza de respuesta ELM327 en 5 pasos (orden importa).
     Fuente: kotlin-obd-api Response.kt → valueProcessorPipeline
+            begaz/OBDII obd2_plugin.dart → setOnDataReceived
 
     Pasos:
       1. Elimina todos los espacios en blanco
       2. Elimina prefijos de BUS INIT / puntos de eco
-      3. Elimina separadores ':'  (CAN multi-frame)
-      4. Elimina retornos de carro
+      3. Elimina SEARCHING... (durante negociación de protocolo)
+      4. Elimina separadores ':'  (CAN multi-frame)
+      5. Elimina retornos de carro y prompt '>' del ELM327
     """
     s = raw
     s = _WHITESPACE_RE.sub("", s)
@@ -107,6 +109,7 @@ def clean_elm327_response(raw: str) -> str:
     s = _SEARCHING_RE.sub("", s)
     s = _COLON_RE.sub("", s)
     s = _CARRIAGE_RE.sub("", s)
+    s = s.replace(">", "")   # prompt ELM327 (begaz/OBDII)
     return s.upper()
 
 
