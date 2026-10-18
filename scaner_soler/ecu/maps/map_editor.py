@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Optional
+
 from .map_table import MapTable
 from scaner_soler.exceptions import SafetyError
 
@@ -6,10 +9,29 @@ class MapEditor:
     """
     High-level editor for MapTable objects.
     All mutations go through here so change history is tracked centrally.
+    Llama enable_auto_backup() para activar respaldo automático en disco
+    antes de la primera modificación.
     """
 
     def __init__(self, table: MapTable):
         self.table = table
+
+    # ── Auto-backup ────────────────────────────────────────────────────────
+
+    def enable_auto_backup(self, backup_dir: str | Path, vin: str = "") -> None:
+        """Delega en MapTable: guarda estado original antes del 1er cambio."""
+        self.table.enable_auto_backup(Path(backup_dir), vin)
+
+    @property
+    def backup_info(self) -> dict:
+        """Retorna info del backup en disco (path + existencia)."""
+        p = self.table.file_backup_path
+        return {
+            "backup_path": str(p) if p else None,
+            "backup_exists": p is not None and p.exists(),
+            "auto_backup_enabled": self.table._auto_backup_dir is not None,
+            "vin": self.table._auto_backup_vin,
+        }
 
     # ── Single cell ────────────────────────────────────────────────────────
 
