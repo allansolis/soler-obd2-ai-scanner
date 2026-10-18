@@ -207,7 +207,7 @@ def create_app() -> "FastAPI":
         return {
             "connected": False,
             "message": "Sin sesión EV activa. Conecte un adaptador ELM327 a un vehículo EV.",
-            "ev_brands_supported": list(_kb.kb.get("ev_brands", {}).keys()),
+            "ev_brands_supported": _kb.list_ev_brands(),
         }
 
     # ── GET /api/ev/dtcs ──────────────────────────────────────────────────────
