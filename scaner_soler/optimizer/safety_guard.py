@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
 
-
-class SafetyError(Exception):
-    pass
+from scaner_soler.exceptions import SafetyError  # noqa: F401  re-export
 
 
 @dataclass

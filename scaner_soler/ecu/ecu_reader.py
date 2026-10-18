@@ -7,8 +7,9 @@ from pathlib import Path
 import numpy as np
 
 from ..comm.vehicle_conn import VehicleConnection
-from .maps.map_table import MapTable, SafetyError
+from .maps.map_table import MapTable
 from ..optimizer.safety_guard import SafetyGuard
+from scaner_soler.exceptions import SafetyError
 
 BACKUPS_DIR = Path(__file__).parent.parent.parent / "backups"
 MAPS_DIR    = Path(__file__).parent.parent.parent / "maps"

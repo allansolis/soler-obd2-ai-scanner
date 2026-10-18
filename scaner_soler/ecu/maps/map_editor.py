@@ -1,4 +1,5 @@
-from .map_table import MapTable, SafetyError
+from .map_table import MapTable
+from scaner_soler.exceptions import SafetyError
 
 
 class MapEditor:

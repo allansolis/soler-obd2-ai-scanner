@@ -62,32 +62,36 @@ class DiagnosticEngine:
 
     def full_scan(self) -> DiagnosticReport:
         report = DiagnosticReport()
+        errors: list[str] = []
 
         try:
             report.vehicle_info = self.conn.get_vehicle_info()
             report.vin = report.vehicle_info.get("vin", "")
             report.ecu_name = report.vehicle_info.get("ecu_name", "")
-        except Exception:
-            pass
+        except Exception as e:
+            errors.append(f"vehicle_info: {e}")
 
         try:
             raw_dtcs = self.conn.get_all_dtc()
             report.dtcs = self._enrich_dtcs(raw_dtcs)
-        except Exception:
-            pass
+        except Exception as e:
+            errors.append(f"dtc_read: {e}")
 
         try:
             report.live_data = self.conn.get_live_data()
-        except Exception:
-            pass
+        except Exception as e:
+            errors.append(f"live_data: {e}")
 
         try:
             for dtc in report.confirmed_dtcs[:5]:
                 ff = self.conn.get_freeze_frame(dtc.code)
                 if ff:
                     report.freeze_frames[dtc.code] = ff
-        except Exception:
-            pass
+        except Exception as e:
+            errors.append(f"freeze_frame: {e}")
+
+        if errors:
+            report.vehicle_info.setdefault("_scan_errors", errors)
 
         return report
 

@@ -59,7 +59,7 @@ class CommandSanitizer:
     _VALID_AT_CMD = re.compile(r'^AT\s?[A-Z0-9\s@&+\-?#]{1,20}$', re.IGNORECASE)
 
     # Comandos AT bloqueados (reset completo / warm start irreversible)
-    _BLOCKED_AT: set[str] = {"AT WS", "ATZ", "ATWS", "AT Z"}
+    _BLOCKED_AT: set[str] = {"AT WS", "ATZ", "ATWS", "AT Z", "ATRST", "AT RST", "ATPP FF ON", "ATFI", "ATSI"}
 
     # Servicios UDS que requieren confirmación explícita (primer byte = service ID)
     _DANGER_SERVICES: dict[int, str] = {

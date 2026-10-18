@@ -7,8 +7,7 @@ from typing import Optional
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 
-from ..optimizer.safety_guard import SafetyError
-
+from scaner_soler.exceptions import SafetyError
 
 @dataclass
 class MapTable:
