@@ -260,7 +260,8 @@ class MockELM327Protocol:
 
             # Formato: bytes separados por espacio, con header si ATH1
             rx_id = self._get_rx_id_for(self._header)
-            resp_str = f"{rx_id:03X} {len(response):02X} " + " ".join(f"{b:02X}" for b in response)
+            # No incluir el byte de longitud CAN en la cadena — send_receive lo trataría como dato
+            resp_str = f"{rx_id:03X} " + " ".join(f"{b:02X}" for b in response)
             self._log.append(f"<< {resp_str}")
             return resp_str
 
