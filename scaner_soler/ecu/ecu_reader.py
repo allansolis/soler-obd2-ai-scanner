@@ -3,12 +3,17 @@ import json
 import shutil
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 
 from ..comm.vehicle_conn import VehicleConnection
 from .maps.map_table import MapTable
 from ..optimizer.safety_guard import SafetyGuard
+from ..comm.uds_client import UDSClient, DID_VIN, SVC_READ_DATA_BY_ID
+from ..ev.bms_reader import BMSReader, BMSData
+from ..ev.ev_pid_registry import EV_UDS_PIDS, EV_BRANDS, EV_MODE01_PIDS, decode_ev
+from ..ev.charging_session import ChargingSession, ChargingState
 from scaner_soler.exceptions import SafetyError
 
 BACKUPS_DIR = Path(__file__).parent.parent.parent / "backups"
@@ -227,9 +232,13 @@ def _sha256(data: bytes) -> str:
 
 class ECUReader:
 
-    def __init__(self, conn: VehicleConnection, vin: str = "UNKNOWN"):
+    # Marcas EV reconocidas por el módulo de BMS
+    _EV_BRANDS = set(EV_BRANDS.keys())
+
+    def __init__(self, conn: VehicleConnection, vin: str = "UNKNOWN", ev_brand: str = ""):
         self.conn = conn
         self.vin = vin
+        self.ev_brand: str = ev_brand   # vacío = ICE; set por detect_ev_brand()
         self.guard = SafetyGuard()
         BACKUPS_DIR.mkdir(parents=True, exist_ok=True)
         MAPS_DIR.mkdir(parents=True, exist_ok=True)
@@ -413,3 +422,131 @@ class ECUReader:
     def load_map_profile(self, path: str | Path) -> dict[str, MapTable]:
         payload = json.loads(Path(path).read_text(encoding="utf-8"))
         return {name: MapTable.from_dict(tbl) for name, tbl in payload["tables"].items()}
+
+    # ── EV / BMS integration ──────────────────────────────────────────────────
+
+    def is_ev_vehicle(self) -> bool:
+        """True si ev_brand está configurada (vehículo eléctrico o híbrido)."""
+        return bool(self.ev_brand)
+
+    def detect_ev_brand(self, uds_client: Optional[UDSClient] = None) -> str:
+        """
+        Intenta detectar la marca EV leyendo el VIN (DID 0xF190) y
+        comparando el WMI (primeros 3 chars) contra la tabla EV_BRANDS.
+
+        Si se pasa uds_client, se usa UDS RDBI; de lo contrario se usa
+        el VIN ya almacenado en self.vin.
+
+        Retorna la brand string (ej: "Nissan_Leaf") o "" si no se detecta.
+        """
+        vin = self.vin
+        if uds_client is not None:
+            try:
+                vin = uds_client.read_vin() or self.vin
+            except Exception:
+                pass
+
+        wmi = vin[:3].upper() if vin else ""
+
+        _WMI_MAP: dict[str, str] = {
+            "JN1": "Nissan_Leaf",   "1G1": "Chevrolet_Bolt",
+            "WBY": "BMW_i3",        "WVW": "VW_MEB",
+            "VF1": "Renault_Zoe",   "KMH": "Hyundai_EGMP",
+            "5YJ": "Tesla_OBD",     "7SA": "Tesla_OBD",
+            "SFZ": "Renault_Zoe",
+        }
+        brand = _WMI_MAP.get(wmi, "")
+        if brand:
+            self.ev_brand = brand
+        return brand
+
+    def read_ev_bms(
+        self,
+        uds_client: UDSClient,
+        brand: str = "",
+    ) -> BMSData:
+        """
+        Lee todos los PIDs UDS del BMS de la batería para la marca indicada.
+
+        Flujo:
+          1. Abre sesión extendida
+          2. Lee cada PID UDS de EV_UDS_PIDS[brand]
+          3. Decodifica con decode_ev()
+          4. Construye BMSData via BMSReader.build()
+          5. Cierra sesión
+
+        Parámetros
+        ----------
+        uds_client : UDSClient
+            Cliente UDS ya conectado al ELM327/CAN.
+        brand : str
+            Nombre de la marca EV ("Nissan_Leaf", "BMW_i3", …).
+            Si vacío usa self.ev_brand.
+
+        Retorna
+        -------
+        BMSData con todos los valores disponibles y alertas.
+        """
+        brand = brand or self.ev_brand
+        if not brand:
+            brand = self.detect_ev_brand(uds_client)
+        if not brand:
+            raise ValueError("Marca EV no especificada y no detectable desde VIN")
+
+        meta = EV_BRANDS.get(brand, {})
+        ecu_addr = meta.get("ecu_addr", 0x7E4)
+        rx_addr  = ecu_addr + 8
+
+        # Configurar TX/RX para la ECU del BMS
+        uds_client.tx_id = ecu_addr
+        uds_client.rx_id = rx_addr
+        uds_client._conn.tx_id = ecu_addr
+        uds_client._conn.rx_id = rx_addr
+
+        uds_client.open_session()
+
+        pid_map = EV_UDS_PIDS.get(brand, {})
+        readings: dict[str, object] = {}
+
+        for identifier_hex, (pid_name, unit, min_bytes, _decoder) in pid_map.items():
+            try:
+                did = int(identifier_hex, 16)
+                raw = uds_client.read_data_by_id(did)
+                decoded = decode_ev(brand, identifier_hex, raw)
+                # decode_ev retorna {"name": "bms_soc", "value": 80.0, ...}
+                # BMSReader._FIELD_MAP espera {"bms_soc": 80.0}
+                if decoded and decoded.get("value") is not None:
+                    readings[decoded["name"]] = decoded["value"]
+            except Exception:
+                pass  # PID no soportado → skip
+
+        uds_client.close_session()
+
+        reader = BMSReader(brand)
+        bms = reader.build(readings)
+        return bms
+
+    def read_ev_live_pids(
+        self,
+        uds_client: UDSClient,
+        brand: str = "",
+    ) -> dict[str, object]:
+        """
+        Versión simplificada: retorna dict con todas las lecturas crudas EV
+        (útil para mostrar en dashboard sin construir BMSData).
+        """
+        brand = brand or self.ev_brand or self.detect_ev_brand(uds_client)
+        pid_map = EV_UDS_PIDS.get(brand, {})
+        readings: dict[str, object] = {}
+
+        for identifier_hex, (_name, _unit, _mb, _dec) in pid_map.items():
+            try:
+                did = int(identifier_hex, 16)
+                raw = uds_client.read_data_by_id(did)
+                decoded = decode_ev(brand, identifier_hex, raw)
+                if decoded and decoded.get("value") is not None:
+                    readings[decoded["name"]] = decoded["value"]
+            except Exception:
+                pass
+
+        return readings

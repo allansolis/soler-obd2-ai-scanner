@@ -31,6 +31,13 @@ from typing import Callable, Optional
 
 from ..comm.elm327 import ELM327Protocol
 from ..comm.kline import checksum_iso9141
+from ..comm.uds_client import (
+    UDSClient as _UDSClient,
+    UDSNegativeResponseError as _UDSNegErr,
+    SESSION_DEFAULT as _SES_DEFAULT,
+    SESSION_EXTENDED as _SES_EXT,
+    SESSION_PROGRAMMING as _SES_PROG,
+)
 
 # ---------------------------------------------------------------------------
 # Constantes UDS (ISO 14229-1)
@@ -169,11 +176,13 @@ class ECUProgrammer:
     - El timeout por bloque de 512 bytes es de 120 segundos.
     """
 
-    def __init__(self, comm_layer: ELM327Protocol) -> None:
+    def __init__(self, comm_layer: ELM327Protocol, tx_id: int = 0x7E0, rx_id: int = 0x7E8) -> None:
         self._comm = comm_layer
-        self._backup_path: Optional[str] = None  # Ruta del último backup
+        self._backup_path: Optional[str] = None
         self._session_level: int = SESSION_DEFAULT
         self._security_unlocked: bool = False
+        # Cliente UDS de alto nivel — reemplaza los hex strings hand-rolled
+        self._uds = _UDSClient(comm_layer, tx_id=tx_id, rx_id=rx_id)
 
     # ------------------------------------------------------------------
     # Comunicación UDS de bajo nivel
@@ -181,41 +190,14 @@ class ECUProgrammer:
 
     def _send_uds(self, payload: bytes) -> bytes:
         """
-        Envía una trama UDS (ISO 14229-1 sobre ISO-TP / ELM327) y
-        devuelve los bytes de respuesta sin el ID de servicio positivo.
-
-        Lanza ``UDSNegativeResponse`` si la ECU devuelve 0x7F.
+        Envía una trama UDS mediante UDSClient (ISO 14229-1 / ELM327).
+        Devuelve los bytes de datos sin el byte de servicio positivo.
+        Lanza UDSNegativeResponse si la ECU devuelve NRC.
         """
-        # Convertir a string hex para el ELM327
-        hex_str = " ".join(f"{b:02X}" for b in payload)
-        raw: str = self._comm.send_command(hex_str)
-        time.sleep(0.05)
-
-        # Parsear respuesta hex
-        tokens = [t for t in raw.upper().split() if len(t) == 2]
-        try:
-            resp_bytes = bytes(int(t, 16) for t in tokens)
-        except ValueError:
-            raise ECUProgrammerError(f"Respuesta ELM inválida: {raw!r}")
-
-        if not resp_bytes:
-            raise ECUProgrammerError("ECU no respondió (respuesta vacía)")
-
-        # Detectar NRC
-        if resp_bytes[0] == UDS_NEGATIVE_RESPONSE:
-            if len(resp_bytes) >= 3:
-                raise UDSNegativeResponse(resp_bytes[1], resp_bytes[2])
-            raise ECUProgrammerError(f"Respuesta negativa UDS incompleta: {resp_bytes.hex()}")
-
-        # Verificar respuesta positiva (service_id + 0x40)
-        expected_pos = (payload[0] + UDS_POSITIVE_OFFSET) & 0xFF
-        if resp_bytes[0] != expected_pos:
-            raise ECUProgrammerError(
-                f"Respuesta inesperada: esperado 0x{expected_pos:02X}, "
-                f"recibido 0x{resp_bytes[0]:02X}"
-            )
-
-        return resp_bytes[1:]  # Datos sin el byte de servicio positivo
+        resp = self._uds._send(payload)
+        if not resp.positive:
+            raise UDSNegativeResponse(resp.service_id, resp.nrc or 0x10)
+        return resp.data
 
     def _tester_present(self) -> None:
         """Envía TesterPresent (0x3E 0x00) para mantener viva la sesión."""

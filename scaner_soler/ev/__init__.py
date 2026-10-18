@@ -11,11 +11,11 @@ Basado en:
 from scaner_soler.ev.ev_pid_registry import EV_MODE01_PIDS, EV_UDS_PIDS, EV_BRANDS, decode_ev
 from scaner_soler.ev.bms_reader import BMSData, BMSReader
 from scaner_soler.ev.charging_session import ChargingSession, ChargingState
-from scaner_soler.ev.dtc_ev_codes import EV_DTC_DB, classify_ev_dtc
+from scaner_soler.ev.dtc_ev_codes import EV_DTC_DB, classify_ev_dtc, is_ev_dtc
 
 __all__ = [
     "EV_MODE01_PIDS", "EV_UDS_PIDS", "EV_BRANDS", "decode_ev",
     "BMSData", "BMSReader",
     "ChargingSession", "ChargingState",
-    "EV_DTC_DB", "classify_ev_dtc",
+    "EV_DTC_DB", "classify_ev_dtc", "is_ev_dtc",
 ]
