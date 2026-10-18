@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "scaner-soler-backend",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "uvicorn", "backend.api.server:app", "--host", "127.0.0.1", "--port", "8000", "--log-level", "warning"],
+      "port": 8000,
+      "url": "http://localhost:8000/health"
+    }
+  ]
+}

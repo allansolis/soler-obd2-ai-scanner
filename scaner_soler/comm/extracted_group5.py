@@ -1,3 +1,4 @@
+# MIGRADO: contenido limpio en comm/can_bus.py
 """
 extracted_group5.py — Funciones extraídas del Grupo 5 de revisión de repos.
 

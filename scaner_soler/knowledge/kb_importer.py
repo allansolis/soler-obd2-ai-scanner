@@ -26,8 +26,8 @@ from pathlib import Path
 _THIS_DIR = Path(__file__).parent
 _DB_PATH = _THIS_DIR.parent / "database" / "dtc_codes.db"
 
-# Backend repo lives at a fixed location on the dev machine.
-_BACKEND_BASE = Path(r"C:\Users\Usuario\AppData\Local\Temp\soler-obd2-ai-scanner")
+# Backend repo — ruta configurable via SOLER_BACKEND_DIR (ver scaner_soler/config.py)
+from ..config import BACKEND_DIR as _BACKEND_BASE
 _PROF_DTC_JSON = _BACKEND_BASE / "data" / "dtc_database" / "professional_dtc_database.json"
 _EXPERT_JSON   = _BACKEND_BASE / "backend" / "knowledge_hub" / "expert_profiles.json"
 
@@ -95,7 +95,7 @@ def import_professional_dtcs(db_path: Path, json_path: Path) -> int:
         print(f"[WARN] professional DTC JSON not found: {json_path}", file=sys.stderr)
         return 0
 
-    with open(json_path, encoding="utf-8") as fh:
+    with open(json_path, encoding="utf-8", errors="replace") as fh:
         data = json.load(fh)
 
     dtcs: list[dict] = data.get("dtcs", [])
@@ -146,7 +146,7 @@ def import_expert_tools(db_path: Path, json_path: Path) -> int:
         print(f"[WARN] expert_profiles JSON not found: {json_path}", file=sys.stderr)
         return 0
 
-    with open(json_path, encoding="utf-8") as fh:
+    with open(json_path, encoding="utf-8", errors="replace") as fh:
         data = json.load(fh)
 
     tools_dict: dict = data.get("tools", {})

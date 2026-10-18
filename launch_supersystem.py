@@ -17,9 +17,12 @@ import threading
 import time
 from pathlib import Path
 
+# ── Configuración centralizada ────────────────────────────────────────────────
+sys.path.insert(0, str(Path(__file__).parent))
+from scaner_soler.config import BACKEND_DIR, BACKEND_URL, BACKEND_PORT
+
 # ── Directorios ───────────────────────────────────────────────────────────────
-BACKEND_DIR = Path(r"C:\Users\Usuario\AppData\Local\Temp\soler-obd2-ai-scanner")
-GUI_DIR     = Path(__file__).parent
+GUI_DIR = Path(__file__).parent
 
 # ── Backend ───────────────────────────────────────────────────────────────────
 
@@ -31,7 +34,7 @@ def _start_backend_thread():
         uvicorn.run(
             "backend.api.server:app",
             host="127.0.0.1",
-            port=8000,
+            port=BACKEND_PORT,
             log_level="warning",
         )
     except ModuleNotFoundError as exc:
@@ -50,7 +53,7 @@ def _wait_backend(timeout: int = 8) -> bool:
     deadline = time.time() + timeout
     while time.time() < deadline:
         try:
-            if requests.get("http://localhost:8000/health", timeout=1).ok:
+            if requests.get(f"{BACKEND_URL}/health", timeout=1).ok:
                 return True
         except Exception:
             pass

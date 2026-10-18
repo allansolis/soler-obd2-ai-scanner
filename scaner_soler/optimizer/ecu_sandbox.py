@@ -55,6 +55,12 @@ import numpy as np
 from ..ecu.maps.map_table import MapTable
 from .safety_guard import SafetyGuard, SafetyError, PROFILES, SafetyLimits
 
+try:
+    from .extracted_group4 import ECUSimulatorCore, ECUStateMachine
+    _HAS_SIMULATOR_CORE = True
+except ImportError:
+    _HAS_SIMULATOR_CORE = False
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Modelos de score basados en DELTAS porcentuales
@@ -293,6 +299,8 @@ class ECUSandbox:
         self.run_state = SandboxRunState()
         self._session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
         self._jsonl_path = self.results_dir / f"session_{self._session_id}.jsonl"
+        # Backend de simulación física (disponible si extracted_group4 está instalado)
+        self._simulator: Optional[Any] = None  # ECUSimulatorCore cuando disponible
 
     # ── 1. Clonado del estado real ────────────────────────────────────────────
 
@@ -319,6 +327,17 @@ class ECUSandbox:
             # Fallback: usa mapas demo  (igual que _generate_agent_config_by_rule en MiroFish)
             maps = ecu_reader.load_demo_maps()
 
+        # Si ECUSimulatorCore está disponible, inicializa la simulación física
+        # y usa sus sensores como live_params cuando no se proporcionaron
+        if _HAS_SIMULATOR_CORE:
+            self._simulator = ECUSimulatorCore(
+                initial_state="idle",
+                initial_dtcs=dtcs or [],
+            )
+            if not live_params:
+                self._simulator.tick(dt=1.0)
+                live_params = self._simulator.ecu.sensors.to_obd_dict()
+
         self.snapshot = ECUSnapshot(
             vin=getattr(ecu_reader, "vin", "UNKNOWN"),
             maps=maps,
@@ -328,7 +347,8 @@ class ECUSandbox:
         )
         self.run_state.status = SandboxStatus.CLONED
         print(f"[ECUSandbox] Clonado — VIN: {self.snapshot.vin} | "
-              f"Mapas: {list(maps.keys())} | DTCs: {self.snapshot.dtcs}")
+              f"Mapas: {list(maps.keys())} | DTCs: {self.snapshot.dtcs} | "
+              f"SimCore: {'activo' if _HAS_SIMULATOR_CORE else 'no disponible'}")
         return self
 
     def clone_from_maps(self, maps: Dict[str, MapTable],
@@ -339,6 +359,16 @@ class ECUSandbox:
         Clona desde mapas ya cargados (sin conexión al vehículo).
         Útil para pruebas o cuando los mapas vienen de un .ssmap guardado.
         """
+        # Si ECUSimulatorCore está disponible, inicializa la simulación física
+        if _HAS_SIMULATOR_CORE:
+            self._simulator = ECUSimulatorCore(
+                initial_state="idle",
+                initial_dtcs=dtcs or [],
+            )
+            if not live_params:
+                self._simulator.tick(dt=1.0)
+                live_params = self._simulator.ecu.sensors.to_obd_dict()
+
         self.snapshot = ECUSnapshot(
             vin=vin,
             maps=maps,
@@ -348,8 +378,49 @@ class ECUSandbox:
         )
         self.run_state.status = SandboxStatus.CLONED
         print(f"[ECUSandbox] Clonado desde mapas — VIN: {vin} | "
-              f"Mapas: {list(maps.keys())}")
+              f"Mapas: {list(maps.keys())} | "
+              f"SimCore: {'activo' if _HAS_SIMULATOR_CORE else 'no disponible'}")
         return self
+
+    # ── 1b. Simulación de respuesta del motor ────────────────────────────────────
+
+    def simulate_engine_response(
+        self,
+        dt: float = 1.0,
+        throttle: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """
+        Avanza la simulación del motor dt segundos y retorna los sensores.
+
+        Usa ECUSimulatorCore (físicamente coherente) cuando está disponible.
+        Fallback: retorna los live_params estáticos del snapshot clonado.
+
+        Parámetros
+        ──────────
+        dt       : segundos a avanzar (default 1.0)
+        throttle : % de acelerador para forzar (None = automático por estado)
+
+        Retorna
+        ───────
+        dict con claves PID hex (0x04, 0x05, 0x0B, 0x0C, 0x0D, 0x0F, 0x11, 0x33)
+        y campos adicionales (lambda, etc.)
+        """
+        if _HAS_SIMULATOR_CORE and self._simulator is not None:
+            snap = self._simulator.tick(dt=dt, throttle=throttle)
+            return snap.to_obd_dict()
+        # Fallback: retorna parámetros estáticos del snapshot clonado
+        if self.snapshot is not None:
+            return dict(self.snapshot.live_params)
+        return {}
+
+    def get_simulator_status(self) -> Dict[str, Any]:
+        """
+        Retorna el estado completo del simulador ECU.
+        Disponible solo si ECUSimulatorCore está activo.
+        """
+        if _HAS_SIMULATOR_CORE and self._simulator is not None:
+            return self._simulator.get_full_status()
+        return {"simulator": "no disponible", "has_simulator_core": False}
 
     # ── 2. Generación de combinaciones  (Latin Hypercube Sampling) ────────────
 

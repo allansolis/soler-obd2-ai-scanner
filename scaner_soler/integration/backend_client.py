@@ -15,15 +15,20 @@ try:
 except ImportError:
     _REQUESTS_OK = False
 
+try:
+    from ..config import BACKEND_URL as _BACKEND_URL
+except ImportError:
+    _BACKEND_URL = "http://localhost:8000"
+
 log = logging.getLogger(__name__)
 
 _TIMEOUT = 3  # segundos
 
 
 class BackendClient:
-    """Cliente ligero para el backend FastAPI en http://localhost:8000."""
+    """Cliente ligero para el backend FastAPI. URL configurable via SOLER_BACKEND_URL."""
 
-    BASE_URL = "http://localhost:8000"
+    BASE_URL = _BACKEND_URL
 
     # ------------------------------------------------------------------ #
     # helpers internos                                                     #

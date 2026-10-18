@@ -1,0 +1,4 @@
+-Extrair a pasta 1 e 2 utilizando descompactador atualizado.
+- senha para descompactação é: mecanica84494460
+- criar um atalho para o executavel na area de trabalho
+- abrir o executavel e enjoy

@@ -1,3 +1,4 @@
+# INTEGRADO: ECUSimulatorCore importado en ecu_sandbox.py
 """
 extracted_group4.py — Modelos extraídos y sintetizados de 4 repos GitHub
 =========================================================================

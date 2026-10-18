@@ -1,3 +1,4 @@
+# MIGRADO: contenido útil en comm/kline.py + comm/can_bus.py
 """
 extracted_group3.py — Funciones extraídas del Grupo 3 de repos K-line
 

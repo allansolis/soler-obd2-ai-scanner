@@ -7,4 +7,5 @@ matplotlib>=3.7.0
 plotly>=5.15.0
 deap>=1.4.0
 fpdf2>=2.7.0
-python-uds>=1.0.0
+udsoncan>=1.17.0
+requests>=2.28.0

@@ -7,9 +7,7 @@ from typing import Optional
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 
-
-class SafetyError(Exception):
-    pass
+from ..optimizer.safety_guard import SafetyError
 
 
 @dataclass
