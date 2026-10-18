@@ -6,15 +6,16 @@ import threading
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from .diagnostics_tab  import DiagnosticsTab
-from .live_data_tab     import LiveDataTab
-from .map_editor_tab    import MapEditorTab
-from .optimizer_tab     import OptimizerTab
-from .telemetry_tab     import TelemetryTab
-from .knowledge_tab     import KnowledgeTab
-from .ai_copilot_tab    import AICopilotTab
-from .sandbox_tab       import SandboxTab
-from .programmer_tab    import ProgrammerTab
+from .diagnostics_tab        import DiagnosticsTab
+from .live_data_tab          import LiveDataTab
+from .map_editor_tab         import MapEditorTab
+from .optimizer_tab          import OptimizerTab
+from .telemetry_tab          import TelemetryTab
+from .knowledge_tab          import KnowledgeTab
+from .ai_copilot_tab         import AICopilotTab
+from .sandbox_tab            import SandboxTab
+from .programmer_tab         import ProgrammerTab
+from .reverse_engineer_tab   import ReverseEngineerTab
 
 try:
     from ..integration.backend_client import BackendClient
@@ -238,6 +239,13 @@ class ScanerSolerApp(tk.Tk):
         self.programmer_tab = ProgrammerTab(prog_frame, app=self)
         self.programmer_tab.pack(fill="both", expand=True)
         self.tab_objects["⚡  Programación ECU"] = self.programmer_tab
+
+        # 10ª pestaña: Ingeniería Inversa ECU
+        re_frame = ttk.Frame(self.nb)
+        self.nb.add(re_frame, text="🔬  RE · ECU")
+        self.re_tab = ReverseEngineerTab(re_frame, app=self)
+        self.re_tab.pack(fill="both", expand=True)
+        self.tab_objects["🔬  RE · ECU"] = self.re_tab
 
     def _build_statusbar(self):
         from .widgets import StatusBar
