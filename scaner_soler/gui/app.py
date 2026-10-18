@@ -16,6 +16,7 @@ from .ai_copilot_tab         import AICopilotTab
 from .sandbox_tab            import SandboxTab
 from .programmer_tab         import ProgrammerTab
 from .reverse_engineer_tab   import ReverseEngineerTab
+from .ev_tab                 import EVTab
 
 try:
     from ..integration.backend_client import BackendClient
@@ -254,6 +255,13 @@ class ScanerSolerApp(tk.Tk):
         self.security_tab = SecurityTab(sec_frame, app=self)
         self.security_tab.pack(fill="both", expand=True)
         self.tab_objects["🛡️  Seguridad"] = self.security_tab
+
+        # 12ª pestaña: EV / BMS Dashboard
+        ev_frame = ttk.Frame(self.nb)
+        self.nb.add(ev_frame, text="🔋  EV / BMS")
+        self.ev_tab = EVTab(ev_frame, app=self)
+        self.ev_tab.pack(fill="both", expand=True)
+        self.tab_objects["🔋  EV / BMS"] = self.ev_tab
 
     def _build_statusbar(self):
         from .widgets import StatusBar
