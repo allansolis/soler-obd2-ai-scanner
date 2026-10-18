@@ -247,6 +247,14 @@ class ScanerSolerApp(tk.Tk):
         self.re_tab.pack(fill="both", expand=True)
         self.tab_objects["🔬  RE · ECU"] = self.re_tab
 
+        # 11ª pestaña: Seguridad
+        from .security_tab import SecurityTab
+        sec_frame = ttk.Frame(self.nb)
+        self.nb.add(sec_frame, text="🛡️  Seguridad")
+        self.security_tab = SecurityTab(sec_frame, app=self)
+        self.security_tab.pack(fill="both", expand=True)
+        self.tab_objects["🛡️  Seguridad"] = self.security_tab
+
     def _build_statusbar(self):
         from .widgets import StatusBar
         self.statusbar = StatusBar(self)

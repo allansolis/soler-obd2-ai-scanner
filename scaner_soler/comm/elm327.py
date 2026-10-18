@@ -586,6 +586,17 @@ class ELM327Protocol(AbstractProtocol):
         self._serial: serial.Serial | None = None
         self._connected = False
         self._isotp = IsoTpMultiframe()
+        # ── Seguridad (opcional — activar con enable_security()) ──────────────
+        self._security_audit: Optional["SecurityAuditLog"] = None  # type: ignore
+        self._cmd_sanitizer: Optional["CommandSanitizer"] = None   # type: ignore
+
+    def enable_security(self, audit_log: "SecurityAuditLog", sanitizer: "CommandSanitizer") -> None:  # type: ignore
+        """
+        Activa validación de seguridad en todos los comandos enviados.
+        Importa las clases desde .security para evitar importación circular en tiempo de módulo.
+        """
+        self._security_audit = audit_log
+        self._cmd_sanitizer = sanitizer
 
     @property
     def is_connected(self) -> bool:
@@ -633,6 +644,11 @@ class ELM327Protocol(AbstractProtocol):
     def _send_command(self, cmd: str, delay: float = 0.1) -> str:
         if self._serial is None:
             raise RuntimeError("No conectado. Llama connect() primero.")
+        # ── Hook de seguridad (si está activado con enable_security()) ────────
+        if self._cmd_sanitizer is not None:
+            valid, reason = self._cmd_sanitizer.validate(cmd)
+            if not valid:
+                raise ValueError(f"Comando bloqueado por seguridad: {reason}")
         self._serial.reset_input_buffer()
         self._serial.write((cmd + "\r").encode())
         time.sleep(delay)
