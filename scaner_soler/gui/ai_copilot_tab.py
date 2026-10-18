@@ -1,16 +1,18 @@
 """
-Scaner Soler Pro — Pestaña AI Copilot (7ª pestaña).
+Scaner Soler Pro — Pestaña AI Copilot con Elena (7ª pestaña).
 
-Proporciona un chat con Soler AI, botones de acción rápida
-y un indicador de estado del backend.
+Integra el avatar animado de Elena AI Specialist con simulación de voz.
 """
 from __future__ import annotations
 
+import math
+import os
 import queue
 import re
 import threading
 import time
 import tkinter as tk
+from pathlib import Path
 from tkinter import simpledialog, ttk
 from typing import TYPE_CHECKING
 
@@ -27,18 +29,18 @@ GREEN    = "#a6e3a1"
 RED      = "#f38ba8"
 YELLOW   = "#f9e2af"
 SUBTEXT  = "#585b70"
+ELENA_BG = "#11111b"
+
+# Ruta de la imagen de Elena (relativa al módulo)
+_ASSETS_DIR = Path(__file__).parent / "assets"
+_ELENA_IMG  = _ASSETS_DIR / "elena.webp"
 
 
 def _flatten_markdown(text: str) -> str:
-    """Convierte markdown básico a texto plano (Tkinter no renderiza markdown)."""
-    # Elimina encabezados #
     text = re.sub(r"^#{1,6}\s+", "", text, flags=re.MULTILINE)
-    # Negrita / cursiva
     text = re.sub(r"\*{1,3}(.+?)\*{1,3}", r"\1", text)
     text = re.sub(r"_{1,3}(.+?)_{1,3}", r"\1", text)
-    # Código inline
     text = re.sub(r"`(.+?)`", r"\1", text)
-    # Bloques de código
     text = re.sub(r"```.*?```", lambda m: m.group(0).replace("```", ""), text, flags=re.DOTALL)
     return text.strip()
 
@@ -58,9 +60,9 @@ _LOCAL_RESPONSES: list[tuple[str, str]] = [
 ]
 
 _LOCAL_DEFAULT = (
-    "Soler AI está en modo offline (backend no disponible). "
+    "Estoy en modo offline (backend no disponible). "
     "Las pestañas Diagnósticos y Conocimiento funcionan sin conexión. "
-    "Para respuestas AI completas, inicia el backend con `launch_supersystem.py`."
+    "Para respuestas completas, inicia el backend con `launch_supersystem.py`."
 )
 
 
@@ -72,9 +74,158 @@ def _local_response(message: str) -> str:
     return _LOCAL_DEFAULT
 
 
+# ── Widget de avatar de Elena ─────────────────────────────────────────────────
+class _ElenaAvatar(tk.Canvas):
+    """Canvas con la imagen de Elena + animación de barras de voz."""
+
+    _BARS       = 7
+    _BAR_W      = 7
+    _BAR_GAP    = 3
+    _SPEAK_CLR  = "#89b4fa"
+    _IDLE_CLR   = "#45475a"
+    _GLOW_CLR   = "#1e3a5f"
+
+    def __init__(self, parent: tk.Widget, **kw):
+        kw.setdefault("bg", ELENA_BG)
+        kw.setdefault("highlightthickness", 0)
+        super().__init__(parent, **kw)
+
+        self._speaking     = False
+        self._anim_id      = None
+        self._stop_id      = None
+        self._phase        = 0.0
+        self._photo        = None
+        self._bar_y_base   = 0
+        self._bar_cx       = 0
+
+        self._load_image()
+        self.bind("<Configure>", lambda _e: self._draw())
+        self.after(100, self._draw)
+
+    # ── Carga de imagen ───────────────────────────────────────────────────────
+
+    def _load_image(self):
+        try:
+            from PIL import Image, ImageTk
+            img = Image.open(_ELENA_IMG).convert("RGBA")
+            # Recortar a cuerpo superior (85 %)
+            w, h = img.size
+            img = img.crop((0, 0, w, int(h * 0.87)))
+            img.thumbnail((178, 260), Image.LANCZOS)
+            self._photo = ImageTk.PhotoImage(img)
+        except Exception:
+            self._photo = None
+
+    # ── Dibujo ────────────────────────────────────────────────────────────────
+
+    def _draw(self, animate: bool = False):
+        self.delete("all")
+        cw = self.winfo_width()  or 190
+        ch = self.winfo_height() or 340
+
+        # ── Glow de fondo cuando habla ────────────────────────────────────────
+        if animate:
+            self.create_oval(cw//2 - 80, 4, cw//2 + 80, ch - 40,
+                             fill=self._GLOW_CLR, outline="", tags="glow")
+
+        # ── Imagen o placeholder ──────────────────────────────────────────────
+        if self._photo:
+            iw = self._photo.width()
+            ih = self._photo.height()
+            cx = cw // 2
+            cy = ih // 2 + 8
+            self.create_image(cx, cy, image=self._photo, anchor="center", tags="img")
+            bar_y_anchor = ih + 14
+        else:
+            r = 52
+            cx = cw // 2
+            cy = 80
+            self.create_oval(cx-r, cy-r, cx+r, cy+r,
+                             fill="#313244", outline=ACCENT, width=2)
+            self.create_text(cx, cy, text="E", fill=ACCENT,
+                             font=("Consolas", 34, "bold"))
+            bar_y_anchor = cy + r + 20
+
+        # ── Badge/nombre ──────────────────────────────────────────────────────
+        self.create_text(cw//2, bar_y_anchor,
+                         text="ELENA", fill=ACCENT,
+                         font=("Consolas", 11, "bold"), tags="name")
+        self.create_text(cw//2, bar_y_anchor + 15,
+                         text="AI SPECIALIST", fill=SUBTEXT,
+                         font=("Consolas", 8), tags="role")
+
+        # ── Punto de estado ───────────────────────────────────────────────────
+        dot_color = GREEN if animate else SUBTEXT
+        dot_x = cw // 2 + 38
+        dot_y = bar_y_anchor - 1
+        self.create_oval(dot_x - 4, dot_y - 4, dot_x + 4, dot_y + 4,
+                         fill=dot_color, outline="", tags="dot")
+
+        # ── Guardar coordenadas de barras ─────────────────────────────────────
+        self._bar_y_base = bar_y_anchor + 34
+        self._bar_cx     = cw // 2
+        self._draw_bars(animate=animate)
+
+    def _draw_bars(self, animate: bool):
+        self.delete("bar")
+        n   = self._BARS
+        bw  = self._BAR_W
+        bg  = self._BAR_GAP
+        tot = n * bw + (n - 1) * bg
+        x0  = self._bar_cx - tot // 2
+
+        for i in range(n):
+            if animate:
+                amp = 5 + 11 * abs(math.sin(self._phase + i * 0.9))
+                clr = self._SPEAK_CLR
+            else:
+                amp = 3
+                clr = self._IDLE_CLR
+
+            x1 = x0 + i * (bw + bg)
+            x2 = x1 + bw
+            y1 = self._bar_y_base - amp
+            y2 = self._bar_y_base + amp
+            radius = bw // 2
+            # Barras con esquinas redondeadas via óvalo en los extremos
+            self.create_rectangle(x1, y1 + radius, x2, y2 - radius,
+                                  fill=clr, outline="", tags="bar")
+            self.create_oval(x1, y1, x2, y1 + radius * 2,
+                             fill=clr, outline="", tags="bar")
+            self.create_oval(x1, y2 - radius * 2, x2, y2,
+                             fill=clr, outline="", tags="bar")
+
+    # ── Animación de voz ──────────────────────────────────────────────────────
+
+    def start_speaking(self, duration_ms: int = 3800):
+        """Inicia la animación de habla durante `duration_ms` ms."""
+        if self._stop_id:
+            self.after_cancel(self._stop_id)
+        if self._anim_id:
+            self.after_cancel(self._anim_id)
+        self._speaking = True
+        self._stop_id  = self.after(duration_ms, self.stop_speaking)
+        self._animate()
+
+    def stop_speaking(self):
+        """Detiene la animación y vuelve al estado idle."""
+        self._speaking = False
+        if self._anim_id:
+            self.after_cancel(self._anim_id)
+            self._anim_id = None
+        self._draw(animate=False)
+
+    def _animate(self):
+        if not self._speaking:
+            return
+        self._phase += 0.28
+        self._draw(animate=True)
+        self._anim_id = self.after(50, self._animate)
+
+
 # ── Clase principal ───────────────────────────────────────────────────────────
 class AICopilotTab(ttk.Frame):
-    """Séptima pestaña: chat con Soler AI + acciones rápidas."""
+    """Séptima pestaña: chat con Elena AI Specialist + acciones rápidas."""
 
     def __init__(self, parent: tk.Widget, backend_client: "BackendClient | None" = None, **kw):
         super().__init__(parent, **kw)
@@ -91,40 +242,46 @@ class AICopilotTab(ttk.Frame):
     def _build_ui(self):
         self.configure(style="TFrame")
 
-        # ── Barra superior: título + estado backend ──────────────────────────
-        top_bar = tk.Frame(self, bg=TAB_BG, pady=4)
+        # ── Barra superior ────────────────────────────────────────────────────
+        top_bar = tk.Frame(self, bg=ELENA_BG, pady=5)
         top_bar.pack(fill="x")
 
         tk.Label(
-            top_bar, text="🤖  SOLER AI COPILOT",
-            bg=TAB_BG, fg=ACCENT,
+            top_bar, text="ELENA  ·  AI SPECIALIST",
+            bg=ELENA_BG, fg=ACCENT,
             font=("Consolas", 12, "bold"),
-        ).pack(side="left", padx=12)
+        ).pack(side="left", padx=14)
 
         self._status_dot = tk.Label(
             top_bar, text="●  Verificando…",
-            bg=TAB_BG, fg=YELLOW,
+            bg=ELENA_BG, fg=YELLOW,
             font=("Consolas", 9),
         )
-        self._status_dot.pack(side="right", padx=12)
+        self._status_dot.pack(side="right", padx=14)
 
-        # ── Contenido principal: chat izquierda, panel derecha ───────────────
+        # ── Contenido principal ───────────────────────────────────────────────
         content = tk.Frame(self, bg=DARK_BG)
         content.pack(fill="both", expand=True, padx=6, pady=6)
 
-        # Panel lateral derecho
-        side = tk.Frame(content, bg=TAB_BG, width=190, padx=8, pady=8)
+        # Panel lateral derecho (acciones rápidas)
+        side = tk.Frame(content, bg=TAB_BG, width=170, padx=8, pady=8)
         side.pack(side="right", fill="y", padx=(6, 0))
         side.pack_propagate(False)
         self._build_side_panel(side)
 
-        # Área de chat
+        # Panel Elena izquierdo
+        elena_frame = tk.Frame(content, bg=ELENA_BG, width=195)
+        elena_frame.pack(side="left", fill="y", padx=(0, 6))
+        elena_frame.pack_propagate(False)
+        self._elena = _ElenaAvatar(elena_frame, width=195)
+        self._elena.pack(fill="both", expand=True)
+
+        # Área de chat (centro)
         chat_frame = tk.Frame(content, bg=DARK_BG)
         chat_frame.pack(side="left", fill="both", expand=True)
         self._build_chat_area(chat_frame)
 
     def _build_chat_area(self, parent: tk.Frame):
-        # Texto de conversación
         txt_frame = tk.Frame(parent, bg=DARK_BG)
         txt_frame.pack(fill="both", expand=True)
 
@@ -146,13 +303,11 @@ class AICopilotTab(ttk.Frame):
         self._chat_text.pack(fill="both", expand=True)
         sb.config(command=self._chat_text.yview)
 
-        # Tags de color
         self._chat_text.tag_configure("user_tag",  foreground=ACCENT, font=("Consolas", 10, "bold"))
         self._chat_text.tag_configure("ai_tag",    foreground=GREEN,  font=("Consolas", 10, "bold"))
         self._chat_text.tag_configure("sys_tag",   foreground=YELLOW, font=("Consolas", 9, "italic"))
         self._chat_text.tag_configure("body_tag",  foreground=FG,     font=("Consolas", 10))
 
-        # Barra de entrada
         entry_frame = tk.Frame(parent, bg=TAB_BG, pady=6, padx=6)
         entry_frame.pack(fill="x")
 
@@ -167,10 +322,9 @@ class AICopilotTab(ttk.Frame):
             command=self._send_user_message,
         ).pack(side="right")
 
-        # Mensaje de bienvenida
         self._append_system(
-            "Bienvenido a Soler AI Copilot. Escribe tu pregunta o usa los botones "
-            "de acción rápida para diagnósticos, guías y análisis."
+            "Bienvenido. Soy Elena, tu asistente especializada en diagnóstico automotriz. "
+            "Escribe tu pregunta o usa los botones de acción rápida."
         )
 
     def _build_side_panel(self, parent: tk.Frame):
@@ -224,7 +378,8 @@ class AICopilotTab(ttk.Frame):
         self._append("Tú:", text, "user_tag")
 
     def _append_ai(self, text: str):
-        self._append("Soler AI:", _flatten_markdown(text), "ai_tag")
+        self._append("Elena:", _flatten_markdown(text), "ai_tag")
+        self._elena.start_speaking()
 
     def _append_system(self, text: str):
         self._chat_text.configure(state="normal")
@@ -243,11 +398,10 @@ class AICopilotTab(ttk.Frame):
         self._dispatch_chat(msg)
 
     def _dispatch_chat(self, message: str, context: dict | None = None):
-        """Lanza el chat en un hilo de fondo."""
         def _worker():
             if self.client and self.client.is_online():
                 result = self.client.chat(message, context)
-                reply = result if result else "Sin respuesta del servidor."
+                reply  = result if result else "Sin respuesta del servidor."
             else:
                 reply = _local_response(message)
             self._msg_queue.put(("ai", reply))
@@ -264,6 +418,8 @@ class AICopilotTab(ttk.Frame):
                     self._append_ai(data)
                 elif kind == "sys":
                     self._append_system(data)
+                elif kind == "_status":
+                    self._update_status_dot(data == "online")
         except queue.Empty:
             pass
         self.after(100, self._poll_queue)
@@ -292,7 +448,6 @@ class AICopilotTab(ttk.Frame):
                 if isinstance(advice, dict) and "error" not in advice:
                     reply = advice.get("advice") or advice.get("response") or str(advice)
                 else:
-                    # Fallback: chat normal
                     reply = self.client.chat(msg) or _local_response(msg)
             else:
                 reply = _local_response(msg)
@@ -310,7 +465,7 @@ class AICopilotTab(ttk.Frame):
             return
         code = code.strip().upper()
         make = self._make_var.get().strip()
-        msg = f"Necesito la guía de reparación para {code}" + (f" en {make}" if make else "")
+        msg  = f"Necesito la guía de reparación para {code}" + (f" en {make}" if make else "")
         self._append_user(msg)
 
         def _worker():
@@ -324,10 +479,10 @@ class AICopilotTab(ttk.Frame):
         threading.Thread(target=_worker, daemon=True).start()
 
     def _action_recommend_tools(self):
-        make = self._make_var.get().strip()
-        model = self._model_var.get().strip()
+        make    = self._make_var.get().strip()
+        model   = self._model_var.get().strip()
         vehicle = f"{make} {model}".strip() or "vehículo desconocido"
-        msg = f"¿Qué herramientas y equipos recomiendas para diagnosticar un {vehicle}?"
+        msg     = f"¿Qué herramientas y equipos recomiendas para diagnosticar un {vehicle}?"
         self._append_user(msg)
 
         def _worker():
@@ -352,7 +507,7 @@ class AICopilotTab(ttk.Frame):
 
         def _worker():
             if self.client and self.client.is_online():
-                health = self.client.get_health_score()
+                health  = self.client.get_health_score()
                 sensors = self.client.get_live_sensors()
 
                 parts: list[str] = []
@@ -373,10 +528,9 @@ class AICopilotTab(ttk.Frame):
                     if sensor_lines:
                         parts.append("Sensores en vivo:\n" + "\n".join(sensor_lines[:12]))
 
-                if parts:
-                    reply = "\n".join(parts)
-                else:
-                    reply = self.client.chat(msg) or _local_response(msg)
+                reply = "\n".join(parts) if parts else (
+                    self.client.chat(msg) or _local_response(msg)
+                )
             else:
                 reply = _local_response(msg)
             self._msg_queue.put(("ai", reply))
@@ -395,22 +549,6 @@ class AICopilotTab(ttk.Frame):
             self._msg_queue.put(("_status", "online" if online else "offline"))
 
         threading.Thread(target=_worker, daemon=True).start()
-        # Procesar el resultado directamente en el poll
-        # (el poll ya consume la cola; añadimos un handler especial)
-
-    def _poll_queue(self):  # type: ignore[override]  # redefinición con status
-        try:
-            while True:
-                kind, data = self._msg_queue.get_nowait()
-                if kind == "ai":
-                    self._append_ai(data)
-                elif kind == "sys":
-                    self._append_system(data)
-                elif kind == "_status":
-                    self._update_status_dot(data == "online")
-        except queue.Empty:
-            pass
-        self.after(100, self._poll_queue)
 
     def _update_status_dot(self, online: bool):
         if online:
