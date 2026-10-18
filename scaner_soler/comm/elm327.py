@@ -23,6 +23,12 @@ from .base import AbstractProtocol, DTC
 # ── PID Table ──────────────────────────────────────────────────────────────────
 # pid -> (name, unit, min, max, formula)
 PID_TABLE: dict[int, tuple] = {
+    # ── PIDs integrados desde extracted_group2.py ─────────────────────────────
+    0x02: ("freeze_frame_dtc",   "",       0,     0,
+           lambda v: f"{v[0]:02X}{v[1]:02X}" if len(v) >= 2 else ""),
+    0x03: ("fuel_system_status", "",       0,     255,
+           lambda v: f"B1:{v[0]:02X} B2:{v[1]:02X}" if len(v) >= 2 else f"{v[0]:02X}"),
+    # ─────────────────────────────────────────────────────────────────────────
     0x04: ("engine_load",        "%",      0,     100,    lambda v: v[0] * 100 / 255),
     0x05: ("coolant_temp",       "C",      -40,   215,    lambda v: v[0] - 40),
     0x06: ("fuel_trim_st_b1",    "%",      -100,  99.2,   lambda v: (v[0] - 128) * 100 / 128),
@@ -43,7 +49,13 @@ PID_TABLE: dict[int, tuple] = {
     0x15: ("o2_b1s2_v",          "V",      0,     1.275,  lambda v: v[0] / 200),
     0x16: ("o2_b2s1_v",          "V",      0,     1.275,  lambda v: v[0] / 200),
     0x17: ("o2_b2s2_v",          "V",      0,     1.275,  lambda v: v[0] / 200),
+    0x18: ("o2_b2s3_v",          "V",      0,     1.275,  lambda v: v[0] / 200),
+    0x19: ("o2_b2s4_v",          "V",      0,     1.275,  lambda v: v[0] / 200),
+    0x1A: ("o2_b3s1_v",          "V",      0,     1.275,  lambda v: v[0] / 200),
+    0x1B: ("o2_b3s2_v",          "V",      0,     1.275,  lambda v: v[0] / 200),
     0x1C: ("obd_standard",       "",       0,     255,    lambda v: v[0]),
+    0x1D: ("o2_sensors_4bank",   "",       0,     255,    lambda v: v[0]),
+    0x1E: ("aux_input_status",   "",       0,     1,      lambda v: v[0] & 0x01),
     0x1F: ("runtime",            "s",      0,     65535,  lambda v: (v[0] * 256) + v[1]),
     0x20: ("pids_supported_21",  "",       0,     0,      lambda v: v),  # bitmask
     0x21: ("mil_distance",       "km",     0,     65535,  lambda v: (v[0] * 256) + v[1]),
@@ -54,6 +66,10 @@ PID_TABLE: dict[int, tuple] = {
     0x25: ("o2_wb_b1s2_eq",      "",       0,     2,      lambda v: (v[0] * 256 + v[1]) / 32768),
     0x26: ("o2_wb_b2s1_eq",      "",       0,     2,      lambda v: (v[0] * 256 + v[1]) / 32768),
     0x27: ("o2_wb_b2s2_eq",      "",       0,     2,      lambda v: (v[0] * 256 + v[1]) / 32768),
+    0x28: ("o2_wb_b3s1_eq",      "",       0,     2,      lambda v: (v[0] * 256 + v[1]) / 32768),
+    0x29: ("o2_wb_b3s2_eq",      "",       0,     2,      lambda v: (v[0] * 256 + v[1]) / 32768),
+    0x2A: ("o2_wb_b4s1_eq",      "",       0,     2,      lambda v: (v[0] * 256 + v[1]) / 32768),
+    0x2B: ("o2_wb_b4s2_eq",      "",       0,     2,      lambda v: (v[0] * 256 + v[1]) / 32768),
     0x2C: ("egr_cmd",            "%",      0,     100,    lambda v: v[0] * 100 / 255),
     0x2D: ("egr_error",          "%",      -100,  99.2,   lambda v: (v[0] - 128) * 100 / 128),
     0x2E: ("evap_purge",         "%",      0,     100,    lambda v: v[0] * 100 / 255),
@@ -67,6 +83,10 @@ PID_TABLE: dict[int, tuple] = {
     0x35: ("o2_wb_b1s2_cur",     "mA",     -128,  128,    lambda v: (v[2] * 256 + v[3]) / 256 - 128),
     0x36: ("o2_wb_b2s1_cur",     "mA",     -128,  128,    lambda v: (v[2] * 256 + v[3]) / 256 - 128),
     0x37: ("o2_wb_b2s2_cur",     "mA",     -128,  128,    lambda v: (v[2] * 256 + v[3]) / 256 - 128),
+    0x38: ("o2_wb_b3s1_cur",     "mA",     -128,  128,    lambda v: (v[2] * 256 + v[3]) / 256 - 128),
+    0x39: ("o2_wb_b3s2_cur",     "mA",     -128,  128,    lambda v: (v[2] * 256 + v[3]) / 256 - 128),
+    0x3A: ("o2_wb_b4s1_cur",     "mA",     -128,  128,    lambda v: (v[2] * 256 + v[3]) / 256 - 128),
+    0x3B: ("o2_wb_b4s2_cur",     "mA",     -128,  128,    lambda v: (v[2] * 256 + v[3]) / 256 - 128),
     # Catalyst temps
     0x3C: ("catalyst_temp_b1s1", "C",      -40,   6513,   lambda v: ((v[0] * 256) + v[1]) / 10 - 40),
     0x3D: ("catalyst_temp_b2s1", "C",      -40,   6513,   lambda v: ((v[0] * 256) + v[1]) / 10 - 40),
@@ -604,11 +624,15 @@ class ELM327Protocol(AbstractProtocol):
         self._connected = False
 
     def send_raw(self, data: bytes, timeout: float = 5.0) -> bytes:
+        if self._serial is None:
+            raise RuntimeError("No conectado. Llama connect() primero.")
         self._serial.timeout = timeout
         self._serial.write(data + b"\r")
         return self._read_response()
 
     def _send_command(self, cmd: str, delay: float = 0.1) -> str:
+        if self._serial is None:
+            raise RuntimeError("No conectado. Llama connect() primero.")
         self._serial.reset_input_buffer()
         self._serial.write((cmd + "\r").encode())
         time.sleep(delay)
@@ -619,6 +643,8 @@ class ELM327Protocol(AbstractProtocol):
         return raw.decode("ascii", errors="ignore").strip()
 
     def _read_response(self) -> bytes:
+        if self._serial is None:
+            raise RuntimeError("No conectado. Llama connect() primero.")
         buf = b""
         deadline = time.time() + 5.0
         while time.time() < deadline:
@@ -838,3 +864,350 @@ class ELM327Protocol(AbstractProtocol):
     def full_scan(self) -> dict:
         """Escaneo completo: PIDs soportados + monitor status + freeze frame."""
         return full_vehicle_scan(self)
+
+
+# =============================================================================
+# Funciones integradas de extracted_group2.py
+# Fuentes: kotlin-obd-api (eltonvs), MacFJA/OBD2, begaz/OBDII
+# =============================================================================
+
+# -- Limpieza y detección de errores ELM327 -----------------------------------
+
+_EG2_WHITESPACE_RE   = re.compile(r"\s")
+_EG2_BUS_INIT_RE     = re.compile(r"(BUS INIT)|BUSINIT|\.")
+_EG2_SEARCHING_RE    = re.compile(r"SEARCHING")
+_EG2_CARRIAGE_RE     = re.compile(r"[\r\n]")
+_EG2_COLON_RE        = re.compile(r":")
+_EG2_NEG_RESP_RE     = re.compile(r"7F\s*0[0-9A-Fa-f]\s*1[12]", re.IGNORECASE)
+
+_EG2_ELM_ERROR_PATTERNS = (
+    "BUS INIT... ERROR", "UNABLE TO CONNECT", "NO DATA",
+    "STOPPED", "ERROR", "?",
+)
+
+
+def detect_elm327_error(raw: str) -> Optional[str]:
+    """
+    Detecta si la respuesta ELM327 contiene un error conocido.
+    Devuelve el tipo de error como string, o None si la respuesta es válida.
+    Fuente: kotlin-obd-api RegexPatterns.kt + Exceptions.kt
+    """
+    upper = raw.upper().strip()
+    if _EG2_NEG_RESP_RE.search(upper):
+        return "NEGATIVE_RESPONSE"  # 7F 0x 11/12 — servicio no soportado
+    for pat in _EG2_ELM_ERROR_PATTERNS:
+        if pat in upper:
+            return pat.replace("...", "").strip().replace(" ", "_")
+    return None
+
+
+def clean_elm327_response(raw: str) -> str:
+    """
+    Pipeline de limpieza de respuesta ELM327 en 5 pasos (orden importa).
+    Fuente: kotlin-obd-api Response.kt → valueProcessorPipeline
+            begaz/OBDII obd2_plugin.dart → setOnDataReceived
+    """
+    s = _EG2_WHITESPACE_RE.sub("", raw)
+    s = _EG2_BUS_INIT_RE.sub("", s)
+    s = _EG2_SEARCHING_RE.sub("", s)
+    s = _EG2_COLON_RE.sub("", s)
+    s = _EG2_CARRIAGE_RE.sub("", s)
+    s = s.replace(">", "")   # prompt ELM327
+    return s.upper()
+
+
+def raw_to_int_list(cleaned: str) -> list[int]:
+    """
+    Convierte string hexadecimal limpio a lista de ints.
+    Fuente: kotlin-obd-api Response.kt → bufferedValue
+    """
+    try:
+        return [int(cleaned[i:i+2], 16) for i in range(0, len(cleaned) - 1, 2)]
+    except ValueError:
+        return []
+
+
+# -- VIN Parser robusto -------------------------------------------------------
+
+_EG2_NON_PRINTABLE_RE   = re.compile(r"[\x00-\x1f]")
+_EG2_STARTS_ALPHANUM_RE = re.compile(r"[^a-z0-9 ]", re.IGNORECASE)
+_VIN_CAN_PREFIX_LEN     = 9
+
+
+def _hex_to_ascii_vin(hex_str: str) -> str:
+    """Convierte string hexadecimal a ASCII ignorando chars no imprimibles."""
+    try:
+        result = "".join(
+            chr(int(hex_str[i:i+2], 16)) for i in range(0, len(hex_str) - 1, 2)
+        )
+        return _EG2_NON_PRINTABLE_RE.sub("", result)
+    except (ValueError, IndexError):
+        return ""
+
+
+def parse_vin_robust(raw_response: str) -> str:
+    """
+    Parser VIN robusto con soporte dual-protocolo (CAN + ISO9141/KWP2000).
+    Maneja tanto one-frame como multi-frame con separadores ':'.
+    Fuente: kotlin-obd-api VINCommand.parseVIN()
+    """
+    clean = _EG2_WHITESPACE_RE.sub("", raw_response.upper())
+    clean_with_colons = raw_response.upper()
+    if ":" in raw_response:
+        no_colon = re.sub(r"[\r\n].:", "", clean_with_colons)
+        no_colon = _EG2_WHITESPACE_RE.sub("", no_colon)
+        payload = no_colon[_VIN_CAN_PREFIX_LEN:]
+        decoded_test = _hex_to_ascii_vin(payload)
+        if _EG2_STARTS_ALPHANUM_RE.search(decoded_test):
+            alt = re.sub(r"0:49", "", clean_with_colons)
+            alt = re.sub(r"[\r\n].:", "", alt)
+            payload = _EG2_WHITESPACE_RE.sub("", alt)
+    else:
+        payload = re.sub(r"49020.", "", clean)
+    vin = _hex_to_ascii_vin(payload).strip()
+    return vin if len(vin) >= 8 else ""
+
+
+# -- Cálculo de MAF y consumo desde física ------------------------------------
+
+_MAF_VOL_EFF_DEFAULT  = 0.85    # eficiencia volumétrica típica
+_MAF_MOLAR_MASS_AIR   = 28.97   # g/mol masa molar del aire
+_MAF_AIR_DENSITY      = 1.293   # kg/m³ al nivel del mar
+_MAF_GAS_CONSTANT     = 8.314   # J/(mol·K)
+_MAF_STOICH_AFR       = 14.7    # relación aire-combustible estequiométrica gasolina
+_MAF_FUEL_DENSITY_GL  = 0.820   # kg/L gasolina (~820 g/L)
+
+
+def maf_from_physics(
+    rpm: float,
+    map_kpa: float,
+    iat_celsius: float,
+    vol_eff: float = _MAF_VOL_EFF_DEFAULT,
+) -> float:
+    """
+    Calcula MAF estimado (g/s) desde RPM, MAP e IAT usando modelo físico.
+    Útil para detectar fallas del sensor MAF o para sistemas sin sensor MAF.
+    Fuente: begaz/OBDII obd2_plugin.dart fMaf()
+    """
+    if rpm <= 0 or map_kpa <= 0:
+        return 0.0
+    iat_k  = iat_celsius + 273.15
+    imap   = (rpm / 60.0) * (map_kpa / iat_k / 2.0)
+    maf_gs = imap * vol_eff * _MAF_MOLAR_MASS_AIR * _MAF_AIR_DENSITY / _MAF_GAS_CONSTANT
+    return round(maf_gs, 3)
+
+
+def fuel_rate_from_physics(
+    rpm: float,
+    map_kpa: float,
+    iat_celsius: float,
+    vol_eff: float = _MAF_VOL_EFF_DEFAULT,
+    afr: float = _MAF_STOICH_AFR,
+) -> float:
+    """
+    Calcula consumo de combustible estimado (L/h) desde RPM, MAP e IAT.
+    Asume combustión estequiométrica (lambda=1). Fuente: begaz/OBDII fFuel()
+    """
+    maf = maf_from_physics(rpm, map_kpa, iat_celsius, vol_eff)
+    if maf <= 0:
+        return 0.0
+    fuel_lh = (maf / afr * 3600.0) / (_MAF_FUEL_DENSITY_GL * 1000.0)
+    return round(fuel_lh, 3)
+
+
+def maf_deviation_pct(maf_measured: float, maf_estimated: float) -> float:
+    """
+    Desviación porcentual entre MAF medido por sensor y MAF estimado desde física.
+    Una desviación >20% puede indicar falla en sensor MAF, MAP o IAT.
+    """
+    if maf_estimated <= 0:
+        return 0.0
+    return round((maf_measured - maf_estimated) / maf_estimated * 100.0, 1)
+
+
+# -- Parser genérico de frames ELM327 -----------------------------------------
+
+def parse_elm327_frame(raw_response: str, mode_pid_hex: str) -> list[str]:
+    """
+    Extrae los bytes de datos de una respuesta ELM327 eliminando el eco de comando.
+    Funciona para cualquier modo (01, 02, 03, 09...).
+    Fuente: begaz/OBDII obd2_plugin.dart _calculateParameterFrames()
+    """
+    response  = raw_response.replace(" ", "").upper()
+    mode_pid  = mode_pid_hex.replace(" ", "").upper()
+    if response in ("NODATA", "NO DATA", ""):
+        return []
+    mode_first  = int(mode_pid[0], 16)
+    resp_prefix = f"{mode_first + 4:X}{mode_pid[1:]}"
+    parts       = response.split(resp_prefix)
+    payload     = "".join(parts[1:]) if len(parts) > 1 else ""
+    return [payload[i:i+2] for i in range(0, len(payload) - 1, 2)
+            if len(payload[i:i+2]) == 2]
+
+
+# -- Freeze Frame helpers -----------------------------------------------------
+
+def build_freeze_frame_command(mode01_pid_hex: str) -> str:
+    """
+    Genera el comando Mode 02 (freeze frame) equivalente a cualquier PID Mode 01.
+    Fuente: MacFJA/OBD2 FrozeCommand.java → getRequest()
+    """
+    pid = mode01_pid_hex.upper().strip()
+    if pid == "01":
+        raise ValueError("PID 01 (monitor status) no disponible en Mode 02 (freeze frame)")
+    return f"02{pid}"
+
+
+def get_freeze_frame_dtc(raw_bytes: list[int]) -> str:
+    """
+    Decodifica el DTC que causó el freeze frame (responde Mode 02 PID 0x02).
+    Fuente: MacFJA/OBD2 FreezeDiagnosticTroubleCode
+    """
+    if len(raw_bytes) < 2:
+        return ""
+    chunk = f"{raw_bytes[0]:02X}{raw_bytes[1]:02X}"
+    b1     = int(chunk[0], 16)
+    letter = DTC_LETTERS[(b1 >> 2) & 0x03]
+    digit2 = format(b1 & 0x03, "X")
+    rest   = chunk[1:4].upper()
+    code   = f"{letter}{digit2}{rest}".ljust(5, "0")[:5]
+    return code if code != "P0000" else ""
+
+
+# -- ReadinessStatus: Monitor Status completo (spark vs compression) ----------
+
+@dataclass
+class PerMonitorStatus:
+    """
+    Estado de un monitor individual: disponible + completo.
+    Fuente: kotlin-obd-api Monitor.kt (MonitorStatus renombrado para evitar conflicto)
+    """
+    available: bool
+    complete:  bool
+
+    def __str__(self) -> str:
+        if not self.available:
+            return "N/A"
+        return "COMPLETE" if self.complete else "INCOMPLETE"
+
+
+@dataclass
+class ReadinessStatus:
+    """
+    Estado completo de readiness monitors decodificado de PID 0x01 ó 0x41.
+    Más detallado que MonitorStatus — distingue motores gasolina vs diesel.
+    Fuente: kotlin-obd-api Monitor.kt y Enums.kt
+    """
+    mil_on:    bool = False
+    dtc_count: int  = 0
+    is_spark_ignition: bool = True   # True = gasolina, False = diesel
+
+    # Monitores comunes (ambos tipos de motor)
+    misfire:            PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    fuel_system:        PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    comprehensive_comp: PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+
+    # Monitores encendido por chispa (gasolina)
+    catalyst:           PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    heated_catalyst:    PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    evap_system:        PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    secondary_air:      PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    ac_refrigerant:     PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    o2_sensor:          PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    o2_sensor_heater:   PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    egr_vvt:            PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+
+    # Monitores compresión (diesel)
+    nmhc_catalyst:      PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    nox_scr:            PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    boost_pressure:     PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    exhaust_gas_sensor: PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+    pm_filter:          PerMonitorStatus = field(default_factory=lambda: PerMonitorStatus(False, False))
+
+    def to_dict(self) -> dict:
+        d: dict = {
+            "mil_on":    self.mil_on,
+            "dtc_count": self.dtc_count,
+            "engine_type": "SPARK" if self.is_spark_ignition else "COMPRESSION",
+            "misfire":            str(self.misfire),
+            "fuel_system":        str(self.fuel_system),
+            "comprehensive_comp": str(self.comprehensive_comp),
+        }
+        if self.is_spark_ignition:
+            d.update({
+                "catalyst":         str(self.catalyst),
+                "heated_catalyst":  str(self.heated_catalyst),
+                "evap_system":      str(self.evap_system),
+                "secondary_air":    str(self.secondary_air),
+                "ac_refrigerant":   str(self.ac_refrigerant),
+                "o2_sensor":        str(self.o2_sensor),
+                "o2_sensor_heater": str(self.o2_sensor_heater),
+                "egr_vvt":          str(self.egr_vvt),
+            })
+        else:
+            d.update({
+                "nmhc_catalyst":      str(self.nmhc_catalyst),
+                "nox_scr":            str(self.nox_scr),
+                "boost_pressure":     str(self.boost_pressure),
+                "exhaust_gas_sensor": str(self.exhaust_gas_sensor),
+                "pm_filter":          str(self.pm_filter),
+                "egr_vvt":            str(self.egr_vvt),
+            })
+        return d
+
+    def all_complete(self) -> bool:
+        """True si todos los monitores soportados están completos."""
+        monitors = [self.misfire, self.fuel_system, self.comprehensive_comp]
+        if self.is_spark_ignition:
+            monitors += [self.catalyst, self.heated_catalyst, self.evap_system,
+                         self.secondary_air, self.ac_refrigerant, self.o2_sensor,
+                         self.o2_sensor_heater, self.egr_vvt]
+        else:
+            monitors += [self.nmhc_catalyst, self.nox_scr, self.boost_pressure,
+                         self.exhaust_gas_sensor, self.pm_filter, self.egr_vvt]
+        return all(not m.available or m.complete for m in monitors)
+
+
+def decode_monitor_status(raw_bytes: list[int]) -> ReadinessStatus:
+    """
+    Decodifica PID 0x01 ó 0x41 con detalle completo (spark vs compression).
+    Más completo que parse_monitor_status() — devuelve ReadinessStatus.
+    Acepta 4 bytes de datos (sin el echo 41 01).
+    Fuente: kotlin-obd-api Monitor.kt → parseData()
+    """
+    if len(raw_bytes) < 4:
+        return ReadinessStatus()
+
+    b0, b1, b2, b3 = raw_bytes[:4]
+    mil_on   = bool(b0 & 0x80)
+    dtc_cnt  = b0 & 0x7F
+    is_spark = not bool((b1 >> 3) & 0x01)  # bit 3 = 0 → spark ignition
+
+    misfire_s = PerMonitorStatus(bool((b1 >> 5) & 1), not bool((b1 >> 2) & 1))
+    fuel_s    = PerMonitorStatus(bool((b1 >> 6) & 1), not bool((b1 >> 1) & 1))
+    comp_s    = PerMonitorStatus(bool((b1 >> 7) & 1), not bool(b1 & 1))
+
+    def _avail(bit: int) -> bool: return bool((b2 >> (7 - bit)) & 1)
+    def _cmplt(bit: int) -> bool: return not bool((b3 >> (7 - bit)) & 1)
+
+    rs = ReadinessStatus(
+        mil_on=mil_on, dtc_count=dtc_cnt, is_spark_ignition=is_spark,
+        misfire=misfire_s, fuel_system=fuel_s, comprehensive_comp=comp_s,
+    )
+    if is_spark:
+        rs.catalyst         = PerMonitorStatus(_avail(0), _cmplt(0))
+        rs.heated_catalyst  = PerMonitorStatus(_avail(1), _cmplt(1))
+        rs.evap_system      = PerMonitorStatus(_avail(2), _cmplt(2))
+        rs.secondary_air    = PerMonitorStatus(_avail(3), _cmplt(3))
+        rs.ac_refrigerant   = PerMonitorStatus(_avail(4), _cmplt(4))
+        rs.o2_sensor        = PerMonitorStatus(_avail(5), _cmplt(5))
+        rs.o2_sensor_heater = PerMonitorStatus(_avail(6), _cmplt(6))
+        rs.egr_vvt          = PerMonitorStatus(_avail(7), _cmplt(7))
+    else:
+        rs.nmhc_catalyst      = PerMonitorStatus(_avail(0), _cmplt(0))
+        rs.nox_scr            = PerMonitorStatus(_avail(1), _cmplt(1))
+        rs.boost_pressure     = PerMonitorStatus(_avail(3), _cmplt(3))
+        rs.exhaust_gas_sensor = PerMonitorStatus(_avail(5), _cmplt(5))
+        rs.pm_filter          = PerMonitorStatus(_avail(6), _cmplt(6))
+        rs.egr_vvt            = PerMonitorStatus(_avail(7), _cmplt(7))
+    return rs

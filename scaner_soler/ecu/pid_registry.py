@@ -3,11 +3,47 @@ Registro completo de comandos OBD-II con fórmulas de conversión.
 
 Integrado de: kotlin-obd-api (eltonvs), python-OBD (barracuda-fsh/pyobd),
 shchers/ecu-simulator, rzetterberg/elmobd.
+extracted_group2.py (kotlin-obd-api, MacFJA/OBD2, begaz/OBDII).
 
 Cada entrada: (nombre, modo, pid_hex, unidad, bytes_respuesta, formula)
 La formula recibe list[int] de bytes raw y devuelve el valor decodificado.
 """
 from __future__ import annotations
+
+# ── Helpers integrados desde extracted_group2.py ────────────────────────────
+
+def _signed16(msb: int, lsb: int) -> int:
+    """Convierte 2 bytes a entero con signo (complemento a 2)."""
+    val = (msb << 8) | lsb
+    return val - 65536 if val >= 32768 else val
+
+
+_SEC_AIR_STATUS = {
+    0x01: "UPSTREAM",
+    0x02: "DOWNSTREAM_CATALYST",
+    0x04: "ATMOSPHERE_OFF",
+    0x08: "PUMP_COMMANDED_ON",
+}
+
+_OBD_STANDARD = {
+    0x01: "OBD-II (CARB)",        0x02: "OBD (EPA)",
+    0x03: "OBD and OBD-II",       0x04: "OBD-I",
+    0x05: "Not OBD compliant",    0x06: "EOBD (Europe)",
+    0x07: "EOBD and OBD-II",      0x08: "EOBD and OBD",
+    0x09: "EOBD, OBD and OBD-II", 0x0A: "JOBD (Japan)",
+    0x0B: "JOBD and OBD-II",      0x0C: "JOBD and EOBD",
+    0x0D: "JOBD, EOBD and OBD-II",
+    0x11: "EMD (Engine Manufacturer Diagnostics)",
+    0x12: "EMD+ (Enhanced EMD)",  0x13: "HD OBD-C (Heavy Duty)",
+    0x14: "HD OBD (Heavy Duty)",  0x15: "WWH OBD (World Wide Harmonized)",
+    0x17: "HD EOBD-I",            0x18: "HD EOBD-II",
+    0x19: "HD EOBD-I N",          0x1A: "HD EOBD-II N",
+    0x1C: "OBD BR1 (Brazil)",     0x1D: "OBD BR2 (Brazil)",
+    0x1E: "KOBD (Korea)",         0x1F: "IOBD-I (India)",
+    0x20: "IOBD-II (India)",      0x21: "HD EOBD-IV",
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
 
 FUEL_TYPE_MAP = {
     0x01: "Gasoline",         0x02: "Methanol",
@@ -83,16 +119,136 @@ OBD_COMMANDS: dict[int, tuple] = {
     0x6D: ("oil_pressure",         "01", "6D", "kPa",  5, lambda b: b[2]),
     # Modo extendido (ISO 15765 extended PIDs)
     0xA6: ("odometer",             "01", "A6", "km",   4, lambda b: (b[0]<<24|b[1]<<16|b[2]<<8|b[3]) / 10),
+
+    # ── PIDs integrados desde extracted_group2.py ────────────────────────────
+    # Fuentes: kotlin-obd-api, MacFJA/OBD2, begaz/OBDII
+    # PID 0x02: DTC que causó el freeze frame (Mode 02 PID 0x02 reporta esto)
+    0x02: ("freeze_dtc",            "01", "02", "",    2,
+           lambda b: f"{b[0]:02X}{b[1]:02X}" if len(b) >= 2 else ""),
+    # PID 0x03: Estado del sistema de combustible (banco 1 y banco 2)
+    0x03: ("fuel_system_status",    "01", "03", "",    2,
+           lambda b: f"B1:{b[0]:02X} B2:{b[1]:02X}" if len(b) >= 2 else f"{b[0]:02X}"),
+    # PID 0x12: Estado del aire secundario
+    0x12: ("sec_air_status",        "01", "12", "",    1,
+           lambda b: _SEC_AIR_STATUS.get(b[0], f"0x{b[0]:02X}")),
+    # PID 0x13: Sensores O2 presentes (configuración 2 bancos)
+    0x13: ("o2_sensors_2bank",      "01", "13", "",    1,
+           lambda b: b[0]),
+    # PIDs 0x18-0x1B: Voltaje O2 — sensores adicionales banco 2 y banco 3
+    0x18: ("o2_b2s3_v",             "01", "18", "V",   2,
+           lambda b: round(b[0] / 200, 3)),
+    0x19: ("o2_b2s4_v",             "01", "19", "V",   2,
+           lambda b: round(b[0] / 200, 3)),
+    0x1A: ("o2_b3s1_v",             "01", "1A", "V",   2,
+           lambda b: round(b[0] / 200, 3)),
+    0x1B: ("o2_b3s2_v",             "01", "1B", "V",   2,
+           lambda b: round(b[0] / 200, 3)),
+    # PID 0x1C: Estándar OBD de conformidad del vehículo
+    0x1C: ("obd_standard",          "01", "1C", "",    1,
+           lambda b: _OBD_STANDARD.get(b[0], f"OBD-{b[0]}")),
+    # PID 0x1D: Sensores O2 presentes (configuración 4 bancos)
+    0x1D: ("o2_sensors_4bank",      "01", "1D", "",    1,
+           lambda b: b[0]),
+    # PID 0x1E: Estado de la entrada auxiliar (PTO activo/inactivo)
+    0x1E: ("aux_input_status",      "01", "1E", "",    1,
+           lambda b: "PTO_ACTIVE" if b[0] & 0x01 else "PTO_INACTIVE"),
+    # PIDs 0x24-0x2B: Wideband O2 — Equivalence Ratio (todos los bancos/sensores)
+    0x24: ("o2_wb_b1s1_ratio",      "01", "24", "",    4,
+           lambda b: round((b[0]*256+b[1]) * 2/65536, 4)),
+    0x25: ("o2_wb_b1s2_ratio",      "01", "25", "",    4,
+           lambda b: round((b[0]*256+b[1]) * 2/65536, 4)),
+    0x26: ("o2_wb_b2s1_ratio",      "01", "26", "",    4,
+           lambda b: round((b[0]*256+b[1]) * 2/65536, 4)),
+    0x27: ("o2_wb_b2s2_ratio",      "01", "27", "",    4,
+           lambda b: round((b[0]*256+b[1]) * 2/65536, 4)),
+    0x28: ("o2_wb_b3s1_ratio",      "01", "28", "",    4,
+           lambda b: round((b[0]*256+b[1]) * 2/65536, 4)),
+    0x29: ("o2_wb_b3s2_ratio",      "01", "29", "",    4,
+           lambda b: round((b[0]*256+b[1]) * 2/65536, 4)),
+    0x2A: ("o2_wb_b4s1_ratio",      "01", "2A", "",    4,
+           lambda b: round((b[0]*256+b[1]) * 2/65536, 4)),
+    0x2B: ("o2_wb_b4s2_ratio",      "01", "2B", "",    4,
+           lambda b: round((b[0]*256+b[1]) * 2/65536, 4)),
+    # PID 0x32: Evap System Vapor Pressure con signo (Pa)
+    0x32: ("evap_vapor_pres_signed","01", "32", "Pa",  2,
+           lambda b: round(_signed16(b[0], b[1]) / 4, 2)),
+    # PID 0x34: Wideband O2 B1S1 con corriente (mA) — precede a 0x35-0x3B
+    0x34: ("o2_wb_b1s1_curr",       "01", "34", "mA",  4,
+           lambda b: round((b[2]*256+b[3]) / 256 - 128, 3)),
+    # PIDs 0x35-0x3B: Wideband O2 con corriente — todos los bancos/sensores
+    0x35: ("o2_wb_b1s2_curr",       "01", "35", "mA",  4,
+           lambda b: round((b[2]*256+b[3]) / 256 - 128, 3)),
+    0x36: ("o2_wb_b2s1_curr",       "01", "36", "mA",  4,
+           lambda b: round((b[2]*256+b[3]) / 256 - 128, 3)),
+    0x37: ("o2_wb_b2s2_curr",       "01", "37", "mA",  4,
+           lambda b: round((b[2]*256+b[3]) / 256 - 128, 3)),
+    0x38: ("o2_wb_b3s1_curr",       "01", "38", "mA",  4,
+           lambda b: round((b[2]*256+b[3]) / 256 - 128, 3)),
+    0x39: ("o2_wb_b3s2_curr",       "01", "39", "mA",  4,
+           lambda b: round((b[2]*256+b[3]) / 256 - 128, 3)),
+    0x3A: ("o2_wb_b4s1_curr",       "01", "3A", "mA",  4,
+           lambda b: round((b[2]*256+b[3]) / 256 - 128, 3)),
+    0x3B: ("o2_wb_b4s2_curr",       "01", "3B", "mA",  4,
+           lambda b: round((b[2]*256+b[3]) / 256 - 128, 3)),
+    # PID 0x41: Monitor Status Ciclo de Conducción Actual (raw — usar decode_monitor_status)
+    0x41: ("monitor_status_drv",    "01", "41", "",    4,
+           lambda b: b),
+    # PID 0x48: Posición Acelerador C (absoluta)
+    0x48: ("throttle_pos_c",        "01", "48", "%",   1,
+           lambda b: round(b[0] * 100 / 255, 2)),
+    # PID 0x4C: Actuador de Acelerador Comandado
+    0x4C: ("throttle_actuator",     "01", "4C", "%",   1,
+           lambda b: round(b[0] * 100 / 255, 2)),
+    # PID 0x4F: Valores máximos de equivalencia, O2 voltaje, corriente y MAP
+    0x4F: ("max_values",            "01", "4F", "",    4,
+           lambda b: {"max_equiv_ratio": b[0], "max_o2_v": b[1],
+                      "max_o2_ma": b[2], "max_map_kpa": b[3] * 10}),
+    # PID 0x50: MAF máximo soportado por el sensor
+    0x50: ("max_maf",               "01", "50", "g/s", 4,
+           lambda b: b[0] * 10),
+    # PID 0x53: Evap System Vapor Pressure (sin signo)
+    0x53: ("evap_vapor_pres",       "01", "53", "Pa",  2,
+           lambda b: round((b[0]*256+b[1]) / 200, 2)),
+    # PID 0x54: Evap System Vapor Pressure (con signo, versión 2)
+    0x54: ("evap_vapor_pres_b",     "01", "54", "Pa",  2,
+           lambda b: (b[0]*256 + b[1]) - 32767),
+    # PIDs 0x55-0x58: Secondary O2 Sensor Trim (banks 1-4)
+    0x55: ("o2_trim_st_b1b3",       "01", "55", "%",   2,
+           lambda b: [round((b[0]-128)*100/128, 2), round((b[1]-128)*100/128, 2)]),
+    0x56: ("o2_trim_lt_b1b3",       "01", "56", "%",   2,
+           lambda b: [round((b[0]-128)*100/128, 2), round((b[1]-128)*100/128, 2)]),
+    0x57: ("o2_trim_st_b2b4",       "01", "57", "%",   2,
+           lambda b: [round((b[0]-128)*100/128, 2), round((b[1]-128)*100/128, 2)]),
+    0x58: ("o2_trim_lt_b2b4",       "01", "58", "%",   2,
+           lambda b: [round((b[0]-128)*100/128, 2), round((b[1]-128)*100/128, 2)]),
+    # PID 0x59: Fuel Rail Absolute Pressure
+    0x59: ("fuel_rail_abs_pres",    "01", "59", "kPa", 2,
+           lambda b: (b[0]*256 + b[1]) * 10),
+    # PID 0x5A: Posición Acelerador Relativa
+    0x5A: ("accel_rel",             "01", "5A", "%",   1,
+           lambda b: round(b[0] * 100 / 255, 2)),
+    # PID 0x5B: Vida útil restante de la batería híbrida
+    0x5B: ("hybrid_batt_life",      "01", "5B", "%",   1,
+           lambda b: round(b[0] * 100 / 255, 2)),
 }
 
 # ── Modo 09 — Información del vehículo ──────────────────────────────────────
 VEHICLE_INFO_PIDS: dict[int, tuple] = {
+    # PID 0x01: VIN Message Count (sólo ISO9141/KWP2000, previo al VIN real)
+    0x01: ("vin_msg_count",    "09", "01", "",   1,
+           lambda b: b[0]),
     0x02: ("vin",              "09", "02", "",  20,
            lambda b: bytes(b).decode("ascii", errors="ignore").strip('\x00').strip()),
     0x04: ("calibration_id",   "09", "04", "",  16,
            lambda b: bytes(b).decode("ascii", errors="ignore").strip('\x00').strip()),
     0x06: ("cvn",              "09", "06", "",   4,
            lambda b: "".join(f"{x:02X}" for x in b)),
+    # PID 0x08: In-use Performance Tracking (motores gasolina)
+    0x08: ("perf_tracking_spark", "09", "08", "", 4,
+           lambda b: {"ignition_counter": b[0]*256+b[1], "catalyst_monitor": b[2]*256+b[3]}),
+    # PID 0x09: In-use Performance Tracking (motores diesel/compresión)
+    0x09: ("perf_tracking_compression", "09", "09", "", 4,
+           lambda b: {"ignition_counter": b[0]*256+b[1], "nox_monitor": b[2]*256+b[3]}),
     0x0A: ("ecu_name",         "09", "0A", "",  20,
            lambda b: bytes(b).decode("ascii", errors="ignore").strip('\x00').strip()),
 }
@@ -120,4 +276,5 @@ def get_command_str(pid: int, mode: int = 1) -> str:
     return f"{mode:02X}{pid:02X}"
 
 
-ALL_MODE01_PIDS = sorted(OBD_COMMANDS.keys())
+ALL_MODE01_PIDS   = sorted(OBD_COMMANDS.keys())
+ALL_MODE09_PIDS   = sorted(VEHICLE_INFO_PIDS.keys())

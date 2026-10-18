@@ -1,3 +1,12 @@
+# INTEGRADO: contenido útil migrado a elm327.py y pid_registry.py
+# Este archivo se mantiene como referencia de los repos fuente.
+#
+# Resumen de lo integrado (ver git commit):
+#   elm327.py:     16 PIDs nuevos en PID_TABLE + 12 funciones nuevas +
+#                  ReadinessStatus/PerMonitorStatus/decode_monitor_status
+#   pid_registry.py: 40 PIDs nuevos en OBD_COMMANDS + 3 PIDs en VEHICLE_INFO_PIDS
+#                    + helpers _signed16, _SEC_AIR_STATUS, _OBD_STANDARD
+#
 """
 extracted_group2.py — Funciones y PIDs extraídos de 4 repos OBD-II (Grupo 2)
 =============================================================================
