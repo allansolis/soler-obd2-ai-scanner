@@ -34,6 +34,8 @@ except ImportError:
     _REQUESTS_OK = False
 
 from scaner_soler.diagnostic.dtc_database import DTCDatabase
+from scaner_soler.ev.dtc_ev_codes import classify_ev_dtc, is_ev_dtc
+from scaner_soler.ev.ev_pid_registry import EV_UDS_PIDS, EV_MODE01_PIDS, EV_BRANDS
 
 _DB_PATH = Path(__file__).parent.parent / "database" / "dtc_codes.db"
 _BACKEND_URL = "http://localhost:8000"
@@ -127,6 +129,20 @@ class UnifiedKnowledgeBase:
             tools_needed, estimated_time_hours, estimated_cost_usd, oem_variants
         """
         code = code.upper().strip()
+
+        # 0 — EV-specific codes: P0Axx, P0Bxx, P0Cxx, B3xxx, fabricante EV
+        if is_ev_dtc(code):
+            ev_entry = classify_ev_dtc(code)
+            if ev_entry is not None:
+                return {
+                    "code":        ev_entry.code,
+                    "description": ev_entry.description,
+                    "system":      ev_entry.system,
+                    "severity":    ev_entry.severity,
+                    "suggested_action": ev_entry.action,
+                    "source":      "ev_module",
+                    "is_ev":       True,
+                }
 
         # 1 — local base lookup
         result: dict[str, Any] = self._dtc_db.lookup(code, make=make)
@@ -339,6 +355,48 @@ class UnifiedKnowledgeBase:
 
         return results
 
+    def lookup_ev_pid(self, brand: str, identifier_hex: str) -> dict:
+        """
+        Busca la definición de un PID UDS EV para una marca concreta.
+
+        Returns:
+            dict con name, unit, description, brand, protocol si existe.
+            dict vacío si no se encuentra.
+        """
+        brand_pids = EV_UDS_PIDS.get(brand, {})
+        key = identifier_hex.upper()
+        if key in brand_pids:
+            name, unit, min_bytes, _ = brand_pids[key]
+            meta = EV_BRANDS.get(brand, {})
+            return {
+                "brand": brand, "identifier": key,
+                "name": name, "unit": unit,
+                "ecu_addr": hex(meta.get("ecu_addr", 0)),
+                "protocol": meta.get("protocol", "ISO15765"),
+                "platform": meta.get("platform", ""),
+                "found": True,
+            }
+        # Fallback: buscar en PIDs Mode 01
+        try:
+            pid_int = int(identifier_hex, 16)
+        except ValueError:
+            return {}
+        if pid_int in EV_MODE01_PIDS:
+            name, mode, pid_hex, unit, *_ = EV_MODE01_PIDS[pid_int]
+            return {
+                "brand": "STANDARD_OBD", "identifier": identifier_hex.upper(),
+                "name": name, "unit": unit,
+                "mode": mode, "found": True,
+            }
+        return {}
+
+    def list_ev_brands(self) -> list[dict]:
+        """Lista todas las marcas EV soportadas con sus metadatos."""
+        return [
+            {"brand": brand, **meta}
+            for brand, meta in EV_BRANDS.items()
+        ]
+
     def stats(self) -> dict:
         """
         Return a summary of all knowledge in the local database.
@@ -359,6 +417,7 @@ class UnifiedKnowledgeBase:
 
             ecu_info = self._dtc_db.ecu_stats()
 
+            ev_pid_count = sum(len(v) for v in EV_UDS_PIDS.values())
             return {
                 "dtc_codes": _count("dtc_codes"),
                 "oem_variants": _count("oem_desc"),
@@ -370,6 +429,11 @@ class UnifiedKnowledgeBase:
                 "tables": sorted(tbls),
                 "ecu_by_make": ecu_info.get("by_make", {}),
                 "backend_available": self._check_backend(),
+                # Módulo EV
+                "ev_brands": len(EV_BRANDS),
+                "ev_uds_pids": ev_pid_count,
+                "ev_mode01_pids": len(EV_MODE01_PIDS),
+                "ev_dtc_codes": sum(1 for _ in EV_UDS_PIDS),  # marcas; DTCs en dtc_ev_codes
             }
 
     def _check_backend(self) -> bool:
