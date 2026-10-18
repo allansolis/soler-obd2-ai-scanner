@@ -816,6 +816,974 @@ def run_demo(fuzz_mode: str = "obd") -> RESessionResult:
     return session.run(fuzz=True, fuzz_mode=fuzz_mode)
 
 
+# ── CANBusScanner ─────────────────────────────────────────────────────────────
+
+@dataclass
+class CANScanResult:
+    """Resultado del escaneo de un ID CAN específico."""
+    can_id: int           # Arbitration ID
+    frame_count: int      # Frames capturados
+    dlc_common: int       # DLC más frecuente
+    byte_pattern: str     # "static" | "dynamic" | "counter" | "mixed"
+    entropy: float
+    sample_frames: list   # Hasta 5 frames hex de muestra
+    first_seen: float
+    last_seen: float
+
+
+class CANBusScanner:
+    """
+    Escanea CAN bus para encontrar IDs activos, patrones de tráfico y señales candidatas.
+    En hardware real usa python-can. En demo usa tráfico simulado.
+    """
+
+    def __init__(self, send_fn: Callable[[str], str],
+                 journal: Optional[FieldJournal] = None):
+        self._send = send_fn
+        self.journal = journal or FieldJournal()
+        self._results: list[CANScanResult] = []
+
+    def scan_traffic(self, duration_s: float = 10.0,
+                     callback: Optional[Callable[[str], None]] = None
+                     ) -> list[CANScanResult]:
+        """
+        Escucha tráfico CAN durante duration_s segundos.
+        Demo: simula 20-40 IDs activos con patrones realistas.
+          - 0x7E8/0x7E9: respuestas ECU OBD, patrón dynamic
+          - 0x100-0x120: chassis (velocidad, RPM, temp), patrón counter/dynamic
+          - 0x200-0x210: carrocería (puertas, luces), patrón static
+          - 0x300-0x310: ABS/ESP, patrón dynamic
+          - 0x400-0x405: otros módulos, patrón mixed
+        """
+        rng = random.Random(42)
+        t0 = time.time()
+
+        # (id_start, id_end, count, dlc, pattern)
+        id_groups = [
+            (0x7E8, 0x7E9, 2, 8, "dynamic"),
+            (0x100, 0x120, 8, 8, "counter"),
+            (0x200, 0x210, 6, 3, "static"),
+            (0x300, 0x310, 6, 8, "dynamic"),
+            (0x400, 0x405, 3, 4, "mixed"),
+        ]
+
+        raw_ids: dict[int, list[str]] = {}
+        raw_ts: dict[int, list[float]] = {}
+
+        for id_start, id_end, count, dlc, pattern in id_groups:
+            pool = list(range(id_start, id_end + 1))
+            selected = rng.sample(pool, min(count, len(pool)))
+            for can_id in selected:
+                frames: list[str] = []
+                timestamps: list[float] = []
+                n_frames = rng.randint(30, 80)
+                counter_byte = rng.randint(0, 15)
+                base_bytes = [rng.randint(0, 255) for _ in range(dlc)]
+                for _ in range(n_frames):
+                    if pattern == "static":
+                        fb = base_bytes[:]
+                    elif pattern == "counter":
+                        fb = [rng.randint(0, 255) for _ in range(dlc)]
+                        fb[0] = counter_byte & 0xFF
+                        counter_byte += 1
+                    elif pattern == "dynamic":
+                        fb = [rng.randint(0, 255) for _ in range(dlc)]
+                    else:  # mixed
+                        fb = [rng.randint(0, 255) for _ in range(dlc)]
+                        fb[-1] = counter_byte & 0xFF
+                        counter_byte += 1
+                    frames.append(" ".join(f"{b:02X}" for b in fb))
+                    timestamps.append(t0 + rng.uniform(0, duration_s))
+                raw_ids[can_id] = frames
+                raw_ts[can_id] = sorted(timestamps)
+
+        results: list[CANScanResult] = []
+        for can_id, frames in raw_ids.items():
+            # Calcular entropía sobre los primeros 10 frames concatenados
+            sample_hex = " ".join(f[:8] for f in frames[:10])
+            entropy = PatternAnalyzer.shannon_entropy(
+                PatternAnalyzer.parse_hex_line(sample_hex)
+            )
+            classified = self.classify_pattern(frames)
+            ts_list = raw_ts[can_id]
+            r = CANScanResult(
+                can_id=can_id,
+                frame_count=len(frames),
+                dlc_common=len(PatternAnalyzer.parse_hex_line(frames[0])),
+                byte_pattern=classified,
+                entropy=round(entropy, 3),
+                sample_frames=frames[:5],
+                first_seen=ts_list[0],
+                last_seen=ts_list[-1],
+            )
+            results.append(r)
+            if callback:
+                callback(f"CAN 0x{can_id:03X}: {classified}, {len(frames)} frames, "
+                         f"entropy={entropy:.2f}")
+            self.journal.log(
+                f"CAN_SCAN 0x{can_id:03X}",
+                frames[0] if frames else "",
+                parsed={"can_id": f"0x{can_id:03X}", "pattern": classified},
+                tags=["CAN_SCAN"],
+            )
+
+        self._results = sorted(results, key=lambda x: x.can_id)
+        return self._results
+
+    def probe_id(self, can_id: int) -> Optional[CANScanResult]:
+        """Envía un frame de diagnóstico al ID y espera respuesta."""
+        cmd = f"TX {can_id:03X} 8 02 01 00 00 00 00 00 00"
+        raw = self._send(cmd)
+        raw_up = raw.upper()
+        if "NO DATA" in raw_up or "ERROR" in raw_up:
+            return None
+        bytes_ = PatternAnalyzer.parse_hex_line(raw)
+        entropy = PatternAnalyzer.shannon_entropy(bytes_)
+        return CANScanResult(
+            can_id=can_id,
+            frame_count=1,
+            dlc_common=len(bytes_),
+            byte_pattern=self.classify_pattern([raw]),
+            entropy=round(entropy, 3),
+            sample_frames=[raw],
+            first_seen=time.time(),
+            last_seen=time.time(),
+        )
+
+    @staticmethod
+    def classify_pattern(frames: list[str]) -> str:
+        """
+        Clasifica el patrón de bytes de una lista de frames hex:
+        - "static":  todos los bytes son iguales entre frames
+        - "counter": un byte incrementa linealmente (+1 por frame)
+        - "dynamic": alta entropía (datos reales cambiantes)
+        - "mixed":   combinación
+        """
+        if len(frames) < 2:
+            return "dynamic"
+        parsed = [PatternAnalyzer.parse_hex_line(f) for f in frames]
+        parsed = [p for p in parsed if p]
+        if not parsed:
+            return "dynamic"
+        first = parsed[0]
+        n_bytes = len(first)
+
+        # static: todos idénticos
+        if all(f == first for f in parsed):
+            return "static"
+
+        # counter: algún byte incrementa +1 consistentemente
+        for byte_idx in range(min(n_bytes, 4)):
+            vals = [f[byte_idx] for f in parsed if len(f) > byte_idx]
+            if len(vals) < 3:
+                continue
+            diffs = [(vals[i + 1] - vals[i]) & 0xFF for i in range(len(vals) - 1)]
+            if len(set(diffs)) == 1 and diffs[0] == 1:
+                return "counter"
+
+        # dynamic vs mixed por entropía
+        all_bytes = [b for f in parsed for b in f]
+        entropy = PatternAnalyzer.shannon_entropy(all_bytes)
+        return "dynamic" if entropy > 5.0 else "mixed"
+
+
+# ── UDSServiceMap ─────────────────────────────────────────────────────────────
+
+_UDS_SERVICES: dict[int, str] = {
+    0x10: "DiagnosticSessionControl",
+    0x11: "ECUReset",
+    0x14: "ClearDiagnosticInformation",
+    0x19: "ReadDTCInformation",
+    0x22: "ReadDataByIdentifier",
+    0x23: "ReadMemoryByAddress",
+    0x24: "ReadScalingDataByIdentifier",
+    0x27: "SecurityAccess",
+    0x28: "CommunicationControl",
+    0x29: "Authentication",
+    0x2A: "ReadDataByPeriodicIdentifier",
+    0x2C: "DynamicallyDefineDataIdentifier",
+    0x2E: "WriteDataByIdentifier",
+    0x2F: "InputOutputControlByIdentifier",
+    0x31: "RoutineControl",
+    0x34: "RequestDownload",
+    0x35: "RequestUpload",
+    0x36: "TransferData",
+    0x37: "RequestTransferExit",
+    0x3D: "WriteMemoryByAddress",
+    0x3E: "TesterPresent",
+    0x83: "AccessTimingParameters",
+    0x84: "SecuredDataTransmission",
+    0x85: "ControlDTCSetting",
+    0x86: "ResponseOnEvent",
+    0x87: "LinkControl",
+}
+
+_NRC_NAMES: dict[int, str] = {
+    0x10: "generalReject",
+    0x11: "serviceNotSupported",
+    0x12: "subFunctionNotSupported",
+    0x13: "incorrectMessageLength",
+    0x21: "busyRepeatRequest",
+    0x22: "conditionsNotCorrect",
+    0x24: "requestSequenceError",
+    0x26: "failurePreventsExecution",
+    0x31: "requestOutOfRange",
+    0x33: "securityAccessDenied",
+    0x35: "invalidKey",
+    0x36: "exceededNumberOfAttempts",
+    0x37: "requiredTimeDelayNotExpired",
+    0x70: "uploadDownloadNotAccepted",
+    0x71: "transferDataSuspended",
+    0x72: "generalProgrammingFailure",
+    0x78: "requestCorrectlyReceivedResponsePending",
+    0x7E: "subFunctionNotSupportedInActiveSession",
+    0x7F: "serviceNotSupportedInActiveSession",
+}
+
+
+@dataclass
+class UDSServiceResult:
+    """Resultado del sondeo de un servicio UDS."""
+    service_id: int
+    service_name: str
+    supported: bool
+    response_code: Optional[str]   # Hex del primer byte de respuesta positiva
+    nrc: Optional[str]             # Negative Response Code si aplica
+    sub_functions: list            # Sub-funciones que respondieron OK
+    risk_level: str                # "safe" | "caution" | "danger"
+
+
+class UDSServiceMap:
+    """
+    Escanea sistemáticamente todos los servicios UDS para construir el mapa
+    de capacidades de la ECU (ISO 14229-1).
+    """
+
+    _RISK: dict[int, str] = {
+        0x10: "safe",    0x11: "caution",  0x14: "caution",  0x19: "safe",
+        0x22: "safe",    0x23: "safe",     0x24: "safe",     0x27: "caution",
+        0x28: "caution", 0x29: "caution",  0x2A: "safe",     0x2C: "caution",
+        0x2E: "caution", 0x2F: "danger",   0x31: "caution",  0x34: "danger",
+        0x35: "danger",  0x36: "danger",   0x37: "danger",   0x3D: "danger",
+        0x3E: "safe",    0x83: "safe",     0x84: "caution",  0x85: "caution",
+        0x86: "caution", 0x87: "caution",
+    }
+    _DANGER_SERVICES: set = {0x34, 0x35, 0x36, 0x2F, 0x3D}
+
+    # Demo: servicios que "soporta" la ECU simulada
+    _DEMO_SUPPORTED = {0x10, 0x19, 0x22, 0x3E}
+    # Demo: servicios que responden con NRC específico (no 0x11)
+    _DEMO_NRC_MAP = {0x27: 0x37}  # SecurityAccess → requiredTimeDelayNotExpired
+
+    def __init__(self, send_fn: Callable[[str], str],
+                 journal: Optional[FieldJournal] = None):
+        self._send = send_fn
+        self.journal = journal or FieldJournal()
+        self._results: list[UDSServiceResult] = []
+
+    def scan_service(self, service_id: int) -> UDSServiceResult:
+        """Prueba un servicio UDS con sub-función 0x01 básico y registra la respuesta."""
+        name = _UDS_SERVICES.get(service_id, f"Unknown_0x{service_id:02X}")
+        risk = self._RISK.get(service_id, "caution")
+        cmd = f"{service_id:02X} 01"
+        raw = self._send(cmd)
+        self.journal.log(cmd, raw,
+                         tags=["UDS_MAP", f"svc_{service_id:02X}"],
+                         protocol_hint="UDS")
+
+        raw_up = raw.upper().replace(" ", "")
+        supported = False
+        response_code: Optional[str] = None
+        nrc: Optional[str] = None
+        sub_functions: list[int] = []
+
+        if any(x in raw_up for x in ("NODATA", "ERROR", "STOPPED", "?")):
+            pass  # no responde
+        elif raw_up.startswith("7F"):
+            try:
+                bytes_ = PatternAnalyzer.parse_hex_line(raw)
+                nrc_byte = bytes_[2] if len(bytes_) >= 3 else 0x11
+                nrc_name = _NRC_NAMES.get(nrc_byte, "unknown")
+                nrc = f"0x{nrc_byte:02X} ({nrc_name})"
+                response_code = "7F"
+                # NRC != serviceNotSupported → ECU conoce el servicio
+                if nrc_byte != 0x11:
+                    supported = True
+            except (ValueError, IndexError):
+                pass
+        else:
+            positive_sid = service_id + 0x40
+            if raw_up.startswith(f"{positive_sid:02X}"):
+                supported = True
+                response_code = f"{positive_sid:02X}"
+                try:
+                    bytes_ = PatternAnalyzer.parse_hex_line(raw)
+                    if len(bytes_) > 1:
+                        sub_functions.append(bytes_[1])
+                except ValueError:
+                    pass
+
+        return UDSServiceResult(
+            service_id=service_id,
+            service_name=name,
+            supported=supported,
+            response_code=response_code,
+            nrc=nrc,
+            sub_functions=sub_functions,
+            risk_level=risk,
+        )
+
+    def scan_all(self, skip_danger: bool = True,
+                 callback: Optional[Callable[[str], None]] = None
+                 ) -> list[UDSServiceResult]:
+        """
+        Escanea todos los servicios UDS definidos en _UDS_SERVICES.
+        skip_danger=True omite 0x34/0x35/0x36/0x2F/0x3D para seguridad.
+        Demo: 0x10/0x19/0x22/0x3E responden positivo; 0x27 NRC 0x37;
+              el resto NRC 0x11 (serviceNotSupported).
+        """
+        results: list[UDSServiceResult] = []
+        for svc_id in sorted(_UDS_SERVICES.keys()):
+            if skip_danger and svc_id in self._DANGER_SERVICES:
+                if callback:
+                    callback(f"SKIP 0x{svc_id:02X} {_UDS_SERVICES[svc_id]} [danger]")
+                continue
+            r = self.scan_service(svc_id)
+            results.append(r)
+            self._results.append(r)
+            if callback:
+                status = ("OK" if r.supported
+                          else f"NACK {r.nrc}" if r.nrc
+                          else "NO_RESP")
+                callback(f"UDS 0x{svc_id:02X} {r.service_name}: {status} [{r.risk_level}]")
+        return results
+
+    def scan_rdbi_range(self, did_start: int = 0xF100, did_end: int = 0xF1FF,
+                        callback: Optional[Callable[[str], None]] = None
+                        ) -> dict[int, str]:
+        """
+        Escanea un rango de DIDs con ReadDataByIdentifier (0x22).
+        Retorna dict[did] -> response_hex para los que respondieron positivamente.
+        """
+        found: dict[int, str] = {}
+        for did in range(did_start, did_end + 1):
+            hi = (did >> 8) & 0xFF
+            lo = did & 0xFF
+            cmd = f"22 {hi:02X} {lo:02X}"
+            raw = self._send(cmd)
+            self.journal.log(cmd, raw,
+                             tags=["RDBI_SCAN", f"did_{did:04X}"],
+                             protocol_hint="UDS")
+            raw_up = raw.upper().replace(" ", "")
+            # Respuesta positiva: 62 <hi_hex><lo_hex><data...>
+            expected_prefix = f"62{hi:02X}{lo:02X}"
+            if raw_up.startswith(expected_prefix):
+                found[did] = raw
+                if callback:
+                    callback(f"DID 0x{did:04X}: {raw}")
+        return found
+
+    def to_summary(self) -> str:
+        """Resumen legible de los servicios encontrados."""
+        supported = [r for r in self._results if r.supported]
+        lines = [
+            f"=== UDS Service Map "
+            f"({len(self._results)} escaneados, {len(supported)} soportados) ===",
+        ]
+        for r in sorted(self._results, key=lambda x: x.service_id):
+            check = "✓" if r.supported else "✗"
+            nrc_info = f" NRC={r.nrc}" if r.nrc else ""
+            lines.append(
+                f"  [{check}] 0x{r.service_id:02X} {r.service_name:<42} "
+                f"risk={r.risk_level}{nrc_info}"
+            )
+        return "\n".join(lines)
+
+
+# ── SignalChangeMonitor ───────────────────────────────────────────────────────
+
+@dataclass
+class SignalDelta:
+    """Cambio detectado en una señal asociado a una acción."""
+    pid_or_id: str       # "PID:0x0C" o "CAN:0x120:byte3"
+    action_label: str    # Qué acción se hizo cuando cambió
+    before_value: str
+    after_value: str
+    change_magnitude: float   # 0.0-1.0
+
+
+class SignalChangeMonitor:
+    """
+    Monitorea señales mientras el técnico realiza acciones físicas (acelerar,
+    encender AC, etc.) para correlacionar señales con funciones de la ECU.
+    """
+
+    _PID_NAMES: dict[str, str] = {
+        "0x0C": "RPM",         "0x0D": "Speed_kmh",   "0x04": "Load_pct",
+        "0x05": "Coolant_C",   "0x0F": "IntakeAir_C",  "0x11": "Throttle_pct",
+        "0x0B": "MAP_kPa",     "0x10": "MAF_gs",       "0x13": "O2_sensors",
+    }
+
+    def __init__(self, send_fn: Callable[[str], str],
+                 pids_to_watch: Optional[list] = None):
+        self._send = send_fn
+        self._pids = pids_to_watch or [
+            "0x0C", "0x0D", "0x04", "0x05", "0x0F", "0x11"
+        ]
+        self._baseline: dict[str, str] = {}
+        self._snapshots: list[tuple[str, dict[str, str]]] = []  # (label, values)
+        self._running = False
+
+    def _read_pid(self, pid_hex: str) -> str:
+        pid_int = int(pid_hex, 16)
+        cmd = f"01 {pid_int:02X}"
+        return self._send(cmd)
+
+    def capture_baseline(self) -> dict[str, str]:
+        """Captura valores actuales como línea base."""
+        self._baseline = {}
+        for pid in self._pids:
+            self._baseline[pid] = self._read_pid(pid)
+        return dict(self._baseline)
+
+    def mark_action(self, label: str) -> dict[str, str]:
+        """Captura un snapshot de todos los PIDs y lo asocia a la acción label."""
+        snapshot: dict[str, str] = {}
+        for pid in self._pids:
+            snapshot[pid] = self._read_pid(pid)
+        self._snapshots.append((label, snapshot))
+        return dict(snapshot)
+
+    def _parse_numeric(self, raw: str) -> Optional[float]:
+        """Extrae un valor numérico del byte_A de la respuesta OBD."""
+        try:
+            bytes_ = PatternAnalyzer.parse_hex_line(raw)
+            if len(bytes_) >= 3:
+                return float(bytes_[2])
+            if len(bytes_) == 2:
+                return float(bytes_[1])
+        except (ValueError, IndexError):
+            pass
+        return None
+
+    def analyze_deltas(self) -> list[SignalDelta]:
+        """Compara snapshots contra baseline y devuelve señales que cambiaron."""
+        if not self._baseline or not self._snapshots:
+            return []
+        deltas: list[SignalDelta] = []
+        for label, snapshot in self._snapshots:
+            for pid in self._pids:
+                before_raw = self._baseline.get(pid, "NO DATA")
+                after_raw = snapshot.get(pid, "NO DATA")
+                if before_raw == after_raw:
+                    continue
+                b_val = self._parse_numeric(before_raw)
+                a_val = self._parse_numeric(after_raw)
+                if b_val is not None and a_val is not None:
+                    magnitude = min(1.0, abs(a_val - b_val) / max(abs(b_val), 1.0))
+                else:
+                    magnitude = 1.0  # cambio binario completo
+                deltas.append(SignalDelta(
+                    pid_or_id=f"PID:{pid}",
+                    action_label=label,
+                    before_value=before_raw,
+                    after_value=after_raw,
+                    change_magnitude=round(magnitude, 3),
+                ))
+        return sorted(deltas, key=lambda d: d.change_magnitude, reverse=True)
+
+    def generate_correlation_report(self) -> str:
+        """Texto legible: qué señales cambiaron con qué acciones."""
+        deltas = self.analyze_deltas()
+        if not deltas:
+            return "No se detectaron cambios de señal en las acciones registradas."
+        lines = ["=== Reporte de Correlación Señal-Acción ===\n"]
+        by_action: dict[str, list[SignalDelta]] = defaultdict(list)
+        for d in deltas:
+            by_action[d.action_label].append(d)
+        for action, ds in by_action.items():
+            lines.append(f"Acción: {action}")
+            for d in ds:
+                pid_key = d.pid_or_id.split(":")[-1]
+                pid_name = self._PID_NAMES.get(pid_key, d.pid_or_id)
+                lines.append(
+                    f"  {pid_name}: {d.before_value} -> {d.after_value} "
+                    f"(magnitud={d.change_magnitude:.2f})"
+                )
+            lines.append("")
+        return "\n".join(lines)
+
+
+# ── ECUControlMap ─────────────────────────────────────────────────────────────
+
+_WRITABLE_DID_HINTS: dict[str, str] = {
+    "F1A0": "ECU_Calibration", "F190": "VIN",        "F18C": "SerialNumber",
+    "F187": "PartNumber",      "F1A1": "SWVersion",   "F1A2": "HWVersion",
+    "F1A3": "BootSWVersion",   "F1A4": "HWConfig",    "F19D": "ECU_ProgramDate",
+    "F18A": "SystemSupplier",  "F18B": "ManufacDate",
+}
+
+_ACTUATOR_KEYWORDS = [
+    "output", "control", "actuator", "valve", "relay",
+    "pump", "motor", "injector", "solenoid", "enable",
+]
+
+
+@dataclass
+class ECUControlMap:
+    """
+    Mapa completo de control de una ECU desconocida.
+    Resultado final del pipeline de ingeniería inversa:
+    UnknownECUProfiler → CANBusScanner → UDSServiceMap → ECUControlMap.
+    """
+    vin: Optional[str]
+    protocol: str
+    scan_date: str
+
+    # De UnknownECUProfiler
+    supported_pids: list        # [{cmd, response}]
+
+    # De CANBusScanner
+    active_can_ids: list        # list[CANScanResult]
+
+    # De UDSServiceMap
+    uds_services: list          # list[UDSServiceResult]
+    readable_dids: dict         # {int → str hex}
+
+    # De SignalChangeMonitor
+    signal_correlations: list   # list[SignalDelta]
+
+    # Análisis generado
+    write_candidates: list      # [{did, hint, current_value, writable}]
+    actuator_candidates: list   # [{id, type, description, confidence, source}]
+
+    @classmethod
+    def build(cls,
+              profile: ECUProfile,
+              can_results: Optional[list] = None,
+              service_map: Optional[list] = None,
+              rdbi_results: Optional[dict] = None,
+              signal_deltas: Optional[list] = None) -> "ECUControlMap":
+        """Construye el mapa completo a partir de todos los resultados."""
+        supported_pids = [
+            {"cmd": cmd, "response": resp}
+            for cmd, resp in profile.raw_probe_data.items()
+            if resp and "NO DATA" not in resp.upper()
+            and "ERROR" not in resp.upper()
+        ]
+        service_list = service_map or []
+        rdbi_map = rdbi_results or {}
+        deltas = signal_deltas or []
+        can_list = can_results or []
+
+        # Inferir write_candidates
+        write_candidates: list[dict] = []
+        write_supported = any(
+            r.service_id == 0x2E and r.supported for r in service_list
+        )
+        if write_supported:
+            for did, resp in rdbi_map.items():
+                hint = _WRITABLE_DID_HINTS.get(f"{did:04X}", "")
+                write_candidates.append({
+                    "did": f"0x{did:04X}",
+                    "hint": hint or "unknown",
+                    "current_value": resp,
+                    "writable": True,
+                })
+
+        instance = cls(
+            vin=profile.vin,
+            protocol=profile.best_protocol,
+            scan_date=datetime.now(timezone.utc).isoformat(),
+            supported_pids=supported_pids,
+            active_can_ids=can_list,
+            uds_services=service_list,
+            readable_dids=rdbi_map,
+            signal_correlations=deltas,
+            write_candidates=write_candidates,
+            actuator_candidates=[],
+        )
+        instance.actuator_candidates = instance._infer_actuators()
+        return instance
+
+    def to_json(self, path: Any) -> Path:
+        """Exporta el mapa completo a JSON."""
+        out = Path(path)
+        data: dict[str, Any] = {
+            "vin": self.vin,
+            "protocol": self.protocol,
+            "scan_date": self.scan_date,
+            "supported_pids_count": len(self.supported_pids),
+            "supported_pids": self.supported_pids,
+            "active_can_ids": [
+                {
+                    "can_id": f"0x{r.can_id:03X}",
+                    "frame_count": r.frame_count,
+                    "pattern": r.byte_pattern,
+                    "entropy": r.entropy,
+                    "dlc": r.dlc_common,
+                    "sample": r.sample_frames[:2],
+                }
+                for r in self.active_can_ids
+            ],
+            "uds_services": [
+                {
+                    "id": f"0x{r.service_id:02X}",
+                    "name": r.service_name,
+                    "supported": r.supported,
+                    "risk": r.risk_level,
+                    "nrc": r.nrc,
+                    "sub_functions": r.sub_functions,
+                }
+                for r in self.uds_services
+            ],
+            "readable_dids": {f"0x{k:04X}": v for k, v in self.readable_dids.items()},
+            "signal_correlations": [
+                {
+                    "pid": d.pid_or_id,
+                    "action": d.action_label,
+                    "before": d.before_value,
+                    "after": d.after_value,
+                    "magnitude": d.change_magnitude,
+                }
+                for d in self.signal_correlations
+            ],
+            "write_candidates": self.write_candidates,
+            "actuator_candidates": self.actuator_candidates,
+        }
+        out.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+        return out
+
+    def to_markdown(self) -> str:
+        """Genera informe Markdown legible con todas las secciones."""
+        lines = [
+            "# ECU Control Map",
+            "",
+            "| Campo | Valor |",
+            "|-------|-------|",
+            f"| VIN | {self.vin or 'no detectado'} |",
+            f"| Protocolo | {self.protocol} |",
+            f"| Fecha escaneo | {self.scan_date} |",
+            "",
+            f"## PIDs/Comandos Soportados ({len(self.supported_pids)})",
+            "",
+        ]
+        for p in self.supported_pids[:20]:
+            lines.append(f"- `{p.get('cmd', '')}` -> `{p.get('response', '')}`")
+        if len(self.supported_pids) > 20:
+            lines.append(f"- _(y {len(self.supported_pids) - 20} más)_")
+
+        lines += [
+            "",
+            f"## IDs CAN Activos ({len(self.active_can_ids)})",
+            "",
+            "| CAN ID | Frames | Patrón | Entropía | DLC |",
+            "|--------|--------|--------|----------|-----|",
+        ]
+        for r in sorted(self.active_can_ids, key=lambda x: x.can_id):
+            lines.append(
+                f"| 0x{r.can_id:03X} | {r.frame_count} | {r.byte_pattern} "
+                f"| {r.entropy:.2f} | {r.dlc_common} |"
+            )
+
+        lines += [
+            "",
+            f"## Servicios UDS ({len(self.uds_services)})",
+            "",
+            "| ID | Nombre | Soportado | Riesgo | NRC |",
+            "|----|--------|-----------|--------|-----|",
+        ]
+        for r in self.uds_services:
+            check = "✓" if r.supported else "✗"
+            lines.append(
+                f"| 0x{r.service_id:02X} | {r.service_name} | {check} "
+                f"| {r.risk_level} | {r.nrc or '-'} |"
+            )
+
+        lines += [
+            "",
+            f"## DIDs Legibles ({len(self.readable_dids)})",
+            "",
+        ]
+        for did, resp in list(self.readable_dids.items())[:20]:
+            hint = _WRITABLE_DID_HINTS.get(f"{did:04X}", "")
+            hint_str = f" _{hint}_" if hint else ""
+            lines.append(f"- `0x{did:04X}`{hint_str}: `{resp}`")
+        if len(self.readable_dids) > 20:
+            lines.append(f"- _(y {len(self.readable_dids) - 20} más)_")
+
+        lines += [
+            "",
+            f"## Candidatos a Escritura ({len(self.write_candidates)})",
+            "",
+        ]
+        for w in self.write_candidates:
+            lines.append(
+                f"- DID {w['did']} ({w.get('hint', 'unknown')}): "
+                f"`{w.get('current_value', '')}`"
+            )
+
+        lines += [
+            "",
+            f"## Actuadores Inferidos ({len(self.actuator_candidates)})",
+            "",
+        ]
+        for a in self.actuator_candidates:
+            lines.append(
+                f"- `{a.get('id', '')}` [{a.get('type', '')}] — "
+                f"{a.get('description', '')} (confianza: {a.get('confidence', '')})"
+            )
+
+        lines += [
+            "",
+            f"## Correlaciones de Señal ({len(self.signal_correlations)})",
+            "",
+        ]
+        for d in self.signal_correlations[:10]:
+            lines.append(
+                f"- **{d.action_label}** -> {d.pid_or_id}: "
+                f"`{d.before_value}` -> `{d.after_value}` "
+                f"(mag={d.change_magnitude:.2f})"
+            )
+
+        return "\n".join(lines)
+
+    def generate_python_snippet(self) -> str:
+        """
+        Genera un snippet Python de ejemplo que muestra cómo enviar comandos
+        a los PIDs/DIDs descubiertos usando el protocolo detectado.
+        """
+        lines = [
+            '"""',
+            f'Snippet autogenerado por ECUControlMap — protocolo: {self.protocol}',
+            f'VIN: {self.vin or "desconocido"} | Fecha: {self.scan_date}',
+            '"""',
+            "from scaner_soler.comm.elm327 import ELM327Protocol",
+            "",
+            "# Conectar al adaptador ELM327",
+            'proto = ELM327Protocol(port="COM3", baudrate=38400)',
+            "proto.connect()",
+            "",
+        ]
+        if self.protocol == "UDS":
+            lines += [
+                "# UDS: Leer DIDs descubiertos con ReadDataByIdentifier (0x22)",
+                "def read_did(did_hi: int, did_lo: int) -> str:",
+                '    return proto.send_command(f"22 {did_hi:02X} {did_lo:02X}")',
+                "",
+            ]
+            for did in list(self.readable_dids.keys())[:5]:
+                hi = (did >> 8) & 0xFF
+                lo = did & 0xFF
+                hint = _WRITABLE_DID_HINTS.get(f"{did:04X}", "data")
+                var_name = hint.lower().replace(" ", "_").replace("-", "_")
+                lines.append(
+                    f'result_{var_name} = '
+                    f'read_did(0x{hi:02X}, 0x{lo:02X})  # DID 0x{did:04X}'
+                )
+        else:
+            lines += [
+                "# OBD2: Leer PIDs descubiertos",
+                "def read_pid(pid: int) -> str:",
+                '    return proto.send_command(f"01 {pid:02X}")',
+                "",
+                "rpm    = read_pid(0x0C)  # RPM del motor",
+                "speed  = read_pid(0x0D)  # Velocidad km/h",
+                "load   = read_pid(0x04)  # Carga motor %",
+                "temp   = read_pid(0x05)  # Temperatura refrigerante °C",
+            ]
+        if self.write_candidates:
+            lines += [
+                "",
+                "# Escritura de DIDs — USAR CON PRECAUCIÓN",
+                "def write_did(did_hi: int, did_lo: int, data_bytes: str) -> str:",
+                '    return proto.send_command(f"2E {did_hi:02X} {did_lo:02X} {data_bytes}")',
+            ]
+        return "\n".join(lines)
+
+    def _infer_actuators(self) -> list:
+        """
+        Infiere qué parámetros son actuadores vs sensores basándose en:
+        - DIDs escribibles (0x2E soportado)
+        - Cambios correlacionados con acciones (SignalChangeMonitor)
+        - IDs CAN con tráfico dinámico
+        """
+        actuators: list[dict] = []
+        seen: set[str] = set()
+
+        # 1. DIDs escribibles
+        for wc in self.write_candidates:
+            did_key = wc["did"]
+            if did_key in seen:
+                continue
+            hint = wc.get("hint", "").lower()
+            is_known_actuator = any(kw in hint for kw in _ACTUATOR_KEYWORDS)
+            actuators.append({
+                "id": did_key,
+                "type": "DID_writable",
+                "description": wc.get("hint", "unknown writable DID"),
+                "confidence": "medium" if is_known_actuator else "low",
+                "source": "UDS_WriteDataByIdentifier",
+            })
+            seen.add(did_key)
+
+        # 2. Señales con alta magnitud de cambio
+        for d in self.signal_correlations:
+            if d.change_magnitude > 0.5 and d.pid_or_id not in seen:
+                actuators.append({
+                    "id": d.pid_or_id,
+                    "type": "signal_correlated",
+                    "description": (
+                        f"Cambió {d.change_magnitude:.0%} con acción '{d.action_label}'"
+                    ),
+                    "confidence": "high" if d.change_magnitude > 0.8 else "medium",
+                    "source": "SignalChangeMonitor",
+                })
+                seen.add(d.pid_or_id)
+
+        # 3. IDs CAN dinámicos de alta entropía
+        for r in self.active_can_ids:
+            can_key = f"CAN:0x{r.can_id:03X}"
+            if r.byte_pattern in ("dynamic", "mixed") and r.entropy > 4.0:
+                if can_key not in seen:
+                    actuators.append({
+                        "id": can_key,
+                        "type": "CAN_dynamic",
+                        "description": (
+                            f"ID CAN con tráfico dinámico (entropía={r.entropy:.2f})"
+                        ),
+                        "confidence": "low",
+                        "source": "CANBusScanner",
+                    })
+                    seen.add(can_key)
+
+        return actuators
+
+
+# ── full_scan para ReverseEngineerSession (añadido sin modificar la clase) ────
+
+def _full_scan_impl(
+        self: ReverseEngineerSession,
+        skip_can: bool = False,
+        skip_uds_map: bool = False,
+        callback: Optional[Callable[[str], None]] = None,
+) -> ECUControlMap:
+    """
+    Pipeline completo:
+    1. quick_profile() → protocolo + PIDs básicos
+    2. CANBusScanner.scan_traffic(10s) → IDs activos
+    3. UDSServiceMap.scan_all() → servicios soportados + DID scan F100-F1FF
+    4. ECUControlMap.build() → mapa final
+
+    Retorna ECUControlMap listo para exportar con to_json() / to_markdown().
+    """
+    _cb = callback or (lambda m: None)
+
+    # 1. Profile
+    _cb("[1/4] Perfilando ECU (quick_profile)...")
+    profile = self.quick_profile()
+    _cb(f"      Protocolo: {profile.best_protocol} | VIN: {profile.vin or 'N/A'} "
+        f"| ECUs: {profile.ecu_addresses}")
+
+    # 2. CAN bus scan
+    can_results: list[CANScanResult] = []
+    if not skip_can:
+        _cb("[2/4] Escaneando bus CAN (10 s demo)...")
+        scanner = CANBusScanner(self.send, journal=self._journal)
+        can_results = scanner.scan_traffic(
+            duration_s=10.0,
+            callback=lambda m: _cb(f"      {m}"),
+        )
+        _cb(f"      IDs CAN activos: {len(can_results)}")
+    else:
+        _cb("[2/4] CAN scan omitido (skip_can=True).")
+
+    # 3. UDS service map + RDBI range scan
+    service_results: list[UDSServiceResult] = []
+    rdbi_results: dict[int, str] = {}
+    if not skip_uds_map:
+        _cb("[3/4] Mapeando servicios UDS...")
+        uds_map = UDSServiceMap(self.send, journal=self._journal)
+        service_results = uds_map.scan_all(
+            skip_danger=True,
+            callback=lambda m: _cb(f"      {m}"),
+        )
+        _cb("      Escaneando DIDs F100-F1FF con RDBI...")
+        rdbi_results = uds_map.scan_rdbi_range(
+            0xF100, 0xF1FF,
+            callback=lambda m: _cb(f"      {m}"),
+        )
+        n_ok = sum(1 for r in service_results if r.supported)
+        _cb(f"      Servicios UDS soportados: {n_ok} | DIDs legibles: {len(rdbi_results)}")
+    else:
+        _cb("[3/4] UDS map omitido (skip_uds_map=True).")
+
+    # 4. Construir mapa final
+    _cb("[4/4] Construyendo ECUControlMap...")
+    control_map = ECUControlMap.build(
+        profile=profile,
+        can_results=can_results,
+        service_map=service_results,
+        rdbi_results=rdbi_results,
+        signal_deltas=[],
+    )
+    _cb(
+        f"      Mapa completo: {len(control_map.active_can_ids)} CAN IDs | "
+        f"{len(control_map.uds_services)} servicios UDS | "
+        f"{len(control_map.readable_dids)} DIDs | "
+        f"{len(control_map.actuator_candidates)} actuadores inferidos."
+    )
+    return control_map
+
+
+# Inyectar full_scan en ReverseEngineerSession sin tocar la definición original
+ReverseEngineerSession.full_scan = _full_scan_impl  # type: ignore[attr-defined]
+
+
+# ── run_full_demo ─────────────────────────────────────────────────────────────
+
+def run_full_demo(export_path: Optional[str] = None) -> ECUControlMap:
+    """
+    Pipeline completo de demostración sin hardware físico.
+    Usa _demo_send_fn que simula respuestas de una ECU OBD2/UDS.
+
+    export_path: ruta JSON opcional para guardar el mapa (None = no exportar).
+    """
+    print("=== Scaner Soler — Full Reverse-Engineer Pipeline (DEMO) ===\n")
+    session = ReverseEngineerSession(
+        send_fn=_demo_send_fn,
+        on_progress=lambda m, p: print(f"  [{p * 100:5.1f}%] {m}", flush=True),
+    )
+    control_map = session.full_scan(
+        skip_can=False,
+        skip_uds_map=False,
+        callback=lambda m: print(f"  {m}", flush=True),
+    )
+
+    print(f"\n{'=' * 60}")
+    print(f"VIN              : {control_map.vin or 'no detectado'}")
+    print(f"Protocolo        : {control_map.protocol}")
+    print(f"IDs CAN activos  : {len(control_map.active_can_ids)}")
+    n_uds_ok = sum(1 for r in control_map.uds_services if r.supported)
+    print(f"Servicios UDS    : {len(control_map.uds_services)} total, {n_uds_ok} soportados")
+    print(f"DIDs legibles    : {len(control_map.readable_dids)}")
+    print(f"Write candidates : {len(control_map.write_candidates)}")
+    print(f"Actuadores inf.  : {len(control_map.actuator_candidates)}")
+
+    if export_path:
+        out = control_map.to_json(export_path)
+        print(f"\nMapa exportado   : {out}")
+
+    print("\n--- Markdown Report (primeras 40 líneas) ---")
+    for line in control_map.to_markdown().split("\n")[:40]:
+        print(line)
+
+    print("\n--- Python Snippet ---")
+    print(control_map.generate_python_snippet())
+
+    return control_map
+
+
 if __name__ == "__main__":
     print("=== Scaner Soler -- Modulo Ingenieria Inversa (DEMO) ===\n")
     result = run_demo(fuzz_mode="obd")
@@ -826,3 +1794,6 @@ if __name__ == "__main__":
     print(f"Entropía promedio   : {result.pattern_stats['avg_entropy']} bits")
     print(f"Duración            : {result.duration_s}s")
     print(f"\nResumen del diario:\n{json.dumps(result.journal_summary, indent=2)}")
+
+    print("\n\n=== Full Pipeline Demo ===\n")
+    run_full_demo()
